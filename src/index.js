@@ -5,7 +5,20 @@ const usuariosRoutes = require('./main/routes/UsuariosRoutes.js')
 const app = express();
 app.use(express.json());
 
-app.use('/api',usuariosRoutes)
+app.use((req, res, next) => {
+    console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+    next();
+});
+
+app.use('/api',usuariosRoutes);
+
+app.use((err, req, res, next) => {
+    console.error('Error detectado:', err.stack);
+    res.status(500).json({ message: 'Error interno del servidor' });
+});
+
+const rolesRoutes = require('./main/routes/RolesRoutes');
+app.use('/api', rolesRoutes);
 
 const port = 8080;
 app.listen(port,()=>{
