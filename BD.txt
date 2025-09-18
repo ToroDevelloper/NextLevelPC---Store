@@ -1,0 +1,369 @@
+-- BASE DE DATOS
+
+CREATE DATABASE IF NOT EXISTS sistema_gestion
+  DEFAULT CHARACTER SET = utf8mb4
+  DEFAULT COLLATE = utf8mb4_unicode_ci;
+USE sistema_gestion;
+
+-- ==========================================================
+-- ROLES
+-- ==========================================================
+CREATE TABLE roles (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  nombre VARCHAR(50) NOT NULL UNIQUE,
+  descripcion VARCHAR(255),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+INSERT IGNORE INTO roles (nombre) VALUES
+  ('Administrador'),
+  ('Empleado'),
+  ('Cliente');
+
+-- ==========================================================
+-- CATEGORIAS
+-- ==========================================================
+CREATE TABLE categorias (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  nombre VARCHAR(100) NOT NULL UNIQUE,
+  estado ENUM('Activo','Inactivo') DEFAULT 'Activo'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+INSERT IGNORE INTO categorias (nombre) VALUES
+  ('Periferico'),
+  ('Repuesto'),
+  ('Accesorio'),
+  ('Componente'),
+  ('Servicio');
+
+-- ==========================================================
+-- USUARIOS
+-- ==========================================================
+CREATE TABLE usuarios (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  nombre VARCHAR(100) NOT NULL,
+  apellido VARCHAR(100) NOT NULL,
+  cedula VARCHAR(50) UNIQUE,
+  celular VARCHAR(20),
+  correo VARCHAR(150) NOT NULL UNIQUE,
+  hash_password VARCHAR(255) NOT NULL,
+  rol_id INT NOT NULL,
+  estado ENUM('Activo','Inactivo') DEFAULT 'Activo',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (rol_id) REFERENCES roles(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ==========================================================
+-- DIRECCIONES
+-- ==========================================================
+CREATE TABLE direcciones (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  usuario_id INT,
+  alias VARCHAR(100),
+  direccion TEXT,
+  ciudad VARCHAR(100),
+  departamento VARCHAR(100),
+  pais VARCHAR(100) DEFAULT 'Colombia',
+  telefono VARCHAR(20),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ==========================================================
+-- PRODUCTOS
+-- ==========================================================
+CREATE TABLE productos (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  sku VARCHAR(100) UNIQUE,
+  nombre VARCHAR(200) NOT NULL,
+  marca VARCHAR(100),
+  modelo VARCHAR(100),
+  categoria_id INT NOT NULL,
+  descripcion TEXT,
+  imagenes JSON,          -- array de URLs o paths
+  atributos JSON,         -- objeto JSON con socket, tipo_ram, potencia_psu, etc.
+  precio_actual DECIMAL(12,2) NOT NULL DEFAULT 0.00,
+  impuestos JSON,         -- ejemplo: [{"tipo":"IVA","valor":19}]
+  garantia VARCHAR(100),
+  activo TINYINT(1) DEFAULT 1,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (categoria_id) REFERENCES categorias(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE INDEX idx_productos_nombre ON productos(nombre);
+
+-- ==========================================================
+-- UBICACIONES (para inventario)
+-- ==========================================================
+CREATE TABLE ubicaciones (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  nombre VARCHAR(150) NOT NULL,
+  direccion TEXT,
+  notas TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ==========================================================
+-- INVENTARIO
+-- ==========================================================
+CREATE TABLE inventarios (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  producto_id INT NOT NULL,
+  ubicacion_id INT,
+  stock INT DEFAULT 0,
+  stock_min INT DEFAULT 0,
+  reservado INT DEFAULT 0,
+  lote_serial VARCHAR(200),    -- lote o serial
+  costo_promedio DECIMAL(12,2) DEFAULT 0.00,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  UNIQUE KEY ux_producto_ubicacion (producto_id, ubicacion_id),
+  FOREIGN KEY (producto_id) REFERENCES productos(id),
+  FOREIGN KEY (ubicacion_id) REFERENCES ubicaciones(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ==========================================================
+-- SERVICIOS
+-- ==========================================================
+CREATE TABLE servicios (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  tipo VARCHAR(100) NOT NULL,
+  descripcion TEXT,
+  precio DECIMAL(12,2) NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ==========================================================
+-- EQUIPOS (pertenecen a clientes / usuarios)
+-- ==========================================================
+CREATE TABLE equipos (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  cliente_id INT, -- propietario/cliente del equipo
+  tipo VARCHAR(100),
+  marca VARCHAR(100),
+  modelo VARCHAR(100),
+  serial VARCHAR(150) UNIQUE,
+  cpu VARCHAR(200),
+  ram VARCHAR(100),
+  almacenamiento VARCHAR(200),
+  gpu VARCHAR(200),
+  psu VARCHAR(100),
+  notas TEXT,
+  accesorios JSON,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (cliente_id) REFERENCES usuarios(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ==========================================================
+-- ORDENES DE SERVICIO (OS)
+-- ==========================================================
+CREATE TABLE ordenes_servicio (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  cliente_id INT NOT NULL,
+  equipo_id INT,
+  tipo VARCHAR(100),
+  prioridad ENUM('Baja','Normal','Alta') DEFAULT 'Normal',
+  estado ENUM('Abierta','En Progreso','Cerrada','Cancelada') DEFAULT 'Abierta',
+  sla INT NULL COMMENT 'SLA en horas',
+  diagnostico_id INT NULL,
+  cotizacion_id INT NULL,
+  aprobada_por INT NULL, -- usuario que aprueba
+  descripcion TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (cliente_id) REFERENCES usuarios(id),
+  FOREIGN KEY (equipo_id) REFERENCES equipos(id),
+  FOREIGN KEY (aprobada_por) REFERENCES usuarios(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ==========================================================
+-- PRUEBAS (diagnósticos / resultados)
+-- ==========================================================
+CREATE TABLE pruebas (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  os_id INT NOT NULL,
+  tests JSON,        -- lista de tests ejecutados
+  resultados JSON,   -- resultados estructurados
+  temperaturas JSON, -- si aplican
+  capturas JSON,     -- paths a imágenes / capturas
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (os_id) REFERENCES ordenes_servicio(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ==========================================================
+-- COTIZACIONES Y ITEMS
+-- ==========================================================
+CREATE TABLE cotizaciones (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  os_id INT,
+  total DECIMAL(12,2) DEFAULT 0.00,
+  vigencia DATE,
+  estado ENUM('Borrador','Enviada','Aceptada','Rechazada') DEFAULT 'Borrador',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (os_id) REFERENCES ordenes_servicio(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE cotizacion_items (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  cotizacion_id INT NOT NULL,
+  tipo ENUM('Repuesto','Mano de obra') NOT NULL,
+  referencia_producto_id INT NULL,
+  referencia_servicio_id INT NULL,
+  descripcion VARCHAR(255),
+  cantidad INT DEFAULT 1,
+  precio DECIMAL(12,2) NOT NULL,
+  subtotal DECIMAL(12,2) NOT NULL,
+  FOREIGN KEY (cotizacion_id) REFERENCES cotizaciones(id),
+  FOREIGN KEY (referencia_producto_id) REFERENCES productos(id),
+  FOREIGN KEY (referencia_servicio_id) REFERENCES servicios(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE cotizacion_aprobaciones (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  cotizacion_id INT NOT NULL,
+  usuario_id INT NOT NULL,
+  fecha DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (cotizacion_id) REFERENCES cotizaciones(id),
+  FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ==========================================================
+-- PAGOS Y ENVIOS
+-- ==========================================================
+CREATE TABLE pagos (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  tipo ENUM('Efectivo','Tarjeta','Transferencia','ContraEntrega','Otro') NOT NULL,
+  referencia VARCHAR(255),
+  monto DECIMAL(12,2),
+  estado ENUM('Pendiente','Completado','Fallido') DEFAULT 'Pendiente',
+  creado_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE envios (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  proveedor VARCHAR(150),
+  tracking VARCHAR(200),
+  costo DECIMAL(12,2),
+  estado ENUM('Pendiente','Enviado','Entregado','Devuelto') DEFAULT 'Pendiente',
+  fecha_envio DATETIME,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ==========================================================
+-- PEDIDOS (ordenes de venta / carrito)
+-- ==========================================================
+CREATE TABLE pedidos (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  cliente_id INT NOT NULL,
+  subtotal DECIMAL(12,2) DEFAULT 0.00,
+  impuestos DECIMAL(12,2) DEFAULT 0.00,
+  envio DECIMAL(12,2) DEFAULT 0.00,
+  total DECIMAL(12,2) DEFAULT 0.00,
+  estado ENUM('Pendiente','Procesando','Enviado','Entregado','Cancelado') DEFAULT 'Pendiente',
+  direccion_envio_id INT,
+  pago_id INT,
+  envio_id INT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (cliente_id) REFERENCES usuarios(id),
+  FOREIGN KEY (direccion_envio_id) REFERENCES direcciones(id),
+  FOREIGN KEY (pago_id) REFERENCES pagos(id),
+  FOREIGN KEY (envio_id) REFERENCES envios(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE pedido_items (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  pedido_id INT NOT NULL,
+  producto_id INT,
+  cantidad INT DEFAULT 1,
+  precio_unitario DECIMAL(12,2) NOT NULL,
+  descuento DECIMAL(12,2) DEFAULT 0.00,
+  subtotal DECIMAL(12,2) NOT NULL,
+  FOREIGN KEY (pedido_id) REFERENCES pedidos(id),
+  FOREIGN KEY (producto_id) REFERENCES productos(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ==========================================================
+-- FACTURAS Y DETALLES (a cliente/usuario)
+-- ==========================================================
+CREATE TABLE facturas (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  cliente_id INT NOT NULL,           -- factura emitida al cliente (usuario)
+  vendedor_id INT NULL,              -- empleado/usuario que generó la factura
+  fecha DATETIME DEFAULT CURRENT_TIMESTAMP,
+  valor_total DECIMAL(12,2) NOT NULL DEFAULT 0.00,
+  metodo_pago ENUM('Efectivo','Tarjeta','Transferencia','ContraEntrega','Otro'),
+  estado ENUM('Pendiente','Pagada','Anulada') DEFAULT 'Pendiente',
+  direccion_envio_id INT,
+  pago_id INT,
+  notas TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (cliente_id) REFERENCES usuarios(id),
+  FOREIGN KEY (vendedor_id) REFERENCES usuarios(id),
+  FOREIGN KEY (direccion_envio_id) REFERENCES direcciones(id),
+  FOREIGN KEY (pago_id) REFERENCES pagos(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE detalle_factura (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  factura_id INT NOT NULL,
+  producto_id INT NULL,
+  servicio_id INT NULL,
+  descripcion VARCHAR(255),
+  cantidad INT DEFAULT 1,
+  precio_unitario DECIMAL(12,2) NOT NULL,
+  descuento DECIMAL(12,2) DEFAULT 0.00,
+  subtotal DECIMAL(12,2) NOT NULL,
+  vendedor_id INT NULL, -- permite "detalle por usuario" (quién realizó/atendió ese ítem)
+  FOREIGN KEY (factura_id) REFERENCES facturas(id) ON DELETE CASCADE,
+  FOREIGN KEY (producto_id) REFERENCES productos(id),
+  FOREIGN KEY (servicio_id) REFERENCES servicios(id),
+  FOREIGN KEY (vendedor_id) REFERENCES usuarios(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ==========================================================
+-- VENTAS (asociadas 1:1 a facturas si se requiere)
+-- ==========================================================
+CREATE TABLE ventas (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  factura_id INT NOT NULL UNIQUE,
+  estado ENUM('Pendiente','Completada','Cancelada') DEFAULT 'Pendiente',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (factura_id) REFERENCES facturas(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ==========================================================
+-- TICKETS DE SOPORTE
+-- ==========================================================
+CREATE TABLE tickets (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  cliente_id INT,
+  categoria VARCHAR(100),
+  prioridad ENUM('Baja','Media','Alta') DEFAULT 'Media',
+  estado ENUM('Abierto','En Progreso','Resuelto','Cerrado') DEFAULT 'Abierto',
+  mensajes JSON,   -- array de mensajes {usuario_id, texto, fecha}
+  adjuntos JSON,   -- array de paths/urls
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (cliente_id) REFERENCES usuarios(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ==========================================================
+-- NOTIFICACIONES
+-- ==========================================================
+CREATE TABLE notificaciones (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  usuario_id INT,
+  canal VARCHAR(50),     -- e.g., 'email','sms','push'
+  plantilla VARCHAR(100),
+  payload JSON,
+  estado ENUM('Pendiente','Enviado','Fallido') DEFAULT 'Pendiente',
+  intentos INT DEFAULT 0,
+  last_intento DATETIME NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+>:v
