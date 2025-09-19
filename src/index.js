@@ -20,6 +20,9 @@ app.use((err, req, res, next) => {
 const rolesRoutes = require('./main/routes/RolesRoutes.js');
 app.use('/api', rolesRoutes);
 
+const productosRoutes = require('./routes/productos');
+app.use('/api/productos', productosRoutes);
+
 const port = 8080;
 app.listen(port,()=>{
     console.log('server en port '+ port)
