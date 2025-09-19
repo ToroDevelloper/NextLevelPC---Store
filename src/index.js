@@ -17,7 +17,7 @@ app.use((err, req, res, next) => {
     res.status(500).json({ message: 'Error interno del servidor' });
 });
 
-const rolesRoutes = require('./main/routes/RolesRoutes');
+const rolesRoutes = require('./main/routes/RolesRoutes.js');
 app.use('/api', rolesRoutes);
 
 const port = 8080;

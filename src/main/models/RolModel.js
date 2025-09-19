@@ -1,35 +1,44 @@
-const db = require('../config/db');
+const db = require('../config/db.js');
 
-const RolModel = {
+class RolModel {
+
     // Obtener todos los roles
-    getAll: (callback) => {
-        const sql = 'SELECT * FROM roles';
-        db.query(sql, callback);
-    },
+    static async getAll() {
+        const [rows] = await db.query('SELECT * FROM roles');
+        return rows;
+    }
 
     // Buscar rol por ID
-    getById: (id, callback) => {
-        const sql = 'SELECT * FROM roles WHERE id = ?';
-        db.query(sql, [id], callback);
-    },
+    static async getById(id) {
+        const [rows] = await db.query('SELECT * FROM roles WHERE id = ?', [id]);
+        return rows.length > 0 ? rows[0] : null;
+    }
 
     // Crear nuevo rol
-    create: (rol, callback) => {
-        const sql = 'INSERT INTO roles (nombre, descripcion) VALUES (?, ?)';
-        db.query(sql, [rol.nombre, rol.descripcion], callback);
-    },
+    static async create(rol) {
+        const { nombre, descripcion } = rol;
+        const [result] = await db.query(
+            'INSERT INTO roles (nombre, descripcion) VALUES (?, ?)',
+            [nombre, descripcion]
+        );
+        return result.insertId;
+    }
 
     // Actualizar un rol
-    update: (id, rol, callback) => {
-        const sql = 'UPDATE roles SET nombre = ?, descripcion = ? WHERE id = ?';
-        db.query(sql, [rol.nombre, rol.descripcion, id], callback);
-    },
+    static async update(id, rol) {
+        const { nombre, descripcion } = rol;
+        const [result] = await db.query(
+            'UPDATE roles SET nombre = ?, descripcion = ? WHERE id = ?',
+            [nombre, descripcion, id]
+        );
+        return result.affectedRows; // devuelve cuántos registros fueron actualizados
+    }
 
     // Eliminar un rol
-    delete: (id, callback) => {
-        const sql = 'DELETE FROM roles WHERE id = ?';
-        db.query(sql, [id], callback);
+    static async delete(id) {
+        const [result] = await db.query('DELETE FROM roles WHERE id = ?', [id]);
+        return result.affectedRows; // devuelve cuántos registros fueron eliminados
     }
-};
+}
 
 module.exports = RolModel;

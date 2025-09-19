@@ -1,47 +1,74 @@
-const RolesService = require('../service/RolesService');
+const RolModel = require('../models/RolModel.js');
 
-// GET /api/roles
-exports.getRoles = (req, res) => {
-    RolesService.getAllRoles((err, results) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json(results);
-    });
-};
+class RolesController {
 
-// GET /api/roles/:id
-exports.getRolById = (req, res) => {
-    const { id } = req.params;
-    RolesService.getRolById(id, (err, result) => {
-        if (err) return res.status(500).json({ error: err.message });
-        if (result.length === 0) return res.status(404).json({ message: 'Rol no encontrado' });
-        res.json(result[0]);
-    });
-};
+    // GET /api/roles
+    static async getRoles(req, res) {
+        try {
+            const roles = await RolModel.getAll();
+            res.json(roles);
+        } catch (error) {
+            res.status(500).json({ mensaje: 'Error al obtener roles', error });
+        }
+    }
 
-// POST /api/roles
-exports.createRol = (req, res) => {
-    const nuevoRol = req.body;
-    RolesService.createRol(nuevoRol, (err, result) => {
-        if (err) return res.status(400).json({ error: err.message });
-        res.json({ message: 'Rol creado', id: result.insertId });
-    });
-};
+    // GET /api/roles/:id
+    static async getRolById(req, res) {
+        try {
+            const { id } = req.params;
+            const rol = await RolModel.getById(id);
+            if (!rol) {
+                return res.status(404).json({ mensaje: 'Rol no encontrado' });
+            }
+            res.json(rol);
+        } catch (error) {
+            res.status(500).json({ mensaje: 'Error al obtener el rol', error });
+        }
+    }
 
-// PUT /api/roles/:id
-exports.updateRol = (req, res) => {
-    const { id } = req.params;
-    const rolData = req.body;
-    RolesService.updateRol(id, rolData, (err) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json({ message: 'Rol actualizado' });
-    });
-};
+    // POST /api/roles
+    static async createRol(req, res) {
+        try {
+            const nuevoRol = req.body;
+            const insertId = await RolModel.create(nuevoRol);
+            res.status(201).json({ mensaje: 'Rol creado exitosamente', id: insertId });
+        } catch (error) {
+            res.status(400).json({ mensaje: 'Error al crear el rol', error });
+        }
+    }
 
-// DELETE /api/roles/:id
-exports.deleteRol = (req, res) => {
-    const { id } = req.params;
-    RolesService.deleteRol(id, (err) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json({ message: 'Rol eliminado' });
-    });
-};
+    // PUT /api/roles/:id
+    static async updateRol(req, res) {
+        try {
+            const { id } = req.params;
+            const rolData = req.body;
+            const updated = await RolModel.update(id, rolData);
+
+            if (updated === 0) {
+                return res.status(404).json({ mensaje: 'Rol no encontrado' });
+            }
+
+            res.json({ mensaje: 'Rol actualizado correctamente' });
+        } catch (error) {
+            res.status(500).json({ mensaje: 'Error al actualizar el rol', error });
+        }
+    }
+
+    // DELETE /api/roles/:id
+    static async deleteRol(req, res) {
+        try {
+            const { id } = req.params;
+            const deleted = await RolModel.delete(id);
+
+            if (deleted === 0) {
+                return res.status(404).json({ mensaje: 'Rol no encontrado' });
+            }
+
+            res.json({ mensaje: 'Rol eliminado correctamente' });
+        } catch (error) {
+            res.status(500).json({ mensaje: 'Error al eliminar el rol', error });
+        }
+    }
+}
+
+module.exports = RolesController;
