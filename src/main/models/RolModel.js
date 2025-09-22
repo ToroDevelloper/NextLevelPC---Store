@@ -1,44 +1,82 @@
 const db = require('../config/db.js');
 
-class RolModel {
+class Roles {
+    constructor(ID_Rol, Nombre, Descripcion, Created_at) {
+        this.ID_Rol = ID_Rol,
+            this.Nombre = Nombre,
+            this.Descripcion = Descripcion,
+            this.Created_at = Created_at
+    }
 
-    // Obtener todos los roles
-    static async getAll() {
-        const [rows] = await db.query('SELECT * FROM roles');
+    static async obtenerTodos() {
+        const [rows] = await db.query('SELECT * FROM roles ORDER BY ID_Rol');
         return rows;
     }
 
-    // Buscar rol por ID
-    static async getById(id) {
-        const [rows] = await db.query('SELECT * FROM roles WHERE id = ?', [id]);
+    static async obtenerPorId(id) {
+        const [rows] = await db.query("SELECT * FROM roles WHERE ID_Rol = ?", [id]);
         return rows.length > 0 ? rows[0] : null;
     }
 
-    // Crear nuevo rol
-    static async create(rol) {
-        const { nombre, descripcion } = rol;
+    static async obtenerPorNombre(nombre) {
+        const [rows] = await db.query("SELECT * FROM roles WHERE Nombre = ?", [nombre]);
+        return rows.length > 0 ? rows[0] : null;
+    }
+
+    static async crear(data) {
+        const { Nombre, Descripcion } = data;
         const [result] = await db.query(
-            'INSERT INTO roles (nombre, descripcion) VALUES (?, ?)',
-            [nombre, descripcion]
+            'INSERT INTO roles (Nombre, Descripcion) VALUES (?, ?)',
+            [Nombre, Descripcion]
         );
         return result.insertId;
     }
 
-    // Actualizar un rol
-    static async update(id, rol) {
-        const { nombre, descripcion } = rol;
-        const [result] = await db.query(
-            'UPDATE roles SET nombre = ?, descripcion = ? WHERE id = ?',
-            [nombre, descripcion, id]
-        );
-        return result.affectedRows; // devuelve cuántos registros fueron actualizados
+    static async eliminar(id) {
+        const [result] = await db.query('DELETE FROM roles WHERE ID_Rol = ?', [id]);
+        return result.affectedRows > 0;
     }
 
-    // Eliminar un rol
-    static async delete(id) {
-        const [result] = await db.query('DELETE FROM roles WHERE id = ?', [id]);
-        return result.affectedRows; // devuelve cuántos registros fueron eliminados
+    static async actualizar(id, data) {
+        const campos = Object.keys(data);
+        if (campos.length === 0) return false;
+
+        const columnas = campos.map(campo => `${campo} = ?`).join(", ");
+        const valores = Object.values(data);
+
+        const [result] = await db.query(
+            `UPDATE roles SET ${columnas} WHERE ID_Rol = ?`,
+            [...valores, id]
+        );
+
+        return result.affectedRows > 0;
+    }
+
+    static async nombreEnUsoPorOtroRol(nombre, id) {
+        const [rows] = await db.query(
+            "SELECT ID_Rol FROM roles WHERE Nombre = ? AND ID_Rol != ?",
+            [nombre, id]
+        );
+        return rows.length > 0;
+    }
+
+    // Método adicional para obtener usuarios por rol
+    static async obtenerUsuariosPorRol(idRol) {
+        const [rows] = await db.query(
+            "SELECT * FROM usuarios WHERE ID_Rol = ?",
+            [idRol]
+        );
+        return rows;
+    }
+
+    // Método para verificar si un rol tiene usuarios asociados
+    static async tieneUsuariosAsociados(idRol) {
+        const [rows] = await db.query(
+            "SELECT COUNT(*) as count FROM usuarios WHERE ID_Rol = ?",
+            [idRol]
+        );
+        return rows[0].count > 0;
     }
 }
 
-module.exports = RolModel;
+module.exports = Roles;
