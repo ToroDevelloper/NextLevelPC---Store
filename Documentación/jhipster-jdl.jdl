@@ -1,327 +1,261 @@
 // ==========================================================
 // ENUMS
 // ==========================================================
-enum EstadoGeneral { ACTIVO, INACTIVO }
-enum Prioridad { BAJA, NORMAL, ALTA }
-enum EstadoOrden { ABIERTA, EN_PROGRESO, CERRADA, CANCELADA }
-enum EstadoCotizacion { BORRADOR, ENVIADA, ACEPTADA, RECHAZADA }
-enum TipoItem { REPUESTO, MANO_DE_OBRA }
-enum TipoPago { EFECTIVO, TARJETA, TRANSFERENCIA, CONTRAENTREGA, OTRO }
-enum EstadoPago { PENDIENTE, COMPLETADO, FALLIDO }
-enum EstadoEnvio { PENDIENTE, ENVIADO, ENTREGADO, DEVUELTO }
-enum EstadoPedido { PENDIENTE, PROCESANDO, ENVIADO, ENTREGADO, CANCELADO }
-enum EstadoFactura { PENDIENTE, PAGADA, ANULADA }
-enum EstadoVenta { PENDIENTE, COMPLETADA, CANCELADA }
-enum PrioridadTicket { BAJA, MEDIA, ALTA }
-enum EstadoTicket { ABIERTO, EN_PROGRESO, RESUELTO, CERRADO }
-enum EstadoNotificacion { PENDIENTE, ENVIADO, FALLIDO }
+enum TipoCategoria {
+  Producto, Servicio
+}
+
+enum EstadoGeneral {
+  Activo, Inactivo
+}
+
+enum TipoOrden {
+  Venta, Servicio
+}
+
+enum EstadoOrden {
+  Pendiente, Confirmada, En_Proceso, Enviado, Entregado, Completada, Cancelada
+}
+
+enum EstadoPago {
+  Pendiente, Pagado, Fallido, Reembolsado
+}
+
+enum MetodoPago {
+  Efectivo, Tarjeta, Transferencia, ContraEntrega, Otro
+}
+
+enum Prioridad {
+  Baja, Normal, Alta
+}
+
+enum EstadoServicio {
+  Recibido, Diagnostico, Cotizado, Aprobado, En_Reparacion, Completado, Entregado, Cancelado
+}
+
+enum EstadoCotizacion {
+  Borrador, Enviada, Aceptada, Rechazada
+}
+
+enum ResultadoPrueba {
+  Aprobado, Reprobado, Inconcluso
+}
+
+enum PrioridadTicket {
+  Baja, Media, Alta
+}
+
+enum EstadoTicket {
+  Abierto, En_Progreso, Resuelto, Cerrado
+}
+
+enum TipoItem {
+  Producto, Servicio
+}
 
 // ==========================================================
 // ENTIDADES
 // ==========================================================
 entity Rol {
-  nombre String required maxlength(50)
-  descripcion String maxlength(255)
+  nombre String required unique maxlength(50),
+  descripcion String maxlength(255),
   createdAt Instant
 }
 
 entity Categoria {
-  nombre String required maxlength(100)
-  estado EstadoGeneral
+  nombre String required unique maxlength(100),
+  tipo TipoCategoria required,
+  estado EstadoGeneral required
 }
 
 entity Usuario {
-  nombre String required maxlength(100)
-  apellido String required maxlength(100)
-  cedula String maxlength(50)
-  celular String maxlength(20)
-  correo String required maxlength(150)
-  hashPassword String required maxlength(255)
-  estado EstadoGeneral
-  createdAt Instant
+  nombre String required maxlength(100),
+  apellido String required maxlength(100),
+  cedula String unique maxlength(50),
+  celular String maxlength(20),
+  correo String required unique maxlength(150),
+  hashPassword String required maxlength(255),
+  estado EstadoGeneral,
+  createdAt Instant,
   updatedAt Instant
 }
 
 entity Direccion {
-  alias String maxlength(100)
-  direccion TextBlob
-  ciudad String maxlength(100)
-  departamento String maxlength(100)
-  pais String maxlength(100)
-  telefono String maxlength(20)
+  alias String maxlength(100),
+  direccion TextBlob,
+  ciudad String maxlength(100),
+  departamento String maxlength(100),
+  pais String maxlength(100),
+  telefono String maxlength(20),
   createdAt Instant
 }
 
 entity Producto {
-  sku String maxlength(100)
-  nombre String required maxlength(200)
-  marca String maxlength(100)
-  modelo String maxlength(100)
-  descripcion TextBlob
-  imagenes TextBlob
-  atributos TextBlob
-  precioActual BigDecimal
-  impuestos TextBlob
-  garantia String maxlength(100)
-  activo Boolean
-  createdAt Instant
-  updatedAt Instant
-}
-
-entity Ubicacion {
-  nombre String required maxlength(150)
-  direccion TextBlob
-  notas TextBlob
-  createdAt Instant
-}
-
-entity Inventario {
-  stock Integer
-  stockMin Integer
-  reservado Integer
-  loteSerial String maxlength(200)
-  costoPromedio BigDecimal
+  sku String unique maxlength(100),
+  nombre String required maxlength(200),
+  marca String maxlength(100),
+  modelo String maxlength(100),
+  descripcion TextBlob,
+  imagenes TextBlob, // JSON simplificado
+  atributos TextBlob, // JSON simplificado
+  precioActual BigDecimal required,
+  impuestoPorcentaje BigDecimal,
+  garantia String maxlength(100),
+  activo Boolean,
+  createdAt Instant,
   updatedAt Instant
 }
 
 entity Servicio {
-  tipo String required maxlength(100)
-  descripcion TextBlob
-  precio BigDecimal
+  nombre String required maxlength(200),
+  descripcion TextBlob,
+  precio BigDecimal required,
+  duracionEstimada Integer,
   createdAt Instant
+}
+
+entity Ubicacion {
+  nombre String required maxlength(150),
+  direccion TextBlob,
+  notas TextBlob,
+  createdAt Instant
+}
+
+entity Inventario {
+  stock Integer,
+  stockMin Integer,
+  reservado Integer,
+  loteSerial String maxlength(200),
+  costoPromedio BigDecimal,
+  updatedAt Instant
 }
 
 entity Equipo {
-  tipo String maxlength(100)
-  marca String maxlength(100)
-  modelo String maxlength(100)
-  serial String maxlength(150)
-  cpu String maxlength(200)
-  ram String maxlength(100)
-  almacenamiento String maxlength(200)
-  gpu String maxlength(200)
-  psu String maxlength(100)
-  notas TextBlob
-  accesorios TextBlob
-  createdAt Instant
+  tipo String maxlength(100),
+  marca String maxlength(100),
+  modelo String maxlength(100),
+  serial String unique maxlength(150),
+  cpu String maxlength(200),
+  ram String maxlength(100),
+  almacenamiento String maxlength(200),
+  gpu String maxlength(200),
+  psu String maxlength(100),
+  notas TextBlob,
+  accesorios TextBlob, // JSON simplificado
+  createdAt Instant,
   updatedAt Instant
+}
+
+entity Orden {
+  tipo TipoOrden required,
+  numeroOrden String unique maxlength(50),
+  subtotal BigDecimal,
+  impuestos BigDecimal,
+  envio BigDecimal,
+  descuento BigDecimal,
+  total BigDecimal,
+  estadoOrden EstadoOrden,
+  estadoPago EstadoPago,
+  metodoPago MetodoPago,
+  referenciaPago String maxlength(255),
+  fechahoraEntrega ZonedDateTime,
+  notas TextBlob,
+  createdAt Instant,
+  updatedAt Instant
+}
+
+entity OrdenItem {
+  tipo TipoItem required,
+  descripcion String required maxlength(255),
+  cantidad Integer,
+  precioUnitario BigDecimal required,
+  descuento BigDecimal,
+  impuestoPorcentaje BigDecimal,
+  subtotal BigDecimal,
+  createdAt Instant
 }
 
 entity OrdenServicio {
-  tipo String maxlength(100)
-  prioridad Prioridad
-  estado EstadoOrden
-  sla Integer
-  descripcion TextBlob
-  createdAt Instant
+  tipoServicio String maxlength(100),
+  prioridad Prioridad,
+  estado EstadoServicio,
+  descripcionProblema TextBlob,
+  diagnostico TextBlob,
+  notasTecnicas TextBlob,
+  fechaEntregaEstimada LocalDate,
+  fechaEntregaReal ZonedDateTime,
+  createdAt Instant,
   updatedAt Instant
 }
 
-entity Prueba {
-  tests TextBlob
-  resultados TextBlob
-  temperaturas TextBlob
-  capturas TextBlob
-  createdAt Instant
-}
-
 entity Cotizacion {
-  total BigDecimal
-  vigencia LocalDate
-  estado EstadoCotizacion
+  total BigDecimal,
+  vigencia LocalDate,
+  estado EstadoCotizacion,
+  fechaAprobacion ZonedDateTime,
   createdAt Instant
 }
 
 entity CotizacionItem {
-  tipo TipoItem
-  descripcion String maxlength(255)
-  cantidad Integer
-  precio BigDecimal
-  subtotal BigDecimal
+  tipo TipoItem required,
+  descripcion String maxlength(255),
+  cantidad Integer,
+  precio BigDecimal required,
+  subtotal BigDecimal required
 }
 
-entity CotizacionAprobacion {
-  fecha Instant
-}
-
-entity Pago {
-  tipo TipoPago
-  referencia String maxlength(255)
-  monto BigDecimal
-  estado EstadoPago
-  creadoAt Instant
-}
-
-entity Envio {
-  proveedor String maxlength(150)
-  tracking String maxlength(200)
-  costo BigDecimal
-  estado EstadoEnvio
-  fechaEnvio Instant
-  createdAt Instant
-}
-
-entity Pedido {
-  subtotal BigDecimal
-  impuestos BigDecimal
-  envio BigDecimal
-  total BigDecimal
-  estado EstadoPedido
-  createdAt Instant
-  updatedAt Instant
-}
-
-entity PedidoItem {
-  cantidad Integer
-  precioUnitario BigDecimal
-  descuento BigDecimal
-  subtotal BigDecimal
-}
-
-entity Factura {
-  fecha Instant
-  valorTotal BigDecimal
-  metodoPago TipoPago
-  estado EstadoFactura
-  notas TextBlob
-  createdAt Instant
-  updatedAt Instant
-}
-
-entity DetalleFactura {
-  descripcion String maxlength(255)
-  cantidad Integer
-  precioUnitario BigDecimal
-  descuento BigDecimal
-  subtotal BigDecimal
-}
-
-entity Venta {
-  estado EstadoVenta
+entity Prueba {
+  nombrePrueba String required maxlength(100),
+  resultado ResultadoPrueba,
+  detalles TextBlob,
+  parametros TextBlob, // JSON simplificado
+  capturas TextBlob,  // JSON simplificado
   createdAt Instant
 }
 
 entity Ticket {
-  categoria String maxlength(100)
-  prioridad PrioridadTicket
-  estado EstadoTicket
-  mensajes TextBlob
-  adjuntos TextBlob
-  createdAt Instant
+  categoria String maxlength(100),
+  asunto String required maxlength(200),
+  prioridad PrioridadTicket,
+  estado EstadoTicket,
+  createdAt Instant,
   updatedAt Instant
 }
 
-entity Notificacion {
-  canal String maxlength(50)
-  plantilla String maxlength(100)
-  payload TextBlob
-  estado EstadoNotificacion
-  intentos Integer
-  lastIntento Instant
+entity TicketMensaje {
+  mensaje TextBlob required,
+  adjuntos TextBlob,
+  esInterno Boolean,
   createdAt Instant
 }
 
 // ==========================================================
 // RELACIONES
 // ==========================================================
-
-// Usuarios y roles
 relationship ManyToOne {
-  Usuario{rol} to Rol
-}
-
-// Direcciones -> Usuario
-relationship ManyToOne {
+  Usuario{rol(nombre)} to Rol
   Direccion{usuario} to Usuario
-}
-
-// Productos -> Categoria
-relationship ManyToOne {
-  Producto{categoria} to Categoria
-}
-
-// Inventarios -> Producto, Ubicacion
-relationship ManyToOne {
+  Producto{categoria(nombre)} to Categoria
+  Servicio{categoria(nombre)} to Categoria
   Inventario{producto} to Producto
   Inventario{ubicacion} to Ubicacion
-}
-
-// Equipos -> Usuario (cliente)
-relationship ManyToOne {
-  Equipo{cliente} to Usuario
-}
-
-// OrdenServicio -> Usuario, Equipo, Usuario(aprobador)
-relationship ManyToOne {
-  OrdenServicio{cliente} to Usuario
+  Equipo{cliente(nombre)} to Usuario
+  Orden{cliente(nombre)} to Usuario
+  Orden{direccionEnvio} to Direccion
+  OrdenItem{orden} to Orden
+  OrdenItem{producto} to Producto
+  OrdenItem{servicio} to Servicio
+  OrdenServicio{cliente(nombre)} to Usuario
   OrdenServicio{equipo} to Equipo
-  OrdenServicio{aprobador} to Usuario
-}
-
-// Prueba -> OrdenServicio
-relationship ManyToOne {
-  Prueba{ordenServicio} to OrdenServicio
-}
-
-// Cotizacion -> OrdenServicio
-relationship ManyToOne {
+  OrdenServicio{orden} to Orden
   Cotizacion{ordenServicio} to OrdenServicio
-}
-
-// CotizacionItem -> Cotizacion, Producto, Servicio
-relationship ManyToOne {
+  Cotizacion{aprobadoPor(nombre)} to Usuario
   CotizacionItem{cotizacion} to Cotizacion
   CotizacionItem{producto} to Producto
   CotizacionItem{servicio} to Servicio
-}
-
-// CotizacionAprobacion -> Cotizacion, Usuario
-relationship ManyToOne {
-  CotizacionAprobacion{cotizacion} to Cotizacion
-  CotizacionAprobacion{usuario} to Usuario
-}
-
-// Pedido -> Usuario(cliente), Direccion, Pago, Envio
-relationship ManyToOne {
-  Pedido{cliente} to Usuario
-  Pedido{direccionEnvio} to Direccion
-  Pedido{pago} to Pago
-  Pedido{envio} to Envio
-}
-
-// PedidoItem -> Pedido, Producto
-relationship ManyToOne {
-  PedidoItem{pedido} to Pedido
-  PedidoItem{producto} to Producto
-}
-
-// Factura -> Usuario(cliente), Usuario(vendedor), Direccion, Pago
-relationship ManyToOne {
-  Factura{cliente} to Usuario
-  Factura{vendedor} to Usuario
-  Factura{direccionEnvio} to Direccion
-  Factura{pago} to Pago
-}
-
-// DetalleFactura -> Factura, Producto, Servicio, Usuario(vendedor)
-relationship ManyToOne {
-  DetalleFactura{factura} to Factura
-  DetalleFactura{producto} to Producto
-  DetalleFactura{servicio} to Servicio
-  DetalleFactura{vendedor} to Usuario
-}
-
-// Venta -> Factura
-relationship OneToOne {
-  Venta{factura} to Factura
-}
-
-// Ticket -> Usuario(cliente)
-relationship ManyToOne {
-  Ticket{cliente} to Usuario
-}
-
-// Notificacion -> Usuario
-relationship ManyToOne {
-  Notificacion{usuario} to Usuario
+  Prueba{ordenServicio} to OrdenServicio
+  Prueba{tecnico(nombre)} to Usuario
+  Ticket{cliente(nombre)} to Usuario
+  TicketMensaje{ticket} to Ticket
+  TicketMensaje{usuario(nombre)} to Usuario
 }
