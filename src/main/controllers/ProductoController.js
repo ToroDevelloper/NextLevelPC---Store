@@ -1,21 +1,12 @@
-const ProductoService = require('../services/productoService');
+const ProductosService = require('../service/ProductosService');
 
-class ProductoController {
+class ProductosController {
     static async obtenerTodos(req, res) {
         try {
-            const { soloActivos } = req.query;
-            let productos;
-
-            if (soloActivos === 'true') {
-                productos = await ProductoService.obtenerProductosActivos();
-            } else {
-                productos = await ProductoService.obtenerTodosLosProductos();
-            }
-
+            const productos = await ProductosService.obtenerTodos(req.query);
             res.json({
                 success: true,
-                data: productos,
-                message: 'Productos obtenidos correctamente'
+                data: productos
             });
         } catch (error) {
             res.status(500).json({
@@ -28,14 +19,21 @@ class ProductoController {
     static async obtenerPorId(req, res) {
         try {
             const { id } = req.params;
-            const producto = await ProductoService.obtenerProductoPorId(id);
+            const producto = await ProductosService.obtenerPorId(id);
+
+            if (!producto) {
+                return res.status(404).json({
+                    success: false,
+                    message: 'Producto no encontrado'
+                });
+            }
+
             res.json({
                 success: true,
-                data: producto,
-                message: 'Producto obtenido correctamente'
+                data: producto
             });
         } catch (error) {
-            res.status(404).json({
+            res.status(500).json({
                 success: false,
                 message: error.message
             });
@@ -45,19 +43,12 @@ class ProductoController {
     static async crear(req, res) {
         try {
             const productoData = req.body;
+            const nuevoProducto = await ProductosService.crear(productoData);
 
-            if (!productoData.Nombre) {
-                return res.status(400).json({
-                    success: false,
-                    message: 'El nombre del producto es requerido'
-                });
-            }
-
-            const nuevoProductoId = await ProductoService.crearProducto(productoData);
             res.status(201).json({
                 success: true,
-                data: { id: nuevoProductoId },
-                message: 'Producto creado correctamente'
+                message: 'Producto creado exitosamente',
+                data: nuevoProducto
             });
         } catch (error) {
             res.status(400).json({
@@ -70,24 +61,24 @@ class ProductoController {
     static async actualizar(req, res) {
         try {
             const { id } = req.params;
-            const datosActualizados = req.body;
+            const productoData = req.body;
 
-            if (Object.keys(datosActualizados).length === 0) {
-                return res.status(400).json({
+            const productoActualizado = await ProductosService.actualizar(id, productoData);
+
+            res.json({
+                success: true,
+                message: 'Producto actualizado exitosamente',
+                data: productoActualizado
+            });
+        } catch (error) {
+            if (error.message.includes('no encontrado')) {
+                return res.status(404).json({
                     success: false,
-                    message: 'No se proporcionaron datos para actualizar'
+                    message: error.message
                 });
             }
 
-            const productoActualizado = await ProductoService.actualizarProducto(id, datosActualizados);
-            res.json({
-                success: true,
-                data: productoActualizado,
-                message: 'Producto actualizado correctamente'
-            });
-        } catch (error) {
-            const statusCode = error.message.includes('no encontrado') ? 404 : 400;
-            res.status(statusCode).json({
+            res.status(400).json({
                 success: false,
                 message: error.message
             });
@@ -97,93 +88,22 @@ class ProductoController {
     static async eliminar(req, res) {
         try {
             const { id } = req.params;
-            const resultado = await ProductoService.eliminarProducto(id);
+            const resultado = await ProductosService.eliminar(id);
+
             res.json({
                 success: true,
-                data: resultado,
-                message: 'Producto eliminado correctamente'
+                message: 'Producto eliminado exitosamente',
+                data: resultado
             });
         } catch (error) {
-            const statusCode = error.message.includes('no encontrado') ? 404 : 400;
-            res.status(statusCode).json({
-                success: false,
-                message: error.message
-            });
-        }
-    }
-
-    static async obtenerPorCategoria(req, res) {
-        try {
-            const { categoriaId } = req.params;
-            const productos = await ProductoService.obtenerProductosPorCategoria(categoriaId);
-            res.json({
-                success: true,
-                data: productos,
-                message: 'Productos por categoría obtenidos correctamente'
-            });
-        } catch (error) {
-            res.status(400).json({
-                success: false,
-                message: error.message
-            });
-        }
-    }
-
-    static async buscar(req, res) {
-        try {
-            const { q } = req.query;
-
-            if (!q) {
-                return res.status(400).json({
+            if (error.message.includes('no encontrado')) {
+                return res.status(404).json({
                     success: false,
-                    message: 'Parámetro de búsqueda (q) requerido'
+                    message: error.message
                 });
             }
 
-            const productos = await ProductoService.buscarProductos(q);
-            res.json({
-                success: true,
-                data: productos,
-                message: 'Búsqueda completada correctamente'
-            });
-        } catch (error) {
-            res.status(400).json({
-                success: false,
-                message: error.message
-            });
-        }
-    }
-
-    static async desactivar(req, res) {
-        try {
-            const { id } = req.params;
-            const resultado = await ProductoService.desactivarProducto(id);
-            res.json({
-                success: true,
-                data: resultado,
-                message: 'Producto desactivado correctamente'
-            });
-        } catch (error) {
-            const statusCode = error.message.includes('no encontrado') ? 404 : 400;
-            res.status(statusCode).json({
-                success: false,
-                message: error.message
-            });
-        }
-    }
-
-    static async activar(req, res) {
-        try {
-            const { id } = req.params;
-            const resultado = await ProductoService.activarProducto(id);
-            res.json({
-                success: true,
-                data: resultado,
-                message: 'Producto activado correctamente'
-            });
-        } catch (error) {
-            const statusCode = error.message.includes('no encontrado') ? 404 : 400;
-            res.status(statusCode).json({
+            res.status(500).json({
                 success: false,
                 message: error.message
             });
@@ -191,4 +111,4 @@ class ProductoController {
     }
 }
 
-module.exports = ProductoController;
+module.exports = ProductosController;

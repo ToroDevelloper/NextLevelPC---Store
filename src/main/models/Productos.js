@@ -1,155 +1,133 @@
-const db = require('../config/db.js');
+const db = require('../config/db.js')
 
 class Productos {
-    constructor(ID_Producto, SKU, Nombre, Marca, Modelo, Categoria_ID, Descripcion, Imagenes, Atributos, Precio_Actual, Impuestos, Garantia, Activo, Created_at, Updated_at) {
-        this.ID_Producto = ID_Producto,
-            this.SKU = SKU,
-            this.Nombre = Nombre,
-            this.Marca = Marca,
-            this.Modelo = Modelo,
-            this.Categoria_ID = Categoria_ID,
-            this.Descripcion = Descripcion,
-            this.Imagenes = Imagenes,
-            this.Atributos = Atributos,
-            this.Precio_Actual = Precio_Actual,
-            this.Impuestos = Impuestos,
-            this.Garantia = Garantia,
-            this.Activo = Activo,
-            this.Created_at = Created_at,
-            this.Updated_at = Updated_at
+    constructor(id, sku, nombre, marca, modelo, categoria_id, descripcion, imagenes, atributos, precio_actual, impuesto_porcentaje, garantia, activo, created_at, updated_at) {
+        this.id = id,
+            this.sku = sku,
+            this.nombre = nombre,
+            this.marca = marca,
+            this.modelo = modelo,
+            this.categoria_id = categoria_id,
+            this.descripcion = descripcion,
+            this.imagenes = imagenes,
+            this.atributos = atributos,
+            this.precio_actual = precio_actual,
+            this.impuesto_porcentaje = impuesto_porcentaje,
+            this.garantia = garantia,
+            this.activo = activo,
+            this.created_at = created_at,
+            this.updated_at = updated_at
     }
 
     static async obtenerTodos() {
-        const [rows] = await db.query(`
-            SELECT p.*, c.nombre as categoria_nombre 
-            FROM productos p 
-            LEFT JOIN categorias c ON p.categoria_id = c.id 
-            ORDER BY p.created_at DESC
-        `);
-        return rows;
+        const [rows] = await db.query('SELECT * FROM productos WHERE activo = 1')
+        return rows
+    }
+
+    static async obtenerTodosConInactivos() {
+        const [rows] = await db.query('SELECT * FROM productos')
+        return rows
     }
 
     static async obtenerPorId(id) {
-        const [rows] = await db.query(`
-            SELECT p.*, c.nombre as categoria_nombre 
-            FROM productos p 
-            LEFT JOIN categorias c ON p.categoria_id = c.id 
-            WHERE p.id = ?
-        `, [id]);
-        return rows.length > 0 ? rows[0] : null;
+        const [rows] = await db.query('SELECT * FROM productos WHERE id = ?', [id])
+        return rows.length > 0 ? rows[0] : null
     }
 
-    static async obtenerPorSKU(sku) {
-        const [rows] = await db.query("SELECT * FROM productos WHERE sku = ?", [sku]);
-        return rows.length > 0 ? rows[0] : null;
+    static async obtenerPorSku(sku) {
+        const [rows] = await db.query('SELECT * FROM productos WHERE sku = ?', [sku])
+        return rows.length > 0 ? rows[0] : null
     }
 
-    static async obtenerPorCategoria(categoriaId) {
-        const [rows] = await db.query(`
-            SELECT p.*, c.nombre as categoria_nombre 
-            FROM productos p 
-            LEFT JOIN categorias c ON p.categoria_id = c.id 
-            WHERE p.categoria_id = ? AND p.activo = 1
-            ORDER BY p.nombre
-        `, [categoriaId]);
-        return rows;
-    }
-
-    static async obtenerActivos() {
-        const [rows] = await db.query(`
-            SELECT p.*, c.nombre as categoria_nombre 
-            FROM productos p 
-            LEFT JOIN categorias c ON p.categoria_id = c.id 
-            WHERE p.activo = 1 
-            ORDER BY p.nombre
-        `);
-        return rows;
+    static async obtenerPorCategoria(categoria_id) {
+        const [rows] = await db.query('SELECT * FROM productos WHERE categoria_id = ? AND activo = 1', [categoria_id])
+        return rows
     }
 
     static async crear(data) {
-        const {
-            SKU, Nombre, Marca, Modelo, Categoria_ID, Descripcion,
-            Imagenes, Atributos, Precio_Actual, Impuestos, Garantia, Activo = 1
-        } = data;
+        const { sku, nombre, marca, modelo, categoria_id, descripcion, imagenes, atributos, precio_actual, impuesto_porcentaje, garantia } = data
 
         const [result] = await db.query(
-            `INSERT INTO productos 
-            (sku, nombre, marca, modelo, categoria_id, descripcion, imagenes, atributos, precio_actual, impuestos, garantia, activo) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-            [SKU, Nombre, Marca, Modelo, Categoria_ID, Descripcion,
-                JSON.stringify(Imagenes), JSON.stringify(Atributos),
-                Precio_Actual, JSON.stringify(Impuestos), Garantia, Activo]
-        );
+            `INSERT INTO productos
+             (sku, nombre, marca, modelo, categoria_id, descripcion, imagenes, atributos, precio_actual, impuesto_porcentaje, garantia)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [sku, nombre, marca, modelo, categoria_id, descripcion, JSON.stringify(imagenes), JSON.stringify(atributos), precio_actual, impuesto_porcentaje, garantia]
+        )
 
-        return result.insertId;
-    }
-
-    static async eliminar(id) {
-        const [result] = await db.query('DELETE FROM productos WHERE id = ?', [id]);
-        return result.affectedRows > 0;
+        return result.insertId
     }
 
     static async actualizar(id, data) {
-        // Convertir campos JSON si están presentes
-        const camposActualizados = { ...data };
+        // Preparar los campos y valores para la actualización
+        const campos = Object.keys(data)
+        if (campos.length === 0) return false
 
-        if (camposActualizados.Imagenes) {
-            camposActualizados.imagenes = JSON.stringify(camposActualizados.Imagenes);
-            delete camposActualizados.Imagenes;
+        // Convertir campos JSON a string si existen
+        if (data.imagenes && typeof data.imagenes !== 'string') {
+            data.imagenes = JSON.stringify(data.imagenes)
+        }
+        if (data.atributos && typeof data.atributos !== 'string') {
+            data.atributos = JSON.stringify(data.atributos)
         }
 
-        if (camposActualizados.Atributos) {
-            camposActualizados.atributos = JSON.stringify(camposActualizados.Atributos);
-            delete camposActualizados.Atributos;
-        }
-
-        if (camposActualizados.Impuestos) {
-            camposActualizados.impuestos = JSON.stringify(camposActualizados.Impuestos);
-            delete camposActualizados.Impuestos;
-        }
-
-        const campos = Object.keys(camposActualizados);
-        if (campos.length === 0) return false;
-
-        const columnas = campos.map(campo => `${campo} = ?`).join(", ");
-        const valores = Object.values(camposActualizados);
+        const columnas = campos.map(campo => `${campo} = ?`).join(', ')
+        const valores = Object.values(data)
 
         const [result] = await db.query(
             `UPDATE productos SET ${columnas} WHERE id = ?`,
             [...valores, id]
-        );
+        )
 
-        return result.affectedRows > 0;
+        return result.affectedRows > 0
+    }
+
+    static async eliminar(id) {
+        // Eliminación lógica (cambiar activo a 0)
+        const [result] = await db.query('UPDATE productos SET activo = 0 WHERE id = ?', [id])
+        return result.affectedRows > 0
+    }
+
+    static async eliminarDefinitivamente(id) {
+        // Eliminación física de la base de datos
+        const [result] = await db.query('DELETE FROM productos WHERE id = ?', [id])
+        return result.affectedRows > 0
+    }
+
+    static async activar(id) {
+        const [result] = await db.query('UPDATE productos SET activo = 1 WHERE id = ?', [id])
+        return result.affectedRows > 0
+    }
+
+    static async buscarPorNombre(nombre) {
+        const [rows] = await db.query('SELECT * FROM productos WHERE nombre LIKE ? AND activo = 1', [`%${nombre}%`])
+        return rows
     }
 
     static async skuEnUsoPorOtroProducto(sku, id) {
         const [rows] = await db.query(
-            "SELECT id FROM productos WHERE sku = ? AND id != ?",
+            'SELECT id FROM productos WHERE sku = ? AND id != ?',
             [sku, id]
-        );
-        return rows.length > 0;
+        )
+        return rows.length > 0
     }
 
-    static async buscarProductos(termino) {
-        const [rows] = await db.query(`
+    static async obtenerConCategoria(id = null) {
+        let query = `
             SELECT p.*, c.nombre as categoria_nombre 
             FROM productos p 
-            LEFT JOIN categorias c ON p.categoria_id = c.id 
-            WHERE (p.nombre LIKE ? OR p.descripcion LIKE ? OR p.marca LIKE ? OR p.sku LIKE ?)
-            AND p.activo = 1
-            ORDER BY p.nombre
-        `, [`%${termino}%`, `%${termino}%`, `%${termino}%`, `%${termino}%`]);
-        return rows;
-    }
+            LEFT JOIN categorias c ON p.categoria_id = c.id
+        `
 
-    static async actualizarStock(id, cantidad) {
-        // Este método sería útil si tuvieras un campo stock
-        const [result] = await db.query(
-            'UPDATE productos SET stock = stock + ? WHERE id = ?',
-            [cantidad, id]
-        );
-        return result.affectedRows > 0;
+        if (id) {
+            query += ' WHERE p.id = ?'
+            const [rows] = await db.query(query, [id])
+            return rows.length > 0 ? rows[0] : null
+        } else {
+            query += ' WHERE p.activo = 1'
+            const [rows] = await db.query(query)
+            return rows
+        }
     }
 }
 
-module.exports = Productos;
+module.exports = Productos
