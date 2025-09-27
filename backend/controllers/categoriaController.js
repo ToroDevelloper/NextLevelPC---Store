@@ -4,17 +4,10 @@ class CategoriaController {
     async getCategorias(req, res) {
         try {
             const categorias = await categoriaService.getAllCategorias();
-            res.json({
-                success: true,
-                data: categorias,
-                count: categorias.length
-            });
+            res.json(categorias);  // Array directo de categorías
         } catch (error) {
             console.error('Error en getCategorias:', error.message);
-            res.status(500).json({
-                success: false,
-                message: error.message
-            });
+            res.status(500).json({ error: error.message });
         }
     }
 
@@ -22,16 +15,10 @@ class CategoriaController {
         try {
             const { id } = req.params;
             const categoria = await categoriaService.getCategoriaById(id);
-            res.json({
-                success: true,
-                data: categoria
-            });
+            res.json(categoria);  // Objeto categoría directo
         } catch (error) {
             console.error('Error en getCategoria:', error.message);
-            res.status(404).json({
-                success: false,
-                message: error.message
-            });
+            res.status(404).json({ error: error.message });
         }
     }
 
@@ -39,16 +26,14 @@ class CategoriaController {
         try {
             const categoria = await categoriaService.createCategoria(req.body);
             res.status(201).json({
-                success: true,
-                message: 'Categoría creada correctamente',
-                data: categoria
+                message: "Categoría creada correctamente",
+                id: categoria.id,
+                nombre: categoria.nombre,
+                estado: categoria.estado
             });
         } catch (error) {
             console.error('Error en createCategoria:', error.message);
-            res.status(400).json({
-                success: false,
-                message: error.message
-            });
+            res.status(400).json({ error: error.message });
         }
     }
 
@@ -57,16 +42,14 @@ class CategoriaController {
             const { id } = req.params;
             const categoria = await categoriaService.updateCategoria(id, req.body);
             res.json({
-                success: true,
-                message: 'Categoría actualizada correctamente',
-                data: categoria
+                message: "Categoría actualizada correctamente",
+                id: categoria.id,
+                nombre: categoria.nombre,
+                estado: categoria.estado
             });
         } catch (error) {
             console.error('Error en updateCategoria:', error.message);
-            res.status(400).json({
-                success: false,
-                message: error.message
-            });
+            res.status(400).json({ error: error.message });
         }
     }
 
@@ -75,15 +58,12 @@ class CategoriaController {
             const { id } = req.params;
             await categoriaService.deleteCategoria(id);
             res.json({
-                success: true,
-                message: 'Categoría eliminada correctamente'
+                message: "Categoría eliminada correctamente",
+                id: parseInt(id)
             });
         } catch (error) {
             console.error('Error en deleteCategoria:', error.message);
-            res.status(400).json({
-                success: false,
-                message: error.message
-            });
+            res.status(400).json({ error: error.message });
         }
     }
 }

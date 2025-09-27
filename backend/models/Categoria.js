@@ -4,7 +4,6 @@ class Categoria {
     static async findAll() {
         try {
             const [rows] = await db.execute('SELECT * FROM categoria WHERE Estado = "Activo"');
-            // Mapear los nombres de columnas
             return rows.map(row => ({
                 id: row.ID_Categoria,
                 nombre: row.Nombre,
@@ -53,7 +52,13 @@ class Categoria {
 
     static async update(id, categoriaData) {
         try {
-            const { nombre, estado } = categoriaData;
+            const { nombre, estado = 'Activo' } = categoriaData;
+
+            // Validar que nombre no sea undefined
+            if (nombre === undefined) {
+                throw new Error('El campo nombre es requerido');
+            }
+
             await db.execute(
                 'UPDATE categoria SET Nombre = ?, Estado = ? WHERE ID_Categoria = ?',
                 [nombre, estado, id]
@@ -66,7 +71,7 @@ class Categoria {
                 throw new Error('Ya existe una categoría con este nombre');
             }
 
-            throw new Error('Error al actualizar la categoría');
+            throw new Error('Error al actualizar la categoría: ' + error.message);
         }
     }
 

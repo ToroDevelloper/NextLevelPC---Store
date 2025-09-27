@@ -75,6 +75,5 @@ app.listen(PORT, () => {
     console.log(`📍  Puerto: ${PORT}`);
     console.log(`🌐  URL: http://localhost:${PORT}`);
     console.log(`❤️  Health: http://localhost:${PORT}/api/health`);
-    console.log(`🗂️  Categorías: http://localhost:${PORT}/api/categorias`);
     console.log('=====================================');
 });
