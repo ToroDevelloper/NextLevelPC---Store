@@ -13,7 +13,7 @@ class ProductosService {
                 return await Productos.buscarPorNombre(buscar)
             }
 
-            if (incluirInactivos) {
+             if (incluirInactivos) {
                 return await Productos.obtenerTodosConInactivos()
             }
 

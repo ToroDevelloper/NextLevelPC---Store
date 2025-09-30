@@ -8,6 +8,9 @@ require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
 // Importar rutas
 const categoriasRoutes = require('./routes/categorias');
 const serviciosRoutes = require('./routes/servicios'); // Nueva ruta
+const productosRoutes = require('./routes/productos'); // Nueva ruta para productos
+const rolesRoutes = require('./routes/roles'); // Nueva ruta para roles
+const usuariosRoutes = require('./routes/usuarios'); // Nueva ruta para usuarios
 
 // Importar conexión a DB
 const { testConnection } = require('./config/db');
@@ -34,6 +37,9 @@ app.use((req, res, next) => {
 // Rutas
 app.use('/api/categorias', categoriasRoutes);
 app.use('/api/servicios', serviciosRoutes); // Nueva ruta
+app.use('/api/productos', productosRoutes); // Nueva ruta para productos
+app.use('/api/roles', rolesRoutes); // Nueva ruta para roles
+app.use('/api/usuarios', usuariosRoutes); // Nueva ruta para usuarios
 
 // Ruta de salud
 app.get('/api/health', async (req, res) => {
@@ -63,7 +69,8 @@ app.get('/', (req, res) => {
         version: '1.0.0',
         endpoints: {
             categorias: '/api/categorias',
-            servicios: '/api/servicios', // Nuevo endpoint
+            servicios: '/api/servicios',
+            productos: '/api/productos', // Nuevo endpoint
             health: '/api/health'
         }
     });
@@ -106,9 +113,6 @@ const startServer = async () => {
             console.log(`📍  Puerto: ${PORT}`);
             console.log(`🌐  URL: http://localhost:${PORT}`);
             console.log(`❤️  Health: http://localhost:${PORT}/api/health`);
-            console.log('📋 Endpoints disponibles:');
-            console.log(`   📂 Categorias: http://localhost:${PORT}/api/categorias`);
-            console.log(`   🔧 Servicios: http://localhost:${PORT}/api/servicios`);
             console.log('=====================================');
         });
 

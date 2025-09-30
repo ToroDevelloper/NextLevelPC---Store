@@ -72,9 +72,11 @@ const getConnection = async () => {
     return await db.getConnection();
 };
 
+// Exportar también como query para compatibilidad
 module.exports = {
     db,
     testConnection,
     executeQuery,
-    getConnection
+    getConnection,
+    query: executeQuery  // Alias para mantener compatibilidad
 };
