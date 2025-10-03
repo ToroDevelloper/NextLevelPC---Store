@@ -70,8 +70,11 @@ app.get('/', (req, res) => {
         endpoints: {
             categorias: '/api/categorias',
             servicios: '/api/servicios',
-            productos: '/api/productos', // Nuevo endpoint
+            productos: '/api/productos',
+            usuarios: '/api/usuarios',
+            roles: '/api/roles',
             health: '/api/health'
+
         }
     });
 });
