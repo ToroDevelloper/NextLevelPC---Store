@@ -1,9 +1,9 @@
 -- BASE DE DATOS SIMPLIFICADA - TABLAS ESENCIALES
 
-CREATE DATABASE IF NOT EXISTS sistema_gestion
+CREATE DATABASE IF NOT EXISTS nextlevel
   DEFAULT CHARACTER SET = utf8mb4
   DEFAULT COLLATE = utf8mb4_unicode_ci;
-USE sistema_gestion;
+USE nextlevel;
 
 -- ROLES
 CREATE TABLE roles (
