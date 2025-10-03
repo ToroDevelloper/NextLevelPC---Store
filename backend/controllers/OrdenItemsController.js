@@ -1,3 +1,5 @@
+const ordenItemsService = require('../services/OrdenItemsService.js');
+
 class OrdenItemsController {
     static async crear(req, res) {
         try {
@@ -69,3 +71,4 @@ class OrdenItemsController {
     }
 
 }
+module.exports = OrdenItemsController;
