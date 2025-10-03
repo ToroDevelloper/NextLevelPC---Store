@@ -1,37 +1,32 @@
 const express = require('express');
 const router = express.Router();
-const RolController = require('../controllers/rolController');
+const RolesController = require('../controllers/RolesController');
 
-// Middleware de validación básica (puedes expandirlo)
-const validarRol = (req, res, next) => {
-    if (req.method === 'POST' || req.method === 'PUT') {
-        const { Nombre } = req.body;
-        if (!Nombre || Nombre.trim() === '') {
-            return res.status(400).json({
-                success: false,
-                message: 'El nombre del rol es requerido'
-            });
-        }
-    }
-    next();
-};
+// GET - Obtener todos los roles
+router.get('/', RolesController.obtenerTodosLosRoles);
 
-// GET /api/roles - Obtener todos los roles
-router.get('/', RolController.obtenerTodos);
+// GET - Obtener roles con estadísticas (conteo de usuarios)
+router.get('/estadisticas', RolesController.obtenerRolesConEstadisticas);
 
-// GET /api/roles/:id - Obtener un rol por ID
-router.get('/:id', RolController.obtenerPorId);
+// GET - Obtener roles disponibles
+router.get('/disponibles', RolesController.obtenerRolesDisponibles);
 
-// POST /api/roles - Crear un nuevo rol
-router.post('/', validarRol, RolController.crear);
+// GET - Obtener rol por ID
+router.get('/:id', RolesController.obtenerRolPorId);
 
-// PUT /api/roles/:id - Actualizar un rol
-router.put('/:id', validarRol, RolController.actualizar);
+// GET - Obtener rol por nombre
+router.get('/nombre/:nombre', RolesController.obtenerRolPorNombre);
 
-// DELETE /api/roles/:id - Eliminar un rol
-router.delete('/:id', RolController.eliminar);
+// GET - Verificar si un rol está siendo usado
+router.get('/:id/verificar-uso', RolesController.verificarUsoRol);
 
-// GET /api/roles/:id/usuarios - Obtener usuarios por rol
-router.get('/:id/usuarios', RolController.obtenerUsuarios);
+// POST - Crear nuevo rol
+router.post('/', RolesController.crearRol);
+
+// PUT - Actualizar rol
+router.put('/:id', RolesController.actualizarRol);
+
+// DELETE - Eliminar rol
+router.delete('/:id', RolesController.eliminarRol);
 
 module.exports = router;
