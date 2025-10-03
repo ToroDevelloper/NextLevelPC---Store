@@ -138,6 +138,5 @@ class Ordenes {
             throw new Error('Error al actualizar el total de la orden');
         }
     }
-
-
 }
+module.exports = Ordenes;
