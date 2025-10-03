@@ -1,3 +1,4 @@
+const e = require('cors');
 const { executeQuery } = require('../config/db');
 
 class OrdenItems {
@@ -104,6 +105,5 @@ class OrdenItems {
             throw new Error('Error al actualizar el item de orden: ' + error.message);
         }
     }
-
-
 }
+module.exports = OrdenItems;
