@@ -60,5 +60,36 @@ class Ordenes {
         }
     }
 
+    static async actualizar(id, ordenData) {
+        try {
+            const camposPermitidos = ['estado_orden', 'estado_pago', 'total'];
+            const updates = [];
+            const valores = [];
+
+            for (const campo in ordenData) {
+                if (camposPermitidos.includes(campo)) {
+                    updates.push(`${campo} = ?`);
+                    valores.push(ordenData[campo]);
+                }
+            }
+
+            if (updates.length === 0) {
+                throw new Error('No hay campos válidos para actualizar');
+            }
+
+            valores.push(id);
+
+            const result = await executeQuery(
+                `UPDATE ordenes SET ${updates.join(', ')} WHERE id = ?`,
+                valores
+            );
+
+            return result.affectedRows > 0;
+        } catch (error) {
+            console.error('Error en Ordenes.actualizar:', error.message);
+            throw new Error('Error al actualizar la orden: ' + error.message);
+        }
+    }
+
 
 }
