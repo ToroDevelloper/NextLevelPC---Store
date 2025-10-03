@@ -9,12 +9,17 @@
     "dev": "nodemon index.js"
   },
   "dependencies": {
-    "express": "^4.18.2",
-    "mysql2": "^3.6.0",
+    "bcrypt": "^6.0.0",
     "cors": "^2.8.5",
-    "dotenv": "^16.3.1"
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "mysql2": "^3.6.0"
   },
-  "keywords": ["api", "backend", "express"],
+  "keywords": [
+    "api",
+    "backend",
+    "express"
+  ],
   "author": "NextLevelPC",
   "license": "ISC"
 }
