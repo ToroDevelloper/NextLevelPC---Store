@@ -1,4 +1,3 @@
-const e = require('cors');
 const { executeQuery } = require('../config/db');
 
 class OrdenItems {
