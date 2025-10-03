@@ -15,7 +15,7 @@ class OrdenItems {
                 WHERE oi.orden_id = ?
                 ORDER BY oi.id
             `, [ordenId]);
-            
+
             return rows;
         } catch (error) {
             console.error('Error en OrdenItems.obtenerPorOrden:', error.message);
@@ -25,15 +25,15 @@ class OrdenItems {
 
     static async crear(itemData) {
         try {
-            const { 
-                orden_id, 
-                tipo, 
-                producto_id, 
-                servicio_id, 
-                descripcion, 
-                cantidad = 1, 
-                precio_unitario, 
-                subtotal 
+            const {
+                orden_id,
+                tipo,
+                producto_id,
+                servicio_id,
+                descripcion,
+                cantidad = 1,
+                precio_unitario,
+                subtotal
             } = itemData;
 
             // Calcular subtotal si no se proporciona
@@ -45,7 +45,7 @@ class OrdenItems {
                  VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
                 [orden_id, tipo, producto_id, servicio_id, descripcion, cantidad, precio_unitario, subtotalCalculado]
             );
-            
+
             return result.insertId;
         } catch (error) {
             console.error('Error en OrdenItems.crear:', error.message);

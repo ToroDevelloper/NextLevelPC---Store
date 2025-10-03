@@ -43,16 +43,16 @@ class Ordenes {
     static async crear(ordenData) {
         try {
             const { cliente_id, tipo, total = 0.00 } = ordenData;
-            
+
             // Generar número de orden único
             const numero_orden = `ORD-${Date.now()}`;
-            
+
             const result = await executeQuery(
                 `INSERT INTO ordenes (cliente_id, tipo, numero_orden, total, estado_orden, estado_pago) 
                  VALUES (?, ?, ?, ?, 'Pendiente', 'Pendiente')`,
                 [cliente_id, tipo, numero_orden, total]
             );
-            
+
             return result.insertId;
         } catch (error) {
             console.error('Error en Ordenes.crear:', error.message);
@@ -109,7 +109,7 @@ class Ordenes {
                 WHERE o.cliente_id = ? 
                 ORDER BY o.created_at DESC
             `, [clienteId]);
-            
+
             return rows;
         } catch (error) {
             console.error('Error en Ordenes.obtenerPorCliente:', error.message);
@@ -117,8 +117,6 @@ class Ordenes {
         }
     }
 
-
-    
     static async actualizarTotal(id) {
         try {
             // Calcular total sumando los items
@@ -131,7 +129,7 @@ class Ordenes {
                 )
                 WHERE o.id = ?
             `, [id]);
-            
+
             return result.affectedRows > 0;
         } catch (error) {
             console.error('Error en Ordenes.actualizarTotal:', error.message);
