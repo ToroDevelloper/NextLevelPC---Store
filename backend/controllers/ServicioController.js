@@ -2,59 +2,16 @@
 const servicioService = require('../services/servicioService');
 
 class ServicioController {
-    /**
-     * POST /api/servicios
-     * Crear un nuevo servicio
-     */
-    async crearServicio(req, res) {
+    // GET /api/servicios
+    async getAllServicios(req, res) {
         try {
-            const result = await servicioService.crearServicio(req.body);
-            res.status(201).json(result);
-        } catch (error) {
-            console.error('Error en crearServicio:', error.message);
-            res.status(400).json({
-                success: false,
-                message: error.message
+            const servicios = await servicioService.getAllServicios();
+            res.json({
+                success: true,
+                data: servicios,
+                count: servicios.length
             });
-        }
-    }
-
-    /**
-     * GET /api/servicios/:id
-     * Obtener un servicio por ID
-     */
-    async obtenerServicio(req, res) {
-        try {
-            const { id } = req.params;
-            const result = await servicioService.obtenerServicioPorId(id);
-            res.status(200).json(result);
         } catch (error) {
-            console.error('Error en obtenerServicio:', error.message);
-            res.status(404).json({
-                success: false,
-                message: error.message
-            });
-        }
-    }
-
-    /**
-     * GET /api/servicios
-     * Obtener todos los servicios con filtros opcionales
-     * Query params: nombre, categoria_id, minPrecio, maxPrecio
-     */
-    async obtenerTodosServicios(req, res) {
-        try {
-            const filters = {
-                nombre: req.query.nombre,
-                categoria_id: req.query.categoria_id,
-                minPrecio: req.query.minPrecio,
-                maxPrecio: req.query.maxPrecio
-            };
-
-            const result = await servicioService.obtenerTodosServicios(filters);
-            res.status(200).json(result);
-        } catch (error) {
-            console.error('Error en obtenerTodosServicios:', error.message);
             res.status(500).json({
                 success: false,
                 message: error.message
@@ -62,36 +19,147 @@ class ServicioController {
         }
     }
 
-    /**
-     * PUT /api/servicios/:id
-     * Actualizar un servicio existente
-     */
-    async actualizarServicio(req, res) {
+    // GET /api/servicios/:id
+    async getServicioById(req, res) {
         try {
             const { id } = req.params;
-            const result = await servicioService.actualizarServicio(id, req.body);
-            res.status(200).json(result);
+            const servicio = await servicioService.getServicioById(id);
+
+            res.json({
+                success: true,
+                data: servicio
+            });
         } catch (error) {
-            console.error('Error en actualizarServicio:', error.message);
-            res.status(400).json({
+            if (error.message === 'Servicio no encontrado') {
+                return res.status(404).json({
+                    success: false,
+                    message: error.message
+                });
+            }
+
+            res.status(500).json({
                 success: false,
                 message: error.message
             });
         }
     }
 
-    /**
-     * DELETE /api/servicios/:id
-     * Eliminar un servicio
-     */
-    async eliminarServicio(req, res) {
+    // POST /api/servicios
+    async createServicio(req, res) {
+        try {
+            const servicioData = req.body;
+
+            // Validaciones básicas
+            if (!servicioData.nombre || !servicioData.categoria_id || !servicioData.precio) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Nombre, categoría_id y precio son campos requeridos'
+                });
+            }
+
+            const nuevoServicio = await servicioService.createServicio(servicioData);
+
+            res.status(201).json({
+                success: true,
+                message: 'Servicio creado correctamente',
+                data: nuevoServicio
+            });
+        } catch (error) {
+            if (error.message.includes('Ya existe')) {
+                return res.status(409).json({
+                    success: false,
+                    message: error.message
+                });
+            }
+
+            res.status(500).json({
+                success: false,
+                message: error.message
+            });
+        }
+    }
+
+    // PUT /api/servicios/:id
+    async updateServicio(req, res) {
         try {
             const { id } = req.params;
-            const result = await servicioService.eliminarServicio(id);
-            res.status(200).json(result);
+            const servicioData = req.body;
+
+            // Validaciones básicas
+            if (!servicioData.nombre || !servicioData.categoria_id || !servicioData.precio) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Nombre, categoría_id y precio son campos requeridos'
+                });
+            }
+
+            const servicioActualizado = await servicioService.updateServicio(id, servicioData);
+
+            res.json({
+                success: true,
+                message: 'Servicio actualizado correctamente',
+                data: servicioActualizado
+            });
         } catch (error) {
-            console.error('Error en eliminarServicio:', error.message);
-            res.status(400).json({
+            if (error.message === 'Servicio no encontrado') {
+                return res.status(404).json({
+                    success: false,
+                    message: error.message
+                });
+            }
+
+            if (error.message.includes('Ya existe')) {
+                return res.status(409).json({
+                    success: false,
+                    message: error.message
+                });
+            }
+
+            res.status(500).json({
+                success: false,
+                message: error.message
+            });
+        }
+    }
+
+    // DELETE /api/servicios/:id
+    async deleteServicio(req, res) {
+        try {
+            const { id } = req.params;
+            const result = await servicioService.deleteServicio(id);
+
+            res.json({
+                success: true,
+                message: result.message
+            });
+        } catch (error) {
+            if (error.message === 'Servicio no encontrado') {
+                return res.status(404).json({
+                    success: false,
+                    message: error.message
+                });
+            }
+
+            res.status(500).json({
+                success: false,
+                message: error.message
+            });
+        }
+    }
+
+    // GET /api/servicios/categoria/:categoriaId
+    async getServiciosByCategoria(req, res) {
+        try {
+            const { categoriaId } = req.params;
+            const servicios = await servicioService.getServiciosByCategoria(categoriaId);
+
+            res.json({
+                success: true,
+                data: servicios,
+                count: servicios.length
+            });
+        } catch (error) {
+            res.status(500).json({
                 success: false,
                 message: error.message
             });
