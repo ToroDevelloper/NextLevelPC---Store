@@ -42,6 +42,8 @@ app.use('/api/servicios', serviciosRoutes); // Nueva ruta
 app.use('/api/productos', productosRoutes); // Nueva ruta para productos
 app.use('/api/roles', rolesRoutes); // Nueva ruta para roles
 app.use('/api/usuarios', usuariosRoutes); // Nueva ruta para usuarios
+app.use('/api/ordenes', ordenesRoutes);         
+app.use('/api/ordenitems', ordenItemsRoutes);
 
 // Ruta de salud
 app.get('/api/health', async (req, res) => {
