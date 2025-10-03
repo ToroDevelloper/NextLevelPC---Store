@@ -84,5 +84,5 @@ class OrdenController {
         }
     }
 }
-module.exports = OrdenesController;
+module.exports = OrdenController;
 
