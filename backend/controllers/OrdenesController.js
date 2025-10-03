@@ -38,6 +38,38 @@ class OrdenController {
         }
     }
 
+    static async actualizar(req, res) {
+        try {
+            const id = req.params.id;
+            const data = req.body;
+            const actualizado = await ordenesService.actualizar(id, data);
+
+            if (!actualizado) {
+                return res.status(404).json({ mensaje: 'Orden no encontrada' });
+            }
+
+            res.status(200).json({ mensaje: 'Orden actualizada exitosamente' });
+        } catch (error) {
+            console.error("Error en actualizar:", error);
+            res.status(500).json({ mensaje: 'Error al actualizar la orden' });
+        }
+    }
+
+    static async eliminar(req, res) {
+        try {
+            const id = req.params.id;
+            const eliminado = await ordenesService.eliminar(id);
+
+            if (!eliminado) {
+                return res.status(404).json({ mensaje: 'Orden no encontrada' });
+            }
+
+            res.status(200).json({ mensaje: 'Orden eliminada exitosamente' });
+        } catch (error) {
+            console.error("Error en eliminar:", error);
+            res.status(500).json({ mensaje: 'Error al eliminar la orden' });
+        }
+    }
 
 
 
