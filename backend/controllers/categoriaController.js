@@ -1,10 +1,11 @@
+// controllers/categoriaController.js
 const categoriaService = require('../services/categoriaService');
 
 class CategoriaController {
     async getCategorias(req, res) {
         try {
             const categorias = await categoriaService.getAllCategorias();
-            res.json(categorias);  // Array directo de categorías
+            res.json(categorias);
         } catch (error) {
             console.error('Error en getCategorias:', error.message);
             res.status(500).json({ error: error.message });
@@ -15,10 +16,13 @@ class CategoriaController {
         try {
             const { id } = req.params;
             const categoria = await categoriaService.getCategoriaById(id);
-            res.json(categoria);  // Objeto categoría directo
+            if (!categoria) {
+                return res.status(404).json({ error: 'Categoría no encontrada' });
+            }
+            res.json(categoria);
         } catch (error) {
             console.error('Error en getCategoria:', error.message);
-            res.status(404).json({ error: error.message });
+            res.status(500).json({ error: error.message });
         }
     }
 
@@ -29,7 +33,7 @@ class CategoriaController {
                 message: "Categoría creada correctamente",
                 id: categoria.id,
                 nombre: categoria.nombre,
-                estado: categoria.estado
+                tipo: categoria.tipo
             });
         } catch (error) {
             console.error('Error en createCategoria:', error.message);
@@ -45,7 +49,7 @@ class CategoriaController {
                 message: "Categoría actualizada correctamente",
                 id: categoria.id,
                 nombre: categoria.nombre,
-                estado: categoria.estado
+                tipo: categoria.tipo
             });
         } catch (error) {
             console.error('Error en updateCategoria:', error.message);

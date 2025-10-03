@@ -1,4 +1,6 @@
+// services/categoriaService.js
 const Categoria = require('../models/Categoria');
+const { db } = require('../config/db');
 
 class CategoriaService {
     async getAllCategorias() {
@@ -23,7 +25,7 @@ class CategoriaService {
 
     async createCategoria(categoriaData) {
         try {
-            const { nombre } = categoriaData;
+            const { nombre, tipo = 'Producto' } = categoriaData;
 
             // Validaciones
             if (!nombre || nombre.trim() === '') {
@@ -34,13 +36,17 @@ class CategoriaService {
                 throw new Error('El nombre debe tener al menos 2 caracteres');
             }
 
+            if (!['Producto', 'Servicio'].includes(tipo)) {
+                throw new Error('El tipo debe ser "Producto" o "Servicio"');
+            }
+
             // Verificar si ya existe
             const exists = await Categoria.exists(nombre);
             if (exists) {
                 throw new Error('Ya existe una categoría con este nombre');
             }
 
-            return await Categoria.create(nombre);
+            return await Categoria.create(nombre, tipo);
         } catch (error) {
             throw new Error('Error al crear categoría: ' + error.message);
         }
@@ -53,13 +59,19 @@ class CategoriaService {
                 throw new Error('Categoría no encontrada');
             }
 
-            if (categoriaData.nombre && categoriaData.nombre.trim() === '') {
+            const { nombre, tipo } = categoriaData;
+
+            if (nombre && nombre.trim() === '') {
                 throw new Error('El nombre de la categoría es requerido');
             }
 
+            if (tipo && !['Producto', 'Servicio'].includes(tipo)) {
+                throw new Error('El tipo debe ser "Producto" o "Servicio"');
+            }
+
             // Verificar duplicado (excluyendo la categoría actual)
-            if (categoriaData.nombre && categoriaData.nombre !== categoria.nombre) {
-                const exists = await Categoria.exists(categoriaData.nombre, id);
+            if (nombre && nombre !== categoria.nombre) {
+                const exists = await Categoria.exists(nombre, id);
                 if (exists) {
                     throw new Error('Ya existe una categoría con este nombre');
                 }
@@ -76,6 +88,20 @@ class CategoriaService {
             const categoria = await Categoria.findById(id);
             if (!categoria) {
                 throw new Error('Categoría no encontrada');
+            }
+
+            // Verificar si hay productos o servicios asociados
+            const [productos] = await db.execute(
+                'SELECT COUNT(*) as count FROM productos WHERE categoria_id = ?',
+                [id]
+            );
+            const [servicios] = await db.execute(
+                'SELECT COUNT(*) as count FROM servicios WHERE categoria_id = ?',
+                [id]
+            );
+
+            if (productos[0].count > 0 || servicios[0].count > 0) {
+                throw new Error('No se puede eliminar la categoría porque tiene productos o servicios asociados');
             }
 
             const deleted = await Categoria.delete(id);

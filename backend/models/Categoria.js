@@ -1,13 +1,14 @@
+// models/Categoria.js
 const { db } = require('../config/db');
 
 class Categoria {
     static async findAll() {
         try {
-            const [rows] = await db.execute('SELECT * FROM categoria WHERE Estado = "Activo"');
+            const [rows] = await db.execute('SELECT * FROM categorias ORDER BY nombre');
             return rows.map(row => ({
-                id: row.ID_Categoria,
-                nombre: row.Nombre,
-                estado: row.Estado
+                id: row.id,
+                nombre: row.nombre,
+                tipo: row.tipo
             }));
         } catch (error) {
             console.error('Error en Categoria.findAll:', error.message);
@@ -17,14 +18,14 @@ class Categoria {
 
     static async findById(id) {
         try {
-            const [rows] = await db.execute('SELECT * FROM categoria WHERE ID_Categoria = ?', [id]);
+            const [rows] = await db.execute('SELECT * FROM categorias WHERE id = ?', [id]);
             if (rows.length === 0) return null;
 
             const row = rows[0];
             return {
-                id: row.ID_Categoria,
-                nombre: row.Nombre,
-                estado: row.Estado
+                id: row.id,
+                nombre: row.nombre,
+                tipo: row.tipo
             };
         } catch (error) {
             console.error('Error en Categoria.findById:', error.message);
@@ -32,11 +33,11 @@ class Categoria {
         }
     }
 
-    static async create(nombre) {
+    static async create(nombre, tipo) {
         try {
             const [result] = await db.execute(
-                'INSERT INTO categoria (Nombre, Estado) VALUES (?, "Activo")',
-                [nombre]
+                'INSERT INTO categorias (nombre, tipo) VALUES (?, ?)',
+                [nombre, tipo || 'Producto']
             );
             return this.findById(result.insertId);
         } catch (error) {
@@ -52,16 +53,11 @@ class Categoria {
 
     static async update(id, categoriaData) {
         try {
-            const { nombre, estado = 'Activo' } = categoriaData;
-
-            // Validar que nombre no sea undefined
-            if (nombre === undefined) {
-                throw new Error('El campo nombre es requerido');
-            }
+            const { nombre, tipo } = categoriaData;
 
             await db.execute(
-                'UPDATE categoria SET Nombre = ?, Estado = ? WHERE ID_Categoria = ?',
-                [nombre, estado, id]
+                'UPDATE categorias SET nombre = ?, tipo = ? WHERE id = ?',
+                [nombre, tipo, id]
             );
             return this.findById(id);
         } catch (error) {
@@ -78,7 +74,7 @@ class Categoria {
     static async delete(id) {
         try {
             const [result] = await db.execute(
-                'UPDATE categoria SET Estado = "Inactivo" WHERE ID_Categoria = ?',
+                'DELETE FROM categorias WHERE id = ?',
                 [id]
             );
             return result.affectedRows > 0;
@@ -90,11 +86,11 @@ class Categoria {
 
     static async exists(nombre, excludeId = null) {
         try {
-            let query = 'SELECT COUNT(*) as count FROM categoria WHERE Nombre = ?';
+            let query = 'SELECT COUNT(*) as count FROM categorias WHERE nombre = ?';
             const params = [nombre];
 
             if (excludeId) {
-                query += ' AND ID_Categoria != ?';
+                query += ' AND id != ?';
                 params.push(excludeId);
             }
 
