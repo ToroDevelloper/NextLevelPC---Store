@@ -101,7 +101,7 @@ class Ordenes {
         }
     }
 
-     static async obtenerPorCliente(clienteId) {
+    static async obtenerPorCliente(clienteId) {
         try {
             const rows = await executeQuery(`
                 SELECT o.* 
@@ -114,6 +114,28 @@ class Ordenes {
         } catch (error) {
             console.error('Error en Ordenes.obtenerPorCliente:', error.message);
             throw new Error('Error al obtener órdenes del cliente');
+        }
+    }
+
+
+    
+    static async actualizarTotal(id) {
+        try {
+            // Calcular total sumando los items
+            const [result] = await executeQuery(`
+                UPDATE ordenes o
+                SET o.total = (
+                    SELECT COALESCE(SUM(oi.subtotal), 0) 
+                    FROM orden_items oi 
+                    WHERE oi.orden_id = o.id
+                )
+                WHERE o.id = ?
+            `, [id]);
+            
+            return result.affectedRows > 0;
+        } catch (error) {
+            console.error('Error en Ordenes.actualizarTotal:', error.message);
+            throw new Error('Error al actualizar el total de la orden');
         }
     }
 
