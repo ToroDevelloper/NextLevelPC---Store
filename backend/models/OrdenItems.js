@@ -74,4 +74,36 @@ class OrdenItems {
     }
 
 
+    static async actualizar(id, itemData) {
+        try {
+            const camposPermitidos = ['cantidad', 'precio_unitario', 'subtotal', 'descripcion'];
+            const updates = [];
+            const valores = [];
+
+            for (const campo in itemData) {
+                if (camposPermitidos.includes(campo)) {
+                    updates.push(`${campo} = ?`);
+                    valores.push(itemData[campo]);
+                }
+            }
+
+            if (updates.length === 0) {
+                throw new Error('No hay campos válidos para actualizar');
+            }
+
+            valores.push(id);
+
+            const result = await executeQuery(
+                `UPDATE orden_items SET ${updates.join(', ')} WHERE id = ?`,
+                valores
+            );
+
+            return result.affectedRows > 0;
+        } catch (error) {
+            console.error('Error en OrdenItems.actualizar:', error.message);
+            throw new Error('Error al actualizar el item de orden: ' + error.message);
+        }
+    }
+
+
 }
