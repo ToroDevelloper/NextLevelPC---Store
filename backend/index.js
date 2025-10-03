@@ -76,6 +76,8 @@ app.get('/', (req, res) => {
             servicios: '/api/servicios',
             productos: '/api/productos',
             usuarios: '/api/usuarios',
+            ordenes: '/api/ordenes',       
+            ordenitems: '/api/ordenitems',
             roles: '/api/roles',
             health: '/api/health'
 
