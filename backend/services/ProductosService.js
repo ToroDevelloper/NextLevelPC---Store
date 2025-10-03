@@ -1,255 +1,206 @@
-const Productos = require('../models/Productos')
+const Productos = require('../models/Productos');
 
 class ProductosService {
-    static async obtenerTodos(filtros = {}) {
+    static async crearProducto(productoData) {
         try {
-            const { incluirInactivos = false, categoria_id, buscar } = filtros
-
-            if (categoria_id) {
-                return await Productos.obtenerPorCategoria(categoria_id)
+            // Validaciones básicas
+            if (!productoData.nombre || !productoData.categoria_id || !productoData.precio_actual) {
+                throw new Error('Nombre, categoría_id y precio_actual son campos obligatorios');
             }
 
-            if (buscar) {
-                return await Productos.buscarPorNombre(buscar)
+            if (productoData.precio_actual < 0) {
+                throw new Error('El precio no debe ser negativo');
             }
 
-             if (incluirInactivos) {
-                return await Productos.obtenerTodosConInactivos()
+            if (productoData.stock && productoData.stock < 0) {
+                throw new Error('El stock no puede ser negativo');
             }
 
-            return await Productos.obtenerTodos()
+            const productoId = await Productos.crear(productoData);
+            return await Productos.obtenerPorId(productoId);
         } catch (error) {
-            throw new Error(`Error al obtener productos: ${error.message}`)
+            throw new Error(`Error al crear producto: ${error.message}`);
         }
     }
 
-    static async obtenerPorId(id) {
+    static async obtenerTodosLosProductos() {
         try {
-            if (!id || isNaN(id)) {
-                throw new Error('ID de producto inválido')
+            return await Productos.obtenerTodos();
+        } catch (error) {
+            throw new Error(`Error al obtener productos: ${error.message}`);
+        }
+    }
+
+    static async obtenerProductosActivos() {
+        try {
+            return await Productos.obtenerActivos();
+        } catch (error) {
+            throw new Error(`Error al obtener productos activos: ${error.message}`);
+        }
+    }
+
+    static async obtenerProductoPorId(id) {
+        try {
+            if (!id) {
+                throw new Error('ID de producto es requerido');
             }
 
-            const producto = await Productos.obtenerPorId(id)
+            const producto = await Productos.obtenerPorId(id);
+
             if (!producto) {
-                throw new Error('Producto no encontrado')
+                throw new Error('Producto no encontrado');
             }
 
-            return producto
+            return producto;
         } catch (error) {
-            throw new Error(`Error al obtener producto: ${error.message}`)
+            throw new Error(`Error al obtener producto: ${error.message}`);
         }
     }
 
-    static async obtenerConCategoria(id = null) {
+    static async obtenerProductosPorCategoria(categoria_id) {
         try {
-            return await Productos.obtenerConCategoria(id)
+            if (!categoria_id) {
+                throw new Error('ID de categoría es requerido');
+            }
+
+            return await Productos.obtenerPorCategoria(categoria_id);
         } catch (error) {
-            throw new Error(`Error al obtener producto con categoría: ${error.message}`)
+            throw new Error(`Error al obtener productos por categoría: ${error.message}`);
         }
     }
 
-    static async crear(productoData) {
+    static async actualizarProducto(id, productoData) {
         try {
-            // Validaciones requeridas
-            if (!productoData.nombre || !productoData.nombre.trim()) {
-                throw new Error('El nombre del producto es requerido')
-            }
-
-            if (!productoData.categoria_id || isNaN(productoData.categoria_id)) {
-                throw new Error('La categoría es requerida y debe ser un número válido')
-            }
-
-            if (!productoData.precio_actual || isNaN(productoData.precio_actual) || productoData.precio_actual < 0) {
-                throw new Error('El precio actual es requerido y debe ser un número positivo')
-            }
-
-            // Validar SKU único si se proporciona
-            if (productoData.sku) {
-                const productoExistente = await Productos.obtenerPorSku(productoData.sku)
-                if (productoExistente) {
-                    throw new Error('El SKU ya está en uso por otro producto')
-                }
-            }
-
-            // Validar y formatear campos JSON
-            if (productoData.imagenes && typeof productoData.imagenes !== 'object') {
-                throw new Error('El campo imagenes debe ser un objeto JSON válido')
-            }
-
-            if (productoData.atributos && typeof productoData.atributos !== 'object') {
-                throw new Error('El campo atributos debe ser un objeto JSON válido')
-            }
-
-            // Valores por defecto
-            const datosProducto = {
-                sku: productoData.sku || null,
-                nombre: productoData.nombre.trim(),
-                marca: productoData.marca || null,
-                modelo: productoData.modelo || null,
-                categoria_id: parseInt(productoData.categoria_id),
-                descripcion: productoData.descripcion || '',
-                imagenes: productoData.imagenes || [],
-                atributos: productoData.atributos || {},
-                precio_actual: parseFloat(productoData.precio_actual),
-                impuesto_porcentaje: productoData.impuesto_porcentaje ? parseFloat(productoData.impuesto_porcentaje) : 19.00,
-                garantia: productoData.garantia || null,
-                activo: productoData.activo !== undefined ? Boolean(productoData.activo) : true
-            }
-
-            const productoId = await Productos.crear(datosProducto)
-            return await Productos.obtenerPorId(productoId)
-
-        } catch (error) {
-            throw new Error(`Error al crear producto: ${error.message}`)
-        }
-    }
-
-    static async actualizar(id, productoData) {
-        try {
-            if (!id || isNaN(id)) {
-                throw new Error('ID de producto inválido')
+            if (!id) {
+                throw new Error('ID de producto es requerido');
             }
 
             // Verificar que el producto existe
-            const productoExistente = await Productos.obtenerPorId(id)
+            const productoExistente = await Productos.obtenerPorId(id);
             if (!productoExistente) {
-                throw new Error('Producto no encontrado')
+                throw new Error('Producto no encontrado');
             }
 
-            // Validar SKU único si se está actualizando
-            if (productoData.sku && productoData.sku !== productoExistente.sku) {
-                const skuEnUso = await Productos.skuEnUsoPorOtroProducto(productoData.sku, id)
-                if (skuEnUso) {
-                    throw new Error('El SKU ya está en uso por otro producto')
-                }
+            // Validaciones de datos
+            if (productoData.precio_actual && productoData.precio_actual < 0) {
+                throw new Error('El precio no puede ser negativo');
             }
 
-            // Validar categoría si se está actualizando
-            if (productoData.categoria_id && isNaN(productoData.categoria_id)) {
-                throw new Error('La categoría debe ser un número válido')
+            if (productoData.stock && productoData.stock < 0) {
+                throw new Error('El stock no puede ser negativo');
             }
 
-            // Validar precio si se está actualizando
-            if (productoData.precio_actual && (isNaN(productoData.precio_actual) || productoData.precio_actual < 0)) {
-                throw new Error('El precio actual debe ser un número positivo')
-            }
+            const actualizado = await Productos.actualizar(id, productoData);
 
-            // Preparar datos para actualización
-            const datosActualizacion = {}
-            const camposPermitidos = ['sku', 'nombre', 'marca', 'modelo', 'categoria_id', 'descripcion', 'imagenes', 'atributos', 'precio_actual', 'impuesto_porcentaje', 'garantia', 'activo']
-
-            camposPermitidos.forEach(campo => {
-                if (productoData[campo] !== undefined) {
-                    if (campo === 'categoria_id') {
-                        datosActualizacion[campo] = parseInt(productoData[campo])
-                    } else if (campo === 'precio_actual' || campo === 'impuesto_porcentaje') {
-                        datosActualizacion[campo] = parseFloat(productoData[campo])
-                    } else if (campo === 'activo') {
-                        datosActualizacion[campo] = Boolean(productoData[campo])
-                    } else if (campo === 'nombre' && productoData[campo]) {
-                        datosActualizacion[campo] = productoData[campo].trim()
-                    } else {
-                        datosActualizacion[campo] = productoData[campo]
-                    }
-                }
-            })
-
-            // Validar campos JSON
-            if (datosActualizacion.imagenes && typeof datosActualizacion.imagenes !== 'object') {
-                throw new Error('El campo imagenes debe ser un objeto JSON válido')
-            }
-
-            if (datosActualizacion.atributos && typeof datosActualizacion.atributos !== 'object') {
-                throw new Error('El campo atributos debe ser un objeto JSON válido')
-            }
-
-            if (Object.keys(datosActualizacion).length === 0) {
-                throw new Error('No se proporcionaron datos para actualizar')
-            }
-
-            const actualizado = await Productos.actualizar(id, datosActualizacion)
             if (!actualizado) {
-                throw new Error('No se pudo actualizar el producto')
+                throw new Error('No se pudo actualizar el producto');
             }
 
-            return await Productos.obtenerPorId(id)
-
+            return await Productos.obtenerPorId(id);
         } catch (error) {
-            throw new Error(`Error al actualizar producto: ${error.message}`)
+            throw new Error(`Error al actualizar producto: ${error.message}`);
         }
     }
 
-    static async eliminar(id) {
+    static async actualizarStock(id, nuevoStock) {
         try {
-            if (!id || isNaN(id)) {
-                throw new Error('ID de producto inválido')
+            if (!id) {
+                throw new Error('ID de producto es requerido');
             }
 
-            const productoExistente = await Productos.obtenerPorId(id)
+            if (nuevoStock < 0) {
+                throw new Error('El stock no puede ser negativo');
+            }
+
+            // Verificar que el producto existe
+            const productoExistente = await Productos.obtenerPorId(id);
             if (!productoExistente) {
-                throw new Error('Producto no encontrado')
+                throw new Error('Producto no encontrado');
             }
 
-            const eliminado = await Productos.eliminar(id)
+            const actualizado = await Productos.actualizarStock(id, nuevoStock);
+
+            if (!actualizado) {
+                throw new Error('No se pudo actualizar el stock');
+            }
+
+            return await Productos.obtenerPorId(id);
+        } catch (error) {
+            throw new Error(`Error al actualizar stock: ${error.message}`);
+        }
+    }
+
+    static async eliminarProducto(id) {
+        try {
+            if (!id) {
+                throw new Error('ID de producto es requerido');
+            }
+
+            // Verificar que el producto existe
+            const productoExistente = await Productos.obtenerPorId(id);
+            if (!productoExistente) {
+                throw new Error('Producto no encontrado');
+            }
+
+            const eliminado = await Productos.eliminar(id);
+
             if (!eliminado) {
-                throw new Error('No se pudo eliminar el producto')
+                throw new Error('No se pudo eliminar el producto');
             }
 
-            return { message: 'Producto eliminado correctamente' }
-
+            return { mensaje: 'Producto eliminado correctamente' };
         } catch (error) {
-            throw new Error(`Error al eliminar producto: ${error.message}`)
+            throw new Error(`Error al eliminar producto: ${error.message}`);
         }
     }
 
-    static async activar(id) {
+    static async desactivarProducto(id) {
         try {
-            if (!id || isNaN(id)) {
-                throw new Error('ID de producto inválido')
+            if (!id) {
+                throw new Error('ID de producto es requerido');
             }
 
-            const productoExistente = await Productos.obtenerPorId(id)
+            // Verificar que el producto existe
+            const productoExistente = await Productos.obtenerPorId(id);
             if (!productoExistente) {
-                throw new Error('Producto no encontrado')
+                throw new Error('Producto no encontrado');
             }
 
-            const activado = await Productos.activar(id)
-            if (!activado) {
-                throw new Error('No se pudo activar el producto')
+            const desactivado = await Productos.desactivar(id);
+
+            if (!desactivado) {
+                throw new Error('No se pudo desactivar el producto');
             }
 
-            return await Productos.obtenerPorId(id)
-
+            return await Productos.obtenerPorId(id);
         } catch (error) {
-            throw new Error(`Error al activar producto: ${error.message}`)
+            throw new Error(`Error al desactivar producto: ${error.message}`);
         }
     }
 
-    static async validarDatosProducto(productoData) {
-        const errores = []
+    static async activarProducto(id) {
+        try {
+            if (!id) {
+                throw new Error('ID de producto es requerido');
+            }
 
-        if (!productoData.nombre || !productoData.nombre.trim()) {
-            errores.push('El nombre del producto es requerido')
+            // Verificar que el producto existe
+            const productoExistente = await Productos.obtenerPorId(id);
+            if (!productoExistente) {
+                throw new Error('Producto no encontrado');
+            }
+
+            const activado = await Productos.activar(id);
+
+            if (!activado) {
+                throw new Error('No se pudo activar el producto');
+            }
+
+            return await Productos.obtenerPorId(id);
+        } catch (error) {
+            throw new Error(`Error al activar producto: ${error.message}`);
         }
-
-        if (!productoData.categoria_id || isNaN(productoData.categoria_id)) {
-            errores.push('La categoría es requerida y debe ser un número válido')
-        }
-
-        if (!productoData.precio_actual || isNaN(productoData.precio_actual) || productoData.precio_actual < 0) {
-            errores.push('El precio actual es requerido y debe ser un número positivo')
-        }
-
-        if (productoData.imagenes && typeof productoData.imagenes !== 'object') {
-            errores.push('El campo imagenes debe ser un objeto JSON válido')
-        }
-
-        if (productoData.atributos && typeof productoData.atributos !== 'object') {
-            errores.push('El campo atributos debe ser un objeto JSON válido')
-        }
-
-        return errores
     }
 }
 
-module.exports = ProductosService
+module.exports = ProductosService;
