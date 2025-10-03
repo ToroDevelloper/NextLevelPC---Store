@@ -22,5 +22,35 @@ class OrdenItems {
         }
     }
 
+    static async crear(itemData) {
+        try {
+            const { 
+                orden_id, 
+                tipo, 
+                producto_id, 
+                servicio_id, 
+                descripcion, 
+                cantidad = 1, 
+                precio_unitario, 
+                subtotal 
+            } = itemData;
+
+            // Calcular subtotal si no se proporciona
+            const subtotalCalculado = subtotal || (precio_unitario * cantidad);
+
+            const result = await executeQuery(
+                `INSERT INTO orden_items 
+                 (orden_id, tipo, producto_id, servicio_id, descripcion, cantidad, precio_unitario, subtotal) 
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+                [orden_id, tipo, producto_id, servicio_id, descripcion, cantidad, precio_unitario, subtotalCalculado]
+            );
+            
+            return result.insertId;
+        } catch (error) {
+            console.error('Error en OrdenItems.crear:', error.message);
+            throw new Error('Error al crear el item de orden');
+        }
+    }
+
 
 }
