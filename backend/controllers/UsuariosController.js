@@ -1,47 +1,18 @@
-const bcrypt = require('bcrypt');
-const { executeQuery } = require('../config/db.js');
-const Usuarios = require('../models/Usuarios.js');
+const usuariosService = require('../services/usuariosService.js');
 
 class UsuariosController {
-    static async obtenerTodos(req, res) {
-        try {
-            const data = await Usuarios.obtenerTodos();
-            res.json(data);
-        } catch (error) {
-            console.error("Error en obtenerTodos:", error);
-            res.status(500).json({ mensaje: 'Error al obtener usuarios', error });
-        }
-    }
-
-    static async obtenerPorId(req, res) {
-        try {
-            const { id } = req.params;
-            const usuario = await Usuarios.obtenerPorId(id);
-
-            if (!usuario) {
-                return res.status(404).json({ mensaje: "Usuario no encontrado" });
-            }
-
-            res.status(200).json(usuario);
-        } catch (error) {
-            console.error("Error en obtenerPorId:", error);
-            res.status(500).json({ mensaje: "Error al obtener usuario" });
-        }
-    }
-
     static async crear(req, res) {
         try {
             const data = req.body;
-            const { Correo } = data;
+            const { correo } = data;
 
-            const email = await Usuarios.correo(Correo);
+            const email = await usuariosService.obtenerPorCorreo(correo);
             if (email) {
                 return res.status(400).json({ mensaje: 'Correo en uso por otro usuario' });
             }
 
-            const insertId = await Usuarios.crear(data);
-
-            const nuevoUsuario = await Usuarios.obtenerPorId(insertId);
+            const insertId = await usuariosService.crear(data);
+            const nuevoUsuario = await usuariosService.obtenerPorId(insertId);
 
             res.status(201).json({ mensaje: 'Usuario creado exitosamente', usuario: nuevoUsuario });
         } catch (error) {
@@ -50,48 +21,62 @@ class UsuariosController {
         }
     }
 
-    static async actualizar(req, res) {
+    static async obtenerTodos(req, res) {
         try {
-            const { id } = req.params;
-            const data = req.body;
+            const usuarios = await usuariosService.obtenerTodos();
+            res.status(200).json(usuarios);
+        } catch (error) {
+            console.error("Error en obtenerTodos:", error);
+            res.status(500).json({ mensaje: 'Error al obtener los usuarios' });
+        }
+    }
 
-            if (data.Correo) {
-                const email = await Usuarios.correoEnUsoPorOtroUsuario(data.Correo, id);
-                if (email) {
-                    return res.status(400).json({ mensaje: 'Correo en uso por otro usuario' });
-                }
+    static async obtenerPorId(req, res) {
+        try {
+            const id = req.params.id;
+            const usuario = await usuariosService.obtenerPorId(id);
+
+            if (!usuario) {
+                return res.status(404).json({ mensaje: 'Usuario no encontrado' });
             }
 
-            const actualizado = await Usuarios.actualizar(id, data);
+            res.status(200).json(usuario);
+        } catch (error) {
+            console.error("Error en obtenerPorId:", error);
+            res.status(500).json({ mensaje: 'Error al obtener el usuario' });
+        }
+    }
+
+    static async actualizar(req, res) {
+        try {
+            const id = req.params.id;
+            const data = req.body;
+            const actualizado = await usuariosService.actualizar(id, data);
 
             if (!actualizado) {
                 return res.status(404).json({ mensaje: 'Usuario no encontrado' });
             }
 
-            const usuarioActualizado = await Usuarios.obtenerPorId(id);
-
-            res.status(200).json({
-                mensaje: 'Usuario actualizado correctamente',
-                usuario: usuarioActualizado
-            });
+            res.status(200).json({ mensaje: 'Usuario actualizado exitosamente' });
         } catch (error) {
             console.error("Error en actualizar:", error);
-            res.status(500).json({ mensaje: 'Error al actualizar usuario' });
+            res.status(500).json({ mensaje: 'Error al actualizar el usuario' });
         }
     }
 
     static async eliminar(req, res) {
         try {
-            const { id } = req.params;
-            const eliminar = await Usuarios.eliminar(id);
-            if (eliminar) {
-                res.status(200).json({ mensaje: 'Usuario eliminado' });
-            } else {
-                res.status(404).json({ mensaje: 'Usuario no encontrado' });
+            const id = req.params.id;
+            const eliminado = await usuariosService.eliminar(id);
+
+            if (!eliminado) {
+                return res.status(404).json({ mensaje: 'Usuario no encontrado' });
             }
+
+            res.status(200).json({ mensaje: 'Usuario eliminado exitosamente' });
         } catch (error) {
-            console.error('Error al eliminar: ', error);
-            res.status(500).json({ mensaje: 'Usuario no encontrado' });
+            console.error("Error en eliminar:", error);
+            res.status(500).json({ mensaje: 'Error al eliminar el usuario' });
         }
     }
 }
