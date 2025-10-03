@@ -1,2 +1,18 @@
 class OrdenController {
+    static async crear(req, res) {
+        try {
+            const data = req.body;
+            const insertId = await ordenesService.crear(data);
+            const nuevaOrden = await ordenesService.obtenerPorId(insertId);
+
+            res.status(201).json({ mensaje: 'Orden creada exitosamente', orden: nuevaOrden });
+        } catch (error) {
+            console.error("Error en crear:", error);
+            res.status(500).json({ mensaje: 'Error al crear la orden' });
+        }
+    }
+
+
+
 }
+
