@@ -40,5 +40,25 @@ class Ordenes {
         }
     }
 
+    static async crear(ordenData) {
+        try {
+            const { cliente_id, tipo, total = 0.00 } = ordenData;
+            
+            // Generar número de orden único
+            const numero_orden = `ORD-${Date.now()}`;
+            
+            const result = await executeQuery(
+                `INSERT INTO ordenes (cliente_id, tipo, numero_orden, total, estado_orden, estado_pago) 
+                 VALUES (?, ?, ?, ?, 'Pendiente', 'Pendiente')`,
+                [cliente_id, tipo, numero_orden, total]
+            );
+            
+            return result.insertId;
+        } catch (error) {
+            console.error('Error en Ordenes.crear:', error.message);
+            throw new Error('Error al crear la orden');
+        }
+    }
+
 
 }
