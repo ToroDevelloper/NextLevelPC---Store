@@ -71,6 +71,16 @@ class OrdenController {
         }
     }
 
+    static async obtenerPorCliente(req, res) {
+        try {
+            const clienteId = req.params.clienteId;
+            const ordenes = await ordenesService.obtenerPorCliente(clienteId);
+            res.status(200).json(ordenes);
+        } catch (error) {
+            console.error("Error en obtenerPorCliente:", error);
+            res.status(500).json({ mensaje: 'Error al obtener las órdenes del cliente' });
+        }
+    }
 
 
 
