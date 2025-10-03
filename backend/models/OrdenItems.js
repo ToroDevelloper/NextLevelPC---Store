@@ -29,6 +29,7 @@ class OrdenItems {
         return result.insertId;
     }
 
+    
     static async obtenerTodos() {
         return await executeQuery(`
             SELECT oi.*,

@@ -63,6 +63,7 @@ class Ordenes {
         return result.affectedRows > 0;
     }
 
+    
     static async obtenerPorCliente(clienteId) {
         return await executeQuery(`
             SELECT o.* 
