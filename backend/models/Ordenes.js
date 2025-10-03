@@ -20,4 +20,25 @@ class Ordenes {
         }
     }
 
+    static async obtenerPorId(id) {
+        try {
+            const [orden] = await executeQuery(`
+                SELECT o.*, 
+                       u.Nombre as cliente_nombre, 
+                       u.Apellido as cliente_apellido,
+                       u.Correo as cliente_correo,
+                       u.Celular as cliente_celular
+                FROM ordenes o 
+                INNER JOIN usuarios u ON o.cliente_id = u.ID_Usuario 
+                WHERE o.id = ?
+            `, [id]);
+
+            return orden || null;
+        } catch (error) {
+            console.error('Error en Ordenes.obtenerPorId:', error.message);
+            throw new Error('Error al obtener la orden');
+        }
+    }
+
+
 }
