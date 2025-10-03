@@ -2,6 +2,16 @@ const bcrypt = require('bcrypt');
 const { executeQuery } = require('../config/db.js');
 
 class Usuarios {
+
+    constructor(id, nombre, apellido, correo, hash_password, rol_id) {
+        this.id = id;
+        this.nombre = nombre;
+        this.apellido = apellido;
+        this.correo = correo;
+        this.hash_password = hash_password;
+        this.rol_id = rol_id;
+    }
+
     static async crear(data) {
         const { nombre, apellido, correo, hash_password, rol_id } = data;
         const hashPassword = await bcrypt.hash(hash_password, 10);
@@ -15,7 +25,8 @@ class Usuarios {
     }
 
     static async obtenerTodos() {
-        return await executeQuery('SELECT * FROM usuarios');
+       const usuarios = executeQuery('SELECT * FROM usuarios');
+       return usuarios.length> 0 ? usuarios[0] : null;
     }
 
     static async obtenerPorId(id) {
@@ -25,6 +36,11 @@ class Usuarios {
 
     static async obtenerPorCorreo(correo) {
         const result = await executeQuery('SELECT * FROM usuarios WHERE correo = ?', [correo]);
+        return result.length > 0 ? result[0] : null;
+    }
+
+     static async correoEnUso(correo,id) {
+        const result = await executeQuery('SELECT * FROM usuarios WHERE correo = ? AND id <> ?', [correo,id]);
         return result.length > 0 ? result[0] : null;
     }
 
