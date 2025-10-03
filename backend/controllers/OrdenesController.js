@@ -1,3 +1,5 @@
+const ordenesService = require('../services/OrdenesService.js');
+
 class OrdenController {
     static async crear(req, res) {
         try {
@@ -81,8 +83,6 @@ class OrdenController {
             res.status(500).json({ mensaje: 'Error al obtener las órdenes del cliente' });
         }
     }
-
-
-
 }
+module.exports = OrdenesController;
 
