@@ -12,6 +12,16 @@ class OrdenController {
         }
     }
 
+     static async obtenerTodos(req, res) {
+        try {
+            const ordenes = await ordenesService.obtenerTodos();
+            res.status(200).json(ordenes);
+        } catch (error) {
+            console.error("Error en obtenerTodos:", error);
+            res.status(500).json({ mensaje: 'Error al obtener las órdenes' });
+        }
+    }
+
 
 
 }
