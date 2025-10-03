@@ -11,6 +11,8 @@ const serviciosRoutes = require('./routes/servicios'); // Nueva ruta
 const productosRoutes = require('./routes/productos'); // Nueva ruta para productos
 const rolesRoutes = require('./routes/roles'); // Nueva ruta para roles
 const usuariosRoutes = require('./routes/usuarios'); // Nueva ruta para usuarios
+const ordenesRoutes = require('./routes/Ordenes');        
+const ordenItemsRoutes = require('./routes/OrdenItems');
 
 // Importar conexión a DB
 const { testConnection } = require('./config/db');
