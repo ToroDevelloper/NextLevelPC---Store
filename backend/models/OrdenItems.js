@@ -63,5 +63,15 @@ class OrdenItems {
         }
     }
 
+    static async eliminar(id) {
+        try {
+            const result = await executeQuery('DELETE FROM orden_items WHERE id = ?', [id]);
+            return result.affectedRows > 0;
+        } catch (error) {
+            console.error('Error en OrdenItems.eliminar:', error.message);
+            throw new Error('Error al eliminar el item de orden');
+        }
+    }
+
 
 }
