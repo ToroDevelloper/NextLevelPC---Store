@@ -53,4 +53,15 @@ class OrdenItems {
     }
 
 
+    static async eliminarPorOrden(ordenId) {
+        try {
+            const result = await executeQuery('DELETE FROM orden_items WHERE orden_id = ?', [ordenId]);
+            return result.affectedRows;
+        } catch (error) {
+            console.error('Error en OrdenItems.eliminarPorOrden:', error.message);
+            throw new Error('Error al eliminar items de la orden');
+        }
+    }
+
+
 }
