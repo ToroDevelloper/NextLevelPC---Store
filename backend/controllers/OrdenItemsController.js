@@ -24,4 +24,15 @@ class OrdenItemsController {
         }
     }
 
+    static async obtenerPorOrden(req, res) {
+        try {
+            const ordenId = req.params.ordenId;
+            const items = await ordenItemsService.obtenerPorOrden(ordenId);
+            res.status(200).json(items);
+        } catch (error) {
+            console.error("Error en obtenerPorOrden:", error);
+            res.status(500).json({ mensaje: 'Error al obtener los items de la orden: ' + error.message });
+        }
+    }
+
 }
