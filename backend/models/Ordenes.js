@@ -91,7 +91,6 @@ class Ordenes {
         }
     }
 
-
     static async eliminar(id) {
         try {
             const result = await executeQuery('DELETE FROM ordenes WHERE id = ?', [id]);
@@ -99,6 +98,22 @@ class Ordenes {
         } catch (error) {
             console.error('Error en Ordenes.eliminar:', error.message);
             throw new Error('Error al eliminar la orden');
+        }
+    }
+
+     static async obtenerPorCliente(clienteId) {
+        try {
+            const rows = await executeQuery(`
+                SELECT o.* 
+                FROM ordenes o 
+                WHERE o.cliente_id = ? 
+                ORDER BY o.created_at DESC
+            `, [clienteId]);
+            
+            return rows;
+        } catch (error) {
+            console.error('Error en Ordenes.obtenerPorCliente:', error.message);
+            throw new Error('Error al obtener órdenes del cliente');
         }
     }
 
