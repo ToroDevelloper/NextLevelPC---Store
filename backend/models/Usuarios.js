@@ -26,7 +26,7 @@ class Usuarios {
 
     static async obtenerTodos() {
        const usuarios = executeQuery('SELECT * FROM usuarios');
-       return usuarios.length> 0 ? usuarios[0] : null;
+       return usuarios;
     }
 
     static async obtenerPorId(id) {
