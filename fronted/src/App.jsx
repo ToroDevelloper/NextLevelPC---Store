@@ -1,34 +1,53 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import { useState, useEffect } from 'react'
 import './App.css'
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [mensaje, setMensaje] = useState('')
+  const [categorias, setCategorias] = useState([])
+
+  // Probar conexión al backend
+  useEffect(() => {
+    fetch('http://localhost:8080/api/health')
+      .then(res => res.json())
+      .then(data => {
+        console.log('✅ Backend conectado:', data)
+        setMensaje(data.message)
+      })
+      .catch(err => {
+        console.error('❌ Error conectando al backend:', err)
+        setMensaje('Error de conexión')
+      })
+  }, [])
+
+  // Obtener categorías
+  const obtenerCategorias = async () => {
+    try {
+      const response = await fetch('http://localhost:8080/api/categorias')
+      const data = await response.json()
+      setCategorias(data)
+    } catch (error) {
+      console.error('Error:', error)
+    }
+  }
 
   return (
-    <>
+    <div>
+      <h1>Frontend NextLevelPC</h1>
+      <p>Estado: {mensaje}</p>
+      
+      <button onClick={obtenerCategorias}>
+        Obtener Categorías
+      </button>
+
       <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+        <h3>Categorías:</h3>
+        <ul>
+          {categorias.map(cat => (
+            <li key={cat.id}>{cat.nombre}</li>
+          ))}
+        </ul>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    </div>
   )
 }
 

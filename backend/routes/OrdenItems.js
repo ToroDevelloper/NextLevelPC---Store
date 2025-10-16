@@ -3,7 +3,7 @@ const OrdenItemsController = require('../controllers/OrdenItemsController.js');
 
 const router = express.Router();
 
-router.get('/', OrdenItemsController.obtenerTodos);  // ← NUEVA RUTA
+router.get('/', OrdenItemsController.obtenerTodos);  
 router.post('/', OrdenItemsController.crear);
 router.put('/:id', OrdenItemsController.actualizar);
 router.delete('/:id', OrdenItemsController.eliminar);
