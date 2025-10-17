@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import InicioSesion from './inicioSesion.jsx'
+import InicioSesion from './pages/inicioSesion.jsx'
 
 function App() {
 useEffect(() => {
