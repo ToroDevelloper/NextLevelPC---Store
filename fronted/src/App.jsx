@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import InicioSesion from './inicioSesion.jsx'
 
 function App() {
 useEffect(() => {
@@ -14,6 +15,12 @@ useEffect(() => {
       console.error('❌ ERROR DE CONEXIÓN:', err.message)
     })
 }, [])
+
+return (
+    <div>
+      <InicioSesion />
+    </div>
+  )
 }
 
 export default App
