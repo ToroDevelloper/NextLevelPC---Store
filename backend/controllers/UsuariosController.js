@@ -71,7 +71,10 @@ class UsuariosController {
             res.status(200).json({ mensaje: 'Login exitoso', access_token: token });
         } catch (error) {
             console.error("Error en login:", error);
-            res.status(500).json({ mensaje: 'Error al iniciar sesión',error: error.message});
+            if (error && error.message === 'Credenciales inválidas') {
+                return res.status(401).json({ mensaje: 'Credenciales inválidas' });
+            }
+            res.status(500).json({ mensaje: 'Error al iniciar sesión', error: error.message });
         }
     }
 
