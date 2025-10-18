@@ -20,8 +20,8 @@ function App() {
 
     return (
         <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/login" element={<InicioSesion />} />
+            <Route path="/home" element={<Home />} />
+            <Route path="/" element={<InicioSesion />} />
             {/* Puedes agregar más rutas aquí */}
         </Routes>
     )
