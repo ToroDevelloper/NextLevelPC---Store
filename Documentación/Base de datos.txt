@@ -1,81 +1,90 @@
-CREATE DATABASE IF NOT EXISTS `nextlevel`;
-USE `nextlevel`;
+-- Tabla: estado
+CREATE TABLE `estado` (
+  `id` tinyint(10) NOT NULL DEFAULT 1,
+  `nombre` varchar(20) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
--- 1. Tablas INDEPENDIENTES (sin FK)
-CREATE TABLE IF NOT EXISTS `roles` (
-  `id` int NOT NULL AUTO_INCREMENT,
+-- Tabla: roles
+CREATE TABLE `roles` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `nombre` varchar(50) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-CREATE TABLE IF NOT EXISTS `categorias` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `nombre` varchar(100) NOT NULL,
-  `tipo` enum('producto','servicio') NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
--- 2. Tablas que dependen de las anteriores
-CREATE TABLE IF NOT EXISTS `usuarios` (
-  `id` int NOT NULL AUTO_INCREMENT,
+-- Tabla: usuarios
+CREATE TABLE `usuarios` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `nombre` varchar(100) NOT NULL,
   `apellido` varchar(100) DEFAULT NULL,
   `correo` varchar(150) NOT NULL,
   `hash_password` varchar(255) NOT NULL,
-  `rol_id` int DEFAULT NULL,
+  `rol_id` int(11) DEFAULT NULL,
   `estado` enum('activo','inactivo') DEFAULT 'activo',
   PRIMARY KEY (`id`),
   UNIQUE KEY `correo` (`correo`),
   KEY `rol_id` (`rol_id`),
-  CONSTRAINT `usuarios_ibfk_1` FOREIGN KEY (`rol_id`) REFERENCES `roles` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  CONSTRAINT `usuarios_ibfk_1` FOREIGN KEY (`rol_id`) REFERENCES `roles` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-CREATE TABLE IF NOT EXISTS `productos` (
-  `id` int NOT NULL AUTO_INCREMENT,
+-- Tabla: categorias
+CREATE TABLE `categorias` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `nombre` varchar(100) NOT NULL,
+  `tipo` enum('producto','servicio') NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- Tabla: productos
+CREATE TABLE `productos` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `nombre` varchar(200) NOT NULL,
-  `categoria_id` int DEFAULT NULL,
+  `categoria_id` int(11) NOT NULL,
   `precio_actual` decimal(12,2) NOT NULL,
-  `stock` int DEFAULT '0',
-  `activo` tinyint(1) DEFAULT '1',
+  `stock` int(11) DEFAULT 0,
+  `estado` tinyint(1) NOT NULL DEFAULT 1,
   PRIMARY KEY (`id`),
   KEY `categoria_id` (`categoria_id`),
-  CONSTRAINT `productos_ibfk_1` FOREIGN KEY (`categoria_id`) REFERENCES `categorias` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  KEY `estado` (`estado`),
+  CONSTRAINT `productos_ibfk_1` FOREIGN KEY (`categoria_id`) REFERENCES `categorias` (`id`),
+  CONSTRAINT `productos_ibfk_2` FOREIGN KEY (`estado`) REFERENCES `estado` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- 3. Tablas que dependen de las anteriores
-CREATE TABLE IF NOT EXISTS `ordenes` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `cliente_id` int DEFAULT NULL,
+-- Tabla: imagenes_productos
+CREATE TABLE `imagenes_productos` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `producto_id` int(11) NOT NULL,
+  `url` varchar(255) NOT NULL,
+  `es_principal` tinyint(1) DEFAULT 0,
+  PRIMARY KEY (`id`),
+  KEY `producto_id` (`producto_id`),
+  CONSTRAINT `imagenes_productos_ibfk_1` FOREIGN KEY (`producto_id`) REFERENCES `productos` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- Tabla: ordenes
+CREATE TABLE `ordenes` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `cliente_id` int(11) DEFAULT NULL,
   `tipo` enum('producto','servicio') NOT NULL,
   `numero_orden` varchar(50) NOT NULL,
-  `total` decimal(12,2) DEFAULT '0.00',
+  `total` decimal(12,2) DEFAULT 0.00,
   `estado_orden` enum('pendiente','procesando','completada','cancelada') DEFAULT 'pendiente',
   `estado_pago` enum('pendiente','pagado','reembolsado') DEFAULT 'pendiente',
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`id`),
   UNIQUE KEY `numero_orden` (`numero_orden`),
   KEY `cliente_id` (`cliente_id`),
   CONSTRAINT `ordenes_ibfk_1` FOREIGN KEY (`cliente_id`) REFERENCES `usuarios` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-CREATE TABLE IF NOT EXISTS `imagenes_productos` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `producto_id` int NOT NULL,
-  `url` varchar(255) NOT NULL,
-  `es_principal` tinyint(1) DEFAULT '0',
-  PRIMARY KEY (`id`),
-  KEY `producto_id` (`producto_id`),
-  CONSTRAINT `imagenes_productos_ibfk_1` FOREIGN KEY (`producto_id`) REFERENCES `productos` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
--- 4. Tablas que dependen de múltiples anteriores
-CREATE TABLE IF NOT EXISTS `orden_items` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `orden_id` int DEFAULT NULL,
-  `producto_id` int DEFAULT NULL,
+-- Tabla: orden_items
+CREATE TABLE `orden_items` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `orden_id` int(11) DEFAULT NULL,
+  `producto_id` int(11) DEFAULT NULL,
   `tipo` enum('producto','servicio') NOT NULL,
   `descripcion` varchar(255) DEFAULT NULL,
-  `cantidad` int DEFAULT '1',
+  `cantidad` int(11) DEFAULT 1,
   `precio_unitario` decimal(12,2) DEFAULT NULL,
   `subtotal` decimal(12,2) DEFAULT NULL,
   PRIMARY KEY (`id`),
@@ -83,16 +92,17 @@ CREATE TABLE IF NOT EXISTS `orden_items` (
   KEY `producto_id` (`producto_id`),
   CONSTRAINT `orden_items_ibfk_1` FOREIGN KEY (`orden_id`) REFERENCES `ordenes` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `orden_items_ibfk_2` FOREIGN KEY (`producto_id`) REFERENCES `productos` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-CREATE TABLE IF NOT EXISTS `servicios` (
-  `id` int NOT NULL AUTO_INCREMENT,
+-- Tabla: servicios
+CREATE TABLE `servicios` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `nombre` varchar(200) NOT NULL,
   `precio` decimal(12,2) NOT NULL,
-  `descripcion` text,
-  `activo` tinyint(1) DEFAULT '1',
-  `ordenes_id` int DEFAULT NULL,
+  `descripcion` text DEFAULT NULL,
+  `activo` tinyint(1) DEFAULT 1,
+  `ordenes_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `ordenes_id` (`ordenes_id`),
   CONSTRAINT `servicios_ibfk_1` FOREIGN KEY (`ordenes_id`) REFERENCES `ordenes` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
