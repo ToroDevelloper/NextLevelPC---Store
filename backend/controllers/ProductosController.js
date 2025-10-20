@@ -238,6 +238,20 @@ class ProductosController {
             });
         }
     }
+    static async obtenerProductosConImagenes(req, res) {
+        try {
+            const productos = await ProductosService.obtenerProductosConImagenes();
+            res.status(200).json({
+                success: true,
+                data: productos
+            });
+        } catch (error) {
+            res.status(500).json({
+                success: false,
+                message: error.message
+            });
+        }
+    }
 }
 
 module.exports = ProductosController;
