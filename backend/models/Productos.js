@@ -65,6 +65,16 @@ class Productos {
         const result = await executeQuery('UPDATE productos SET activo = 1 WHERE id = ?', [id]);
         return result.affectedRows > 0;
     }
+    
+    static async productosConImagenes() {
+        return await executeQuery(`
+            SELECT p.*, 
+                   GROUP_CONCAT(pi.url) AS imagenes
+            FROM productos p
+            LEFT JOIN imagenes_productos pi ON p.id = pi.producto_id
+            GROUP BY p.id
+        `);
+    }
 }
 
 module.exports = Productos;
