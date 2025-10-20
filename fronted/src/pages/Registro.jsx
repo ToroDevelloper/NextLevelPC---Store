@@ -231,7 +231,7 @@ export default function Registro() {
             ¿Ya tienes una cuenta?
           </p>
           <Link 
-            to="/login" 
+            to="/" 
             style={{
               display: 'inline-block',
               padding: '0.75rem 1.5rem',
