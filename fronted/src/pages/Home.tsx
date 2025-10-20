@@ -1,5 +1,3 @@
-// Home.tsx
-// @ts-ignore
 import React from 'react';
 import { Link } from 'react-router-dom';
 import '../styles/Home.css';
@@ -13,6 +11,7 @@ const Home: React.FC = () => {
                     <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
                         <h1 className="home-logo">NextLevelPc</h1>
                         <nav className="home-nav">
+                            <Link to="/productos" className="home-nav-link">Productos</Link>
                             <Link to="/repuestos" className="home-nav-link">Repuestos</Link>
                             <Link to="/accesorios" className="home-nav-link">Accesorios</Link>
                             <Link to="/servicios" className="home-nav-link">Servicios</Link>

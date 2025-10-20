@@ -1,83 +1,119 @@
-const usuariosService = require('../services/usuariosService.js');
+const Usuarios = require('../models/Usuarios');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const UsuariosService = require('../services/UsuariosService');
 
 class UsuariosController {
-
+    
     static async crear(req, res) {
         try {
             const data = req.body;
-            const insertId = await usuariosService.crear(data);
-            const nuevoUsuario = await usuariosService.obtenerPorId(insertId);
-            res.status(201).json({ mensaje: 'Usuario creado exitosamente', usuario: nuevoUsuario });
-        } catch (error) {
-            console.error("Error en crear:", error);
-            res.status(500).json({ mensaje: 'Error al crear el usuario',error: error.message});
-        }
-    }
+            const usuarioId = await UsuariosService.crear(data);
+            const usuario = await Usuarios.obtenerPorId(usuarioId);
+            res.status(201).json({
+                success: true,
+                mensaje: 'Usuario registrado exitosamente',
+                usuario: usuario
+            });
 
-    static async obtenerTodos(req, res) {
-        try {
-            const usuarios = await usuariosService.obtenerTodos();
-            res.status(200).json(usuarios);
         } catch (error) {
-            console.error("Error en obtenerTodos:", error);
-            res.status(500).json({ mensaje: 'Error al obtener los usuarios',error: error.message});
-        }
-    }
-
-    static async obtenerPorId(req, res) {
-        try {
-            const id = req.params.id;
-            if(req.usuario.id != id && req.usuario.rol_id != 1){
-                return res.status(403).json({ mensaje: 'No tienes permisos para ver este usuario' });
-            }
-            const usuario = await usuariosService.obtenerPorId(id);
-            res.status(200).json(usuario);
-        } catch (error) {
-            console.error("Error en obtenerPorId:", error);
-            res.status(500).json({ mensaje: 'Error al obtener el usuario',error: error.message});
-        }
-    }
-
-    static async actualizar(req, res) {
-        try {
-            const id = req.params.id;
-            const data = req.body;
-            if(req.usuario.id != id && req.usuario.rol_id != 1){
-                return res.status(403).json({ mensaje: 'No tienes permisos para actualizar este usuario' });
-            }
-            const actualizado = await usuariosService.actualizar(id, data);
-            res.status(200).json({ mensaje: 'Usuario actualizado exitosamente',usuario: actualizado });
-        } catch (error) {
-            console.error("Error en actualizar:", error);
-            res.status(500).json({ mensaje: 'Error al actualizar el usuario',error: error.message});
-        }
-    }
-
-    static async eliminar(req, res) {
-        try {
-            const id = req.params.id;
-            await usuariosService.eliminar(id);
-            res.status(200).json({ mensaje: 'Usuario eliminado exitosamente' });
-        } catch (error) {
-            console.error("Error en eliminar:", error);
-            res.status(500).json({ mensaje: 'Error al eliminar el usuario',error: error.message});
+            console.error('Error en registro:', error);
+            res.status(500).json({
+                success: false,
+                mensaje: 'Error interno del servidor: ' + error.message
+            });
         }
     }
 
     static async login(req, res) {
         try {
-            const {correo, hash_password} = req.body;
-            const token = await usuariosService.login(correo, hash_password);
-            res.status(200).json({ mensaje: 'Login exitoso', access_token: token });
+            const data = req.body;
+            const token = await UsuariosService.login(data);
+            res.status(201).json({
+                success: true,
+                mensaje: 'Login exitoso',
+                access_token:token
+            });
+
         } catch (error) {
-            console.error("Error en login:", error);
-            if (error && error.message === 'Credenciales inválidas') {
-                return res.status(401).json({ mensaje: 'Credenciales inválidas' });
-            }
-            res.status(500).json({ mensaje: 'Error al iniciar sesión', error: error.message });
+            console.error('Error en login:', error);
+            res.status(500).json({
+                success: false,
+                mensaje: 'Error interno del servidor' + error.message
+            });
         }
     }
 
+    static async obtenerTodos(req, res) {
+        try {
+            const usuarios = await UsuariosService.obtenerTodos();
+            res.status(201).json({
+                success: true,
+                usuarios: usuarios
+            });
+        } catch (error) {
+            console.error('Error obteniendo usuarios:', error);
+            res.status(500).json({
+                success: false,
+                mensaje: 'Error interno del servidor' + error.message
+            });
+        }
+    }
+
+    static async obtenerPorId(req, res) {
+        try {
+            const { id } = req.params;
+            const usuario = await UsuariosService.obtenerPorId(id);
+
+            res.status(201).json({
+                success: true,
+                usuario: usuario
+            });
+        } catch (error) {
+            console.error('Error obteniendo usuario:', error);
+            res.status(500).json({
+                success: false,
+                mensaje: 'Error interno del servidor' + error.message
+            });
+        }
+    }
+
+    static async actualizar(req, res) {
+        try {
+            const { id } = req.params;
+            const datosActualizados = req.body;
+            await UsuariosService.actualizar(id, datosActualizados);
+            const usuario = await Usuarios.obtenerPorId(id);
+            res.status(201).json({
+                success: true,
+                mensaje: 'Usuario actualizado exitosamente',
+                usuario: usuario
+            });
+        } catch (error) {
+            console.error('Error actualizando usuario:', error);
+            res.status(500).json({
+                success: false,
+                mensaje: 'Error interno del servidor' + error.message
+            });
+        }
+    }
+
+    static async eliminar(req, res) {
+        try {
+            const { id } = req.params;
+            await UsuariosService.eliminar(id);
+            res.status(201).json({
+                success: true,
+                mensaje: 'Usuario eliminado exitosamente'
+            });
+        } catch (error) {
+            console.error('Error eliminando usuario:', error);
+            res.status(500).json({
+                success: false,
+                mensaje: 'Error interno del servidor' + error.message
+            });
+        }
+    }
 }
 
 module.exports = UsuariosController;

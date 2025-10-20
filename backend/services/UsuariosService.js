@@ -3,29 +3,23 @@ const path = require('path');
 require('dotenv').config({ path: path.join(__dirname, '..', '..', '.env') });
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const { UsuarioCreateDTO, UsuarioUpdateDTO, LoginDTO } = require('../dto/UsuariosDto');
 
 class UsuariosService {
-    static async crear(datosUsuario) {
+    static async crear(datos) {
+        const dto = new UsuarioCreateDTO(datos);
+        const errores = dto.validate();
+        if (errores.length > 0) {
+            throw new Error('Errores de validación: ' + errores.join(', '));
+        }
+        
+        const usuarioExistente = await Usuarios.obtenerPorCorreo(dto.correo);
+        if (usuarioExistente) {
+            throw new Error('Ya existe un usuario con ese correo');
+        }
 
-            if (!datosUsuario) {
-                throw new Error('No se proporcionaron datos del usuario');
-            }
-
-              const usuario = {
-                nombre: datosUsuario.nombre,
-                apellido: datosUsuario.apellido,
-                correo: datosUsuario.correo,
-                hash_password: datosUsuario.hash_password,
-                rol_id: datosUsuario.rol_id 
-            };
-
-            const usuarioExistente = await Usuarios.obtenerPorCorreo(usuario.correo);
-            if (usuarioExistente) {
-                throw new Error('Ya existe un usuario con ese correo');
-            }
-
-            return await Usuarios.crear(usuario);
-    
+        const id = await Usuarios.crear(dto.toModel());
+        return id;
     }
 
     static async obtenerTodos() {
@@ -54,21 +48,35 @@ class UsuariosService {
 
     static async actualizar(id, datos) {
 
-        if(!datos || Object.keys(datos).length === 0) {
-            throw new Error('No se proporcionaron datos para actualizar');
-        }
-
         const usuarioExistente = await Usuarios.obtenerPorId(id);
         if (!usuarioExistente) {
             throw new Error('Usuario no encontrado');
         }
 
-        const correoExistente = await Usuarios.correoEnUso(datos.correo,id);
-        if (correoExistente){
-            throw new Error('Ya existe un usuario con ese correo');
+        const dto = new UsuarioUpdateDTO(datos);
+        const errores = dto.validate();
+        if (errores.length > 0) {
+            throw new Error('Errores de validación: ' + errores.join(', '));
         }
 
-        return await Usuarios.actualizar(id, datos);
+        const patch = dto.toPatchObject();
+        if (Object.keys(patch).length === 0) {
+            throw new Error('No hay campos válidos para actualizar');
+        }
+
+        if (patch.correo) {
+            const correoEnUso = await Usuarios.correoEnUso(patch.correo, id);
+            if (correoEnUso) {
+                throw new Error('Ya existe un usuario con ese correo');
+            }
+        }
+
+        const actualizado = await Usuarios.actualizar(id, patch);
+        if (!actualizado) {
+            throw new Error('No se pudo actualizar el usuario');
+        }
+
+        return actualizado;
     }
 
     static async eliminar(id) {
@@ -79,12 +87,17 @@ class UsuariosService {
         return await Usuarios.eliminar(id);
     }
 
-    static async login(correo, password) {
-        const usuario = await Usuarios.obtenerPorCorreo(correo);
+    static async login(data) {
+        const dto = new LoginDTO(data);
+        const errores = dto.validate();
+        if (errores.length > 0) {
+            throw new Error('Errores de validación: ' + errores.join(', '));
+        }
+        const usuario = await Usuarios.obtenerPorCorreo(dto.correo);
         if (!usuario) {
             throw new Error('Credenciales inválidas');
         }
-        const passwordValido = await bcrypt.compare(password, usuario.hash_password);
+        const passwordValido = await bcrypt.compare(dto.hash_password, usuario.hash_password);
         if (!passwordValido) {
             throw new Error('Credenciales inválidas');
         }

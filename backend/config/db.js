@@ -10,10 +10,7 @@ const dbConfig = {
     port: process.env.DB_PORT || 3306,
     charset: 'utf8mb4',
     waitForConnections: true,
-    connectionLimit: 10,
-    acquireTimeout: 60000,
-    timeout: 60000,
-    reconnect: true
+    connectionLimit: 10
 };
 
 const db = mysql.createPool(dbConfig);
@@ -79,5 +76,5 @@ module.exports = {
     testConnection,
     executeQuery,
     getConnection,
-    query: executeQuery  // Alias para mantener compatibilidad
+    query: executeQuery 
 };

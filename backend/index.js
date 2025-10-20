@@ -7,12 +7,13 @@ require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
 
 // Importar rutas
 const categoriasRoutes = require('./routes/categorias');
-const serviciosRoutes = require('./routes/servicios'); // Nueva ruta
-const productosRoutes = require('./routes/productos'); // Nueva ruta para productos
-const rolesRoutes = require('./routes/roles'); // Nueva ruta para roles
-const usuariosRoutes = require('./routes/usuarios'); // Nueva ruta para usuarios
+const serviciosRoutes = require('./routes/servicios');
+const productosRoutes = require('./routes/productos');
+const rolesRoutes = require('./routes/roles');
+const usuariosRoutes = require('./routes/usuarios');
 const ordenesRoutes = require('./routes/Ordenes');        
 const ordenItemsRoutes = require('./routes/OrdenItems');
+const imagenProductoRoutes = require('./routes/imagenProductoRoutes');
 
 // Importar conexión a DB
 const { testConnection } = require('./config/db');
@@ -38,12 +39,13 @@ app.use((req, res, next) => {
 
 // Rutas
 app.use('/api/categorias', categoriasRoutes);
-app.use('/api/servicios', serviciosRoutes); // Nueva ruta
-app.use('/api/productos', productosRoutes); // Nueva ruta para productos
-app.use('/api/roles', rolesRoutes); // Nueva ruta para roles
-app.use('/api/usuarios', usuariosRoutes); // Nueva ruta para usuarios
+app.use('/api/servicios', serviciosRoutes);
+app.use('/api/productos', productosRoutes);
+app.use('/api/roles', rolesRoutes);
+app.use('/api/usuarios', usuariosRoutes);
 app.use('/api/ordenes', ordenesRoutes);         
 app.use('/api/ordenitems', ordenItemsRoutes);
+app.use('/api/imagenes-producto', imagenProductoRoutes);
 
 // Ruta de salud
 app.get('/api/health', async (req, res) => {
@@ -79,8 +81,8 @@ app.get('/', (req, res) => {
             ordenes: '/api/ordenes',       
             ordenitems: '/api/ordenitems',
             roles: '/api/roles',
+            imagenes_producto: '/api/imagenes-producto',
             health: '/api/health'
-
         }
     });
 });

@@ -3,30 +3,21 @@ const { executeQuery } = require('../config/db.js');
 
 class Usuarios {
 
-    constructor(id, nombre, apellido, correo, hash_password, rol_id) {
-        this.id = id;
-        this.nombre = nombre;
-        this.apellido = apellido;
-        this.correo = correo;
-        this.hash_password = hash_password;
-        this.rol_id = rol_id;
-    }
-
-    static async crear(data) {
-        const { nombre, apellido, correo, hash_password, rol_id } = data;
+    static async crear(dto) {
+        const { nombre, apellido, correo, hash_password} = dto;
         const hashPassword = await bcrypt.hash(hash_password, 10);
 
         const result = await executeQuery(
-            'INSERT INTO usuarios (nombre, apellido, correo, hash_password, rol_id) VALUES (?, ?, ?, ?, ?)',
-            [nombre, apellido, correo, hashPassword, rol_id]
+            'INSERT INTO usuarios (nombre, apellido, correo, hash_password) VALUES (?, ?, ?, ?)',
+            [nombre, apellido, correo, hashPassword]
         );
 
         return result.insertId;
     }
 
     static async obtenerTodos() {
-       const usuarios = executeQuery('SELECT * FROM usuarios');
-       return usuarios;
+       const usuarios = await executeQuery('SELECT * FROM usuarios');
+    return usuarios;
     }
 
     static async obtenerPorId(id) {
@@ -39,20 +30,20 @@ class Usuarios {
         return result.length > 0 ? result[0] : null;
     }
 
-     static async correoEnUso(correo,id) {
+    static async correoEnUso(correo,id) {
         const result = await executeQuery('SELECT * FROM usuarios WHERE correo = ? AND id <> ?', [correo,id]);
         return result.length > 0 ? result[0] : null;
     }
 
-    static async actualizar(id, data) {
-       if (data.hash_password && !data.hash_password.startsWith('$2b$')) {
-        const hashPassword = await bcrypt.hash(data.hash_password, 10);
-        data.hash_password = hashPassword;
-       }
+    static async actualizar(id, dto) {
+    if (dto.hash_password && !dto.hash_password.startsWith('$2b$')) {
+        const hashPassword = await bcrypt.hash(dto.hash_password, 10);
+        dto.hash_password = hashPassword;
+    }
 
-        const campos = Object.keys(data);
+        const campos = Object.keys(dto);
         const columnas = campos.map(campo => `${campo} = ?`).join(', ');
-        const valores = Object.values(data);
+        const valores = Object.values(dto);
 
         const result = await executeQuery(
             `UPDATE usuarios SET ${columnas} WHERE id = ?`,

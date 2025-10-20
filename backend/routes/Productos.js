@@ -5,6 +5,7 @@ const ProductosController = require('../controllers/ProductosController');
 // GET - Obtener todos los productos
 router.get('/', ProductosController.obtenerTodosLosProductos);
 
+router.get('/con-imagenes', ProductosController.obtenerProductosConImagenes);
 // GET - Obtener productos activos
 router.get('/activos', ProductosController.obtenerProductosActivos);
 
