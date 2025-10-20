@@ -3,7 +3,8 @@ import { useEffect } from 'react'
 import { Routes, Route } from 'react-router-dom'
 import Home from './pages/Home'
 import InicioSesion from './pages/inicioSesion'
-import Registro from './pages/Registro' // Importa el nuevo componente
+import Registro from './pages/Registro'
+import Productos from './pages/productos'
 
 function App() {
     useEffect(() => {
@@ -22,9 +23,9 @@ function App() {
     return (
         <Routes>
             <Route path="/home" element={<Home />} />
-            <Route path="/login" element={<InicioSesion />} />
-            <Route path="/registro" element={<Registro />} /> {/* Nueva ruta */}
+            <Route path="/registro" element={<Registro />} />
             <Route path="/" element={<InicioSesion />} />
+            <Route path="/productos" element={<Productos />} />
         </Routes>
     )
 }
