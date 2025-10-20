@@ -201,6 +201,13 @@ class ProductosService {
             throw new Error(`Error al activar producto: ${error.message}`);
         }
     }
+    static async obtenerProductosConImagenes() {
+        try {
+            return await Productos.productosConImagenes();
+        } catch (error) {
+            throw new Error(`Error al obtener productos con imágenes: ${error.message}`);
+        }
+    }
 }
 
 module.exports = ProductosService;
