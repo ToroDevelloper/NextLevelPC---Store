@@ -32,7 +32,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use((req, res, next) => {
     console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
     if (Object.keys(req.body).length > 0) {
-        console.log('📦 Body:', req.body);
+        console.log('Body:', req.body);
     }
     next();
 });
@@ -109,26 +109,25 @@ const PORT = process.env.BACKEND_PORT || 8080;
 
 const startServer = async () => {
     try {
-        console.log('🔍 Verificando conexión a la base de datos...');
+        console.log('Verificando conexión a la base de datos...');
         const dbConnected = await testConnection();
 
         if (!dbConnected) {
-            console.log('❌ No se pudo conectar a la base de datos');
+            console.log('> No se pudo conectar a la base de datos');
             process.exit(1);
         }
 
         app.listen(PORT, () => {
+            console.log('BACKEND NEXTLEVELPC INICIADO');
             console.log('=====================================');
-            console.log('🚀  BACKEND NEXTLEVELPC INICIADO');
-            console.log('=====================================');
-            console.log(`📍  Puerto: ${PORT}`);
-            console.log(`🌐  URL: http://localhost:${PORT}`);
-            console.log(`❤️  Health: http://localhost:${PORT}/api/health`);
-            console.log('=====================================');
+            console.log(`Puerto: ${PORT}`);
+            console.log(`URL: http://localhost:${PORT}`);
+            console.log(`Health: http://localhost:${PORT}/api/health`);
+   
         });
 
     } catch (error) {
-        console.error('❌ Error al iniciar el servidor:', error);
+        console.error('> Error al iniciar el servidor:', error);
         process.exit(1);
     }
 };
