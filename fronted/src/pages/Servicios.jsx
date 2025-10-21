@@ -10,6 +10,8 @@ const Servicios = () => {
     const [error, setError] = useState(null);
     const [cartItems, setCartItems] = useState([]);
     const [cartOpen, setCartOpen] = useState(false);
+    // 👇 Nuevo estado para el filtro
+    const [filtroCategoria, setFiltroCategoria] = useState('');
 
     // Cargar carrito desde localStorage
     useEffect(() => {
@@ -59,7 +61,7 @@ const Servicios = () => {
             id: servicio.id,
             title: servicio.nombre,
             price: Number(servicio.precio),
-            image: '/placeholder-servicio.png', // Puedes personalizar esto
+            image: '/placeholder-servicio.png',
             tipo: 'servicio'
         };
 
@@ -92,6 +94,9 @@ const Servicios = () => {
 
     const cartCount = cartItems.reduce((s, i) => s + i.quantity, 0);
     const cartTotal = cartItems.reduce((s, i) => s + i.quantity * i.price, 0);
+
+    // 👇 Función para limpiar el filtro
+    const limpiarFiltro = () => setFiltroCategoria('');
 
     return (
         <div className="principal">
@@ -188,16 +193,18 @@ const Servicios = () => {
                         marginBottom: '3rem'
                     }}>
                         {/* Servicio Básico */}
-                        <div style={{
-                            position: 'relative',
-                            borderRadius: '12px',
-                            overflow: 'hidden',
-                            height: '300px',
-                            cursor: 'pointer',
-                            transition: 'transform 0.3s ease',
-                        }}
-                             onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
-                             onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                        <div
+                            style={{
+                                position: 'relative',
+                                borderRadius: '12px',
+                                overflow: 'hidden',
+                                height: '300px',
+                                cursor: 'pointer',
+                                transition: 'transform 0.3s ease',
+                            }}
+                            onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
+                            onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                            onClick={() => setFiltroCategoria('basico')}
                         >
                             <img
                                 src="https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=800&h=600&fit=crop"
@@ -223,16 +230,18 @@ const Servicios = () => {
                         </div>
 
                         {/* Servicio Avanzado */}
-                        <div style={{
-                            position: 'relative',
-                            borderRadius: '12px',
-                            overflow: 'hidden',
-                            height: '300px',
-                            cursor: 'pointer',
-                            transition: 'transform 0.3s ease',
-                        }}
-                             onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
-                             onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                        <div
+                            style={{
+                                position: 'relative',
+                                borderRadius: '12px',
+                                overflow: 'hidden',
+                                height: '300px',
+                                cursor: 'pointer',
+                                transition: 'transform 0.3s ease',
+                            }}
+                            onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
+                            onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                            onClick={() => setFiltroCategoria('avanzado')}
                         >
                             <img
                                 src="https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?w=800&h=600&fit=crop"
@@ -258,54 +267,82 @@ const Servicios = () => {
                         </div>
                     </div>
 
+                    {/* Botón para limpiar el filtro */}
+                    <div style={{ textAlign: 'center', marginBottom: '1rem' }}>
+                        <button
+                            onClick={limpiarFiltro}
+                            style={{
+                                padding: '0.5rem 1rem',
+                                backgroundColor: '#f0f0f0',
+                                border: '1px solid #ccc',
+                                borderRadius: '4px',
+                                cursor: 'pointer'
+                            }}
+                        >
+                            Mostrar Todos
+                        </button>
+                    </div>
+
                     {/* Lista de servicios disponibles */}
-                    <h3 style={{ marginTop: '3rem', marginBottom: '1.5rem', fontSize: '1.5rem' }}>Todos los Servicios</h3>
+                    <h3 style={{ marginTop: '1rem', marginBottom: '1.5rem', fontSize: '1.5rem' }}>Todos los Servicios</h3>
 
                     {loading && <p>Cargando servicios...</p>}
                     {error && <p style={{ color: 'red' }}>Error: {error}</p>}
                     {!loading && !error && servicios.length === 0 && <p>No hay servicios disponibles.</p>}
 
-                    <div className="home-products-grid">
-                        {servicios.map(servicio => (
-                            <div key={servicio.id} className="home-product-card">
-                                <div style={{
-                                    height: '200px',
-                                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    color: 'white',
-                                    fontSize: '3rem',
-                                    fontWeight: 'bold'
-                                }}>
-                                    🛠️
-                                </div>
-                                <div className="home-product-content">
-                                    <h3 style={{ color: '#000' }}>{servicio.nombre}</h3>
-                                    {servicio.descripcion && (
-                                        <p style={{ color: '#666', fontSize: '0.9rem', margin: '0.5rem 0' }}>
-                                            {servicio.descripcion}
-                                        </p>
-                                    )}
-                                    <p style={{ color: '#000', fontSize: '1.2rem', fontWeight: 'bold' }}>
-                                        ${Number(servicio.precio).toFixed(2)}
-                                    </p>
-                                    <div style={{ display: 'flex', gap: 8 }}>
-                                        <button
-                                            className="home-add-cart-button"
-                                            onClick={() => addToCart(servicio)}
-                                            aria-label={`Añadir ${servicio.nombre} al carrito`}
-                                        >
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ marginRight: 6 }}>
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M3 3h2l.4 2M7 13h10l3-8H6.4M7 13L5.1 6M7 13l-2 7h13" />
-                                            </svg>
-                                            Añadir
-                                        </button>
+                    {/* 👇 Filtrado de servicios */}
+                    {!loading && !error && (
+                        <div className="home-products-grid">
+                            {servicios
+                                .filter(servicio => {
+                                    if (filtroCategoria === '') return true;
+                                    const texto = `${servicio.nombre} ${servicio.descripcion || ''}`.toLowerCase();
+                                    if (filtroCategoria === 'basico') return texto.includes('basico');
+                                    if (filtroCategoria === 'avanzado') return texto.includes('avanzado');
+                                    return true;
+                                })
+                                .map(servicio => (
+                                    <div key={servicio.id} className="home-product-card">
+                                        <div style={{
+                                            height: '200px',
+                                            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            color: 'white',
+                                            fontSize: '3rem',
+                                            fontWeight: 'bold'
+                                        }}>
+                                            🛠️
+                                        </div>
+                                        <div className="home-product-content">
+                                            <h3 style={{ color: '#000' }}>{servicio.nombre}</h3>
+                                            {servicio.descripcion && (
+                                                <p style={{ color: '#666', fontSize: '0.9rem', margin: '0.5rem 0' }}>
+                                                    {servicio.descripcion}
+                                                </p>
+                                            )}
+                                            <p style={{ color: '#000', fontSize: '1.2rem', fontWeight: 'bold' }}>
+                                                ${Number(servicio.precio).toFixed(2)}
+                                            </p>
+                                            <div style={{ display: 'flex', gap: 8 }}>
+                                                <button
+                                                    className="home-add-cart-button"
+                                                    onClick={() => addToCart(servicio)}
+                                                    aria-label={`Añadir ${servicio.nombre} al carrito`}
+                                                >
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ marginRight: 6 }}>
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M3 3h2l.4 2M7 13h10l3-8H6.4M7 13L5.1 6M7 13l-2 7h13" />
+                                                    </svg>
+                                                    Añadir
+                                                </button>
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
+                                ))
+                            }
+                        </div>
+                    )}
                 </main>
 
                 {/* Footer */}

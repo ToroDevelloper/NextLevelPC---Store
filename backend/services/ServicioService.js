@@ -24,7 +24,7 @@ class ServicioService {
         }
     }
 
-    // services/servicioService.js
+    // Crear nuevo servicio
     async createServicio(servicioData) {
         try {
             // Validar campos requeridos — sin categoria_id
@@ -52,6 +52,13 @@ class ServicioService {
     // Actualizar servicio
     async updateServicio(id, servicioData) {
         try {
+            // Verificar que el servicio existe
+            const servicioExistente = await Servicio.findById(id);
+            if (!servicioExistente) {
+                throw new Error('Servicio no encontrado');
+            }
+
+            // Validar campos requeridos
             if (!servicioData.nombre || !servicioData.precio) {
                 throw new Error('Nombre y precio son campos requeridos');
             }
@@ -89,15 +96,6 @@ class ServicioService {
             return { message: 'Servicio eliminado correctamente' };
         } catch (error) {
             throw new Error(`Error al eliminar servicio: ${error.message}`);
-        }
-    }
-
-    // Obtener servicios por categoría
-    async getServiciosByCategoria(categoriaId) {
-        try {
-            return await Servicio.findByCategoria(categoriaId);
-        } catch (error) {
-            throw new Error(`Error al obtener servicios por categoría: ${error.message}`);
         }
     }
 }
