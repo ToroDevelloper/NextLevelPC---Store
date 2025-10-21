@@ -6,3 +6,13 @@ podemos ver los difrentes tipos de mantenimientos que ofrecemos
 Actualizacion de model servicio quite consulta inesesaria hacia categoria
 
 Actualizacion de service service para quitar validadacione con categoria id
+
+
+
+
+21/10/2025 Jeferson
+- Se implementoo page para registro y a la ves se unio las paginas (inicioSesion - Home)
+- Implementación de módulo de órdenes e items siguiendo arquitectura MVC con DTOs
+- Actualización de modelos para incluir timestamp created_at
+- Implementación de DTOs para validación y transformación de datos
+- Mejora en relaciones entre órdenes, clientes y productos
