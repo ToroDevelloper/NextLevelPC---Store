@@ -1,22 +1,16 @@
 const Productos = require('../models/Productos');
+const {CreateProductoDto, UpdateProductoDto} = require('../dto/ProductosDto')
 
 class ProductosService {
     static async crearProducto(productoData) {
         try {
-            // Validaciones básicas
-            if (!productoData.nombre || !productoData.categoria_id || !productoData.precio_actual) {
-                throw new Error('Nombre, categoría_id y precio_actual son campos obligatorios');
+            const producto = new CreateProductoDto(productoData);
+            const errors = producto.validate();
+            if (errors.length > 0) {
+                throw new Error('Erroes de validación: '+ errors.join(','));
             }
 
-            if (productoData.precio_actual < 0) {
-                throw new Error('El precio no debe ser negativo');
-            }
-
-            if (productoData.stock && productoData.stock < 0) {
-                throw new Error('El stock no puede ser negativo');
-            }
-
-            const productoId = await Productos.crear(productoData);
+            const productoId = await Productos.crear(producto.toModel());
             return await Productos.obtenerPorId(productoId);
         } catch (error) {
             throw new Error(`Error al crear producto: ${error.message}`);
@@ -71,26 +65,21 @@ class ProductosService {
 
     static async actualizarProducto(id, productoData) {
         try {
-            if (!id) {
-                throw new Error('ID de producto es requerido');
-            }
-
-            // Verificar que el producto existe
             const productoExistente = await Productos.obtenerPorId(id);
             if (!productoExistente) {
                 throw new Error('Producto no encontrado');
             }
 
-            // Validaciones de datos
-            if (productoData.precio_actual && productoData.precio_actual < 0) {
-                throw new Error('El precio no puede ser negativo');
+            const actualizar = new UpdateProductoDto(productoData);
+            const errors = actualizar.validate();
+            if(errors.length > 0){
+                throw new Error('Errores de validación: '+errors.join(', '));
             }
 
-            if (productoData.stock && productoData.stock < 0) {
-                throw new Error('El stock no puede ser negativo');
-            }
+            const campos = actualizar.toPatchObject();
+            if(Object.keys(campos).length === 0) {throw new Error('No se enviaron campos')};
 
-            const actualizado = await Productos.actualizar(id, productoData);
+            const actualizado = await Productos.actualizar(id, campos);
 
             if (!actualizado) {
                 throw new Error('No se pudo actualizar el producto');
@@ -102,41 +91,9 @@ class ProductosService {
         }
     }
 
-    static async actualizarStock(id, nuevoStock) {
-        try {
-            if (!id) {
-                throw new Error('ID de producto es requerido');
-            }
-
-            if (nuevoStock < 0) {
-                throw new Error('El stock no puede ser negativo');
-            }
-
-            // Verificar que el producto existe
-            const productoExistente = await Productos.obtenerPorId(id);
-            if (!productoExistente) {
-                throw new Error('Producto no encontrado');
-            }
-
-            const actualizado = await Productos.actualizarStock(id, nuevoStock);
-
-            if (!actualizado) {
-                throw new Error('No se pudo actualizar el stock');
-            }
-
-            return await Productos.obtenerPorId(id);
-        } catch (error) {
-            throw new Error(`Error al actualizar stock: ${error.message}`);
-        }
-    }
 
     static async eliminarProducto(id) {
         try {
-            if (!id) {
-                throw new Error('ID de producto es requerido');
-            }
-
-            // Verificar que el producto existe
             const productoExistente = await Productos.obtenerPorId(id);
             if (!productoExistente) {
                 throw new Error('Producto no encontrado');
@@ -154,53 +111,6 @@ class ProductosService {
         }
     }
 
-    static async desactivarProducto(id) {
-        try {
-            if (!id) {
-                throw new Error('ID de producto es requerido');
-            }
-
-            // Verificar que el producto existe
-            const productoExistente = await Productos.obtenerPorId(id);
-            if (!productoExistente) {
-                throw new Error('Producto no encontrado');
-            }
-
-            const desactivado = await Productos.desactivar(id);
-
-            if (!desactivado) {
-                throw new Error('No se pudo desactivar el producto');
-            }
-
-            return await Productos.obtenerPorId(id);
-        } catch (error) {
-            throw new Error(`Error al desactivar producto: ${error.message}`);
-        }
-    }
-
-    static async activarProducto(id) {
-        try {
-            if (!id) {
-                throw new Error('ID de producto es requerido');
-            }
-
-            // Verificar que el producto existe
-            const productoExistente = await Productos.obtenerPorId(id);
-            if (!productoExistente) {
-                throw new Error('Producto no encontrado');
-            }
-
-            const activado = await Productos.activar(id);
-
-            if (!activado) {
-                throw new Error('No se pudo activar el producto');
-            }
-
-            return await Productos.obtenerPorId(id);
-        } catch (error) {
-            throw new Error(`Error al activar producto: ${error.message}`);
-        }
-    }
     static async obtenerProductosConImagenes() {
         try {
             return await Productos.productosConImagenes();

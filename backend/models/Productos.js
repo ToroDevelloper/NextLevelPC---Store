@@ -13,11 +13,13 @@ class Productos {
     }
 
     static async obtenerTodos() {
-        return await executeQuery('SELECT * FROM productos');
+       const productos = await executeQuery('SELECT * FROM productos');
+       return productos;
     }
 
     static async obtenerActivos() {
-        return await executeQuery('SELECT * FROM productos WHERE activo = 1');
+        const productos = await executeQuery('SELECT * FROM productos WHERE activo = 1');
+        return productos;
     }
 
     static async obtenerPorId(id) {
@@ -26,7 +28,8 @@ class Productos {
     }
 
     static async obtenerPorCategoria(categoria_id) {
-        return await executeQuery('SELECT * FROM productos WHERE categoria_id = ?', [categoria_id]);
+       const productos =  await executeQuery('SELECT * FROM productos WHERE categoria_id = ?', [categoria_id]);
+       return productos;
     }
 
     static async actualizar(id, data) {
@@ -42,27 +45,8 @@ class Productos {
         return result.affectedRows > 0;
     }
 
-    static async actualizarStock(id, nuevoStock) {
-        const result = await executeQuery(
-            'UPDATE productos SET stock = ? WHERE id = ?',
-            [nuevoStock, id]
-        );
-
-        return result.affectedRows > 0;
-    }
-
     static async eliminar(id) {
         const result = await executeQuery('DELETE FROM productos WHERE id = ?', [id]);
-        return result.affectedRows > 0;
-    }
-
-    static async desactivar(id) {
-        const result = await executeQuery('UPDATE productos SET activo = 0 WHERE id = ?', [id]);
-        return result.affectedRows > 0;
-    }
-
-    static async activar(id) {
-        const result = await executeQuery('UPDATE productos SET activo = 1 WHERE id = ?', [id]);
         return result.affectedRows > 0;
     }
     
