@@ -2,54 +2,52 @@
 const { executeQuery } = require('../config/db');
 
 class Servicio {
-    // Obtener todos los servicios
+    // Obtener todos los servicios — SIN JOIN con categorías
     static async findAll() {
         const query = `
-            SELECT s.*, c.nombre as categoria_nombre 
-            FROM servicios s 
-            LEFT JOIN categorias c ON s.categoria_id = c.id 
-            WHERE s.activo = 1
-            ORDER BY s.nombre
+            SELECT * 
+            FROM servicios 
+            WHERE activo = 1
+            ORDER BY nombre
         `;
         return await executeQuery(query);
     }
 
-    // Obtener servicio por ID
+    // Obtener servicio por ID — SIN JOIN
     static async findById(id) {
         const query = `
-            SELECT s.*, c.nombre as categoria_nombre 
-            FROM servicios s 
-            LEFT JOIN categorias c ON s.categoria_id = c.id 
-            WHERE s.id = ? AND s.activo = 1
+            SELECT * 
+            FROM servicios 
+            WHERE id = ? AND activo = 1
         `;
         const resultados = await executeQuery(query, [id]);
         return resultados.length > 0 ? resultados[0] : null;
     }
 
-    // Crear nuevo servicio
+    // Crear nuevo servicio — sin categoria_id
     static async create(servicioData) {
-        const { nombre, categoria_id, precio, descripcion = null } = servicioData;
+        const { nombre, precio, descripcion = null } = servicioData;
 
         const query = `
-            INSERT INTO servicios (nombre, categoria_id, precio, descripcion, activo) 
-            VALUES (?, ?, ?, ?, 1)
+            INSERT INTO servicios (nombre, precio, descripcion, activo) 
+            VALUES (?, ?, ?, 1)
         `;
 
-        const result = await executeQuery(query, [nombre, categoria_id, precio, descripcion]);
+        const result = await executeQuery(query, [nombre, precio, descripcion]);
         return this.findById(result.insertId);
     }
 
-    // Actualizar servicio
+    // Actualizar servicio — sin categoria_id
     static async update(id, servicioData) {
-        const { nombre, categoria_id, precio, descripcion } = servicioData;
+        const { nombre, precio, descripcion } = servicioData;
 
         const query = `
             UPDATE servicios 
-            SET nombre = ?, categoria_id = ?, precio = ?, descripcion = ? 
+            SET nombre = ?, precio = ?, descripcion = ? 
             WHERE id = ? AND activo = 1
         `;
 
-        await executeQuery(query, [nombre, categoria_id, precio, descripcion, id]);
+        await executeQuery(query, [nombre, precio, descripcion, id]);
         return this.findById(id);
     }
 
@@ -58,18 +56,6 @@ class Servicio {
         const query = `UPDATE servicios SET activo = 0 WHERE id = ?`;
         const result = await executeQuery(query, [id]);
         return result.affectedRows > 0;
-    }
-
-    // Obtener servicios por categoría
-    static async findByCategoria(categoriaId) {
-        const query = `
-            SELECT s.*, c.nombre as categoria_nombre 
-            FROM servicios s 
-            LEFT JOIN categorias c ON s.categoria_id = c.id 
-            WHERE s.categoria_id = ? AND s.activo = 1
-            ORDER BY s.nombre
-        `;
-        return await executeQuery(query, [categoriaId]);
     }
 
     // Verificar si existe servicio con mismo nombre
