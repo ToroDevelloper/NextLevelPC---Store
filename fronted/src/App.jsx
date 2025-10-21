@@ -5,6 +5,7 @@ import Home from './pages/Home'
 import InicioSesion from './pages/inicioSesion'
 import Registro from './pages/Registro'
 import Productos from './pages/productos'
+import Servicios from './pages/Servicios'
 
 function App() {
     useEffect(() => {
@@ -26,6 +27,7 @@ function App() {
             <Route path="/registro" element={<Registro />} />
             <Route path="/" element={<InicioSesion />} />
             <Route path="/productos" element={<Productos />} />
+            <Route path="/servicios" element={<Servicios />} />
         </Routes>
     )
 }
