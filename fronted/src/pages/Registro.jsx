@@ -65,7 +65,7 @@ export default function Registro() {
 
       setLoading(false);
       alert('¡Registro exitoso! Ahora puedes iniciar sesión.');
-      navigate('/login');
+      navigate('/');
       
     } catch (err) {
       console.error('Error en registro:', err);
