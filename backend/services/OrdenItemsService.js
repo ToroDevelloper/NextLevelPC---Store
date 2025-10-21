@@ -1,43 +1,130 @@
 const OrdenItems = require('../models/OrdenItems');
+const { executeQuery } = require('../config/db');
 
 class OrdenItemsService {
-    static async crear(datosItem) {
+    static async crear(itemDTO) {
         try {
-            // Validar campos requeridos
-            if (!datosItem.orden_id || !datosItem.tipo) {
-                throw new Error('Orden ID y tipo son requeridos');
+            console.log('OrdenItemsService.crear - DTO recibido:', itemDTO);
+            
+            const itemData = itemDTO.toModel ? itemDTO.toModel() : itemDTO;
+            console.log('Datos para BD:', itemData);
+            
+            const insertId = await OrdenItems.crear(itemData);
+            console.log('Item creado con ID:', insertId);
+            
+            // Obtener el item completo con created_at
+            const result = await executeQuery(`
+                SELECT oi.*,
+                       p.nombre as producto_nombre
+                FROM orden_items oi 
+                LEFT JOIN productos p ON oi.producto_id = p.id 
+                WHERE oi.id = ?
+            `, [insertId]);
+            
+            if (result.length === 0) {
+                throw new Error('No se pudo obtener el item recién creado');
             }
-
-            return await OrdenItems.crear(datosItem);
+            
+            console.log('Item obtenido:', result[0]);
+            return result[0];
+            
         } catch (error) {
+            console.error('Error en servicio:', error);
             throw new Error('Error al crear el item: ' + error.message);
         }
     }
 
     static async obtenerTodos() {
-    return await OrdenItems.obtenerTodos();
-}
-
-    static async obtenerPorOrden(ordenId) {
-        return await OrdenItems.obtenerPorOrden(ordenId);
+        try {
+            return await OrdenItems.obtenerTodos();
+        } catch (error) {
+            throw new Error('Error al obtener items: ' + error.message);
+        }
     }
 
-    static async actualizar(id, datos) {
-        return await OrdenItems.actualizar(id, datos);
+    static async obtenerPorOrden(ordenId) {
+        try {
+            if (!ordenId) {
+                throw new Error('ID de orden es requerido');
+            }
+
+            return await OrdenItems.obtenerPorOrden(ordenId);
+        } catch (error) {
+            throw new Error('Error al obtener items de la orden: ' + error.message);
+        }
+    }
+
+    static async actualizar(id, itemDTO) {
+        try {
+            if (!id) {
+                throw new Error('ID de item es requerido');
+            }
+
+            // Verificar que el item existe
+            const itemExistente = await this.obtenerPorId(id);
+            if (!itemExistente) {
+                throw new Error('Item no encontrado');
+            }
+
+            const itemData = itemDTO.toPatchObject ? itemDTO.toPatchObject() : itemDTO;
+            return await OrdenItems.actualizar(id, itemData);
+        } catch (error) {
+            throw new Error('Error al actualizar item: ' + error.message);
+        }
     }
 
     static async eliminar(id) {
-        return await OrdenItems.eliminar(id);
+        try {
+            if (!id) {
+                throw new Error('ID de item es requerido');
+            }
+
+            // Verificar que el item existe
+            const itemExistente = await this.obtenerPorId(id);
+            if (!itemExistente) {
+                throw new Error('Item no encontrado');
+            }
+
+            return await OrdenItems.eliminar(id);
+        } catch (error) {
+            throw new Error('Error al eliminar item: ' + error.message);
+        }
     }
 
     static async eliminarPorOrden(ordenId) {
-        return await OrdenItems.eliminarPorOrden(ordenId);
+        try {
+            if (!ordenId) {
+                throw new Error('ID de orden es requerido');
+            }
+
+            return await OrdenItems.eliminarPorOrden(ordenId);
+        } catch (error) {
+            throw new Error('Error al eliminar items de la orden: ' + error.message);
+        }
     }
 
     static async obtenerPorId(id) {
-        // Método temporal para evitar errores
-        const result = await executeQuery('SELECT * FROM orden_items WHERE id = ?', [id]);
-        return result.length > 0 ? result[0] : null;
+        try {
+            if (!id) {
+                throw new Error('ID de item es requerido');
+            }
+
+            const result = await executeQuery(`
+                SELECT oi.*,
+                       p.nombre as producto_nombre
+                FROM orden_items oi 
+                LEFT JOIN productos p ON oi.producto_id = p.id 
+                WHERE oi.id = ?
+            `, [id]);
+            
+            if (result.length === 0) {
+                throw new Error('Item no encontrado');
+            }
+
+            return result[0];
+        } catch (error) {
+            throw new Error('Error al obtener item por ID: ' + error.message);
+        }
     }
 }
 
