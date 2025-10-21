@@ -4,3 +4,5 @@ Implementacion de modulo servicios en el fronted siguiendo el diseño de baja fi
 podemos ver los difrentes tipos de mantenimientos que ofrecemos
 
 Actualizacion de model servicio quite consulta inesesaria hacia categoria
+
+Actualizacion de service service para quitar validadacione con categoria id

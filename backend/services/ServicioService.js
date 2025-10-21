@@ -24,9 +24,14 @@ class ServicioService {
         }
     }
 
-    // Crear nuevo servicio
+    // services/servicioService.js
     async createServicio(servicioData) {
         try {
+            // Validar campos requeridos — sin categoria_id
+            if (!servicioData.nombre || !servicioData.precio) {
+                throw new Error('Nombre y precio son campos requeridos');
+            }
+
             // Validar que no exista un servicio con el mismo nombre
             const servicioExistente = await Servicio.findByNombre(servicioData.nombre);
             if (servicioExistente) {
@@ -47,10 +52,8 @@ class ServicioService {
     // Actualizar servicio
     async updateServicio(id, servicioData) {
         try {
-            // Verificar que el servicio existe
-            const servicioExistente = await Servicio.findById(id);
-            if (!servicioExistente) {
-                throw new Error('Servicio no encontrado');
+            if (!servicioData.nombre || !servicioData.precio) {
+                throw new Error('Nombre y precio son campos requeridos');
             }
 
             // Validar que no exista otro servicio con el mismo nombre
