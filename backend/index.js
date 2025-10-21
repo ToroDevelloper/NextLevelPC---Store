@@ -118,8 +118,9 @@ const startServer = async () => {
         }
 
         app.listen(PORT, () => {
+            console.log('-------------------------------');
             console.log('BACKEND NEXTLEVELPC INICIADO');
-            console.log('=====================================');
+            console.log('-------------------------------');
             console.log(`Puerto: ${PORT}`);
             console.log(`URL: http://localhost:${PORT}`);
             console.log(`Health: http://localhost:${PORT}/api/health`);
