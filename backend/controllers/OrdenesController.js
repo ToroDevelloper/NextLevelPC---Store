@@ -1,59 +1,128 @@
 const ordenesService = require('../services/OrdenesService.js');
+const { OrdenCreateDTO, OrdenUpdateDTO, OrdenResponseDTO } = require('../dto/OrdenesDTO');
 
 class OrdenController {
     static async crear(req, res) {
         try {
-            const data = req.body;
-            const insertId = await ordenesService.crear(data);
-            const nuevaOrden = await ordenesService.obtenerPorId(insertId);
+            console.log('=== CREANDO ORDEN ===');
+            
+            const ordenDTO = new OrdenCreateDTO(req.body);
+            const errors = ordenDTO.validate();
+            
+            if (errors.length > 0) {
+                return res.status(400).json({ 
+                    success: false,
+                    message: 'Errores de validación', 
+                    errors: errors 
+                });
+            }
 
-            res.status(201).json({ mensaje: 'Orden creada exitosamente', orden: nuevaOrden });
+            console.log('DTO válido, creando orden...');
+            const insertId = await ordenesService.crear(ordenDTO);
+            const nuevaOrden = await ordenesService.obtenerPorId(insertId);
+            
+            const ordenResponse = new OrdenResponseDTO(nuevaOrden);
+            
+            console.log('ORDEN CREADA EXITOSAMENTE');
+            console.log('Orden:', ordenResponse.toSummary());
+
+            res.status(201).json({ 
+                success: true,
+                message: 'Orden creada exitosamente', 
+                data: ordenResponse.toDetail()
+            });
+            
         } catch (error) {
-            console.error("Error en crear:", error);
-            res.status(500).json({ mensaje: 'Error al crear la orden' });
+            console.error('Error en crear:', error);
+            res.status(500).json({ 
+                success: false,
+                message: 'Error al crear la orden: ' + error.message 
+            });
         }
     }
 
     static async obtenerTodos(req, res) {
         try {
             const ordenes = await ordenesService.obtenerTodos();
-            res.status(200).json(ordenes);
+            
+            const ordenesResponse = ordenes.map(orden => 
+                new OrdenResponseDTO(orden).toSummary()
+            );
+
+            res.status(200).json({
+                success: true,
+                data: ordenesResponse,
+                count: ordenesResponse.length
+            });
         } catch (error) {
             console.error("Error en obtenerTodos:", error);
-            res.status(500).json({ mensaje: 'Error al obtener las órdenes' });
+            res.status(500).json({ 
+                success: false,
+                message: 'Error al obtener las órdenes: ' + error.message 
+            });
         }
     }
 
-     static async obtenerPorId(req, res) {
+    static async obtenerPorId(req, res) {
         try {
             const id = req.params.id;
             const orden = await ordenesService.obtenerPorId(id);
 
             if (!orden) {
-                return res.status(404).json({ mensaje: 'Orden no encontrada' });
+                return res.status(404).json({ 
+                    success: false,
+                    message: 'Orden no encontrada' 
+                });
             }
 
-            res.status(200).json(orden);
+            const ordenResponse = new OrdenResponseDTO(orden);
+
+            res.status(200).json({
+                success: true,
+                data: ordenResponse.toDetail()
+            });
         } catch (error) {
             console.error("Error en obtenerPorId:", error);
-            res.status(500).json({ mensaje: 'Error al obtener la orden' });
+            res.status(500).json({ 
+                success: false,
+                message: 'Error al obtener la orden: ' + error.message 
+            });
         }
     }
 
     static async actualizar(req, res) {
         try {
             const id = req.params.id;
-            const data = req.body;
-            const actualizado = await ordenesService.actualizar(id, data);
-
-            if (!actualizado) {
-                return res.status(404).json({ mensaje: 'Orden no encontrada' });
+            const ordenDTO = new OrdenUpdateDTO(req.body);
+            const errors = ordenDTO.validate();
+            
+            if (errors.length > 0) {
+                return res.status(400).json({ 
+                    success: false,
+                    message: 'Errores de validación', 
+                    errors: errors 
+                });
             }
 
-            res.status(200).json({ mensaje: 'Orden actualizada exitosamente' });
+            const actualizado = await ordenesService.actualizar(id, ordenDTO);
+
+            if (!actualizado) {
+                return res.status(404).json({ 
+                    success: false,
+                    message: 'Orden no encontrada' 
+                });
+            }
+
+            res.status(200).json({ 
+                success: true,
+                message: 'Orden actualizada exitosamente' 
+            });
         } catch (error) {
             console.error("Error en actualizar:", error);
-            res.status(500).json({ mensaje: 'Error al actualizar la orden' });
+            res.status(500).json({ 
+                success: false,
+                message: 'Error al actualizar la orden: ' + error.message 
+            });
         }
     }
 
@@ -63,13 +132,22 @@ class OrdenController {
             const eliminado = await ordenesService.eliminar(id);
 
             if (!eliminado) {
-                return res.status(404).json({ mensaje: 'Orden no encontrada' });
+                return res.status(404).json({ 
+                    success: false,
+                    message: 'Orden no encontrada' 
+                });
             }
 
-            res.status(200).json({ mensaje: 'Orden eliminada exitosamente' });
+            res.status(200).json({ 
+                success: true,
+                message: 'Orden eliminada exitosamente' 
+            });
         } catch (error) {
             console.error("Error en eliminar:", error);
-            res.status(500).json({ mensaje: 'Error al eliminar la orden' });
+            res.status(500).json({ 
+                success: false,
+                message: 'Error al eliminar la orden: ' + error.message 
+            });
         }
     }
 
@@ -77,12 +155,24 @@ class OrdenController {
         try {
             const clienteId = req.params.clienteId;
             const ordenes = await ordenesService.obtenerPorCliente(clienteId);
-            res.status(200).json(ordenes);
+            
+            const ordenesResponse = ordenes.map(orden => 
+                new OrdenResponseDTO(orden).toSummary()
+            );
+
+            res.status(200).json({
+                success: true,
+                data: ordenesResponse,
+                count: ordenesResponse.length
+            });
         } catch (error) {
             console.error("Error en obtenerPorCliente:", error);
-            res.status(500).json({ mensaje: 'Error al obtener las órdenes del cliente' });
+            res.status(500).json({ 
+                success: false,
+                message: 'Error al obtener las órdenes del cliente: ' + error.message 
+            });
         }
     }
 }
-module.exports = OrdenController;
 
+module.exports = OrdenController;

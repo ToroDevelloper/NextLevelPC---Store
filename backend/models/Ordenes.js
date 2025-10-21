@@ -7,7 +7,7 @@ class Ordenes {
 
         const result = await executeQuery(
             `INSERT INTO ordenes (cliente_id, tipo, numero_orden, total, estado_orden, estado_pago) 
-             VALUES (?, ?, ?, ?, 'Pendiente', 'Pendiente')`,
+             VALUES (?, ?, ?, ?, 'pendiente', 'pendiente')`,
             [cliente_id, tipo, numero_orden, total]
         );
 
@@ -41,7 +41,6 @@ class Ordenes {
     }
 
     static async actualizar(id, data) {
-        // Solo campos permitidos para seguridad
         const camposPermitidos = ['estado_orden', 'estado_pago', 'total', 'tipo'];
         const campos = Object.keys(data).filter(campo => camposPermitidos.includes(campo));
         
@@ -63,7 +62,6 @@ class Ordenes {
         return result.affectedRows > 0;
     }
 
-    
     static async obtenerPorCliente(clienteId) {
         return await executeQuery(`
             SELECT o.* 
