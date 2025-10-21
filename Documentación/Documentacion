@@ -6,3 +6,6 @@ podemos ver los difrentes tipos de mantenimientos que ofrecemos
 Actualizacion de model servicio quite consulta inesesaria hacia categoria
 
 Actualizacion de service service para quitar validadacione con categoria id
+
+Se agregaron estilos con ayuda tailwind css al modulo de servicios y ademas se agrego un filtro
+para que busque por tipo de servicio avanzado y basico y un boton para ver todos los servicios disponibles
