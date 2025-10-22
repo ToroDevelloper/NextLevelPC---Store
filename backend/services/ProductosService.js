@@ -1,5 +1,5 @@
 const Productos = require('../models/Productos');
-const {CreateProductoDto, UpdateProductoDto} = require('../dto/ProductosDto')
+const { CreateProductoDto, UpdateProductoDto } = require('../dto/ProductosDto');
 
 class ProductosService {
     static async crearProducto(productoData) {
@@ -23,6 +23,11 @@ class ProductosService {
         } catch (error) {
             throw new Error(`Error al obtener productos: ${error.message}`);
         }
+    }
+
+    //ALIAS para compatibilidad con órdenes
+    static async obtenerTodos() {
+        return await this.obtenerTodosLosProductos();
     }
 
     static async obtenerProductosActivos() {
@@ -90,7 +95,6 @@ class ProductosService {
             throw new Error(`Error al actualizar producto: ${error.message}`);
         }
     }
-
 
     static async eliminarProducto(id) {
         try {
