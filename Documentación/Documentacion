@@ -7,5 +7,18 @@ Actualizacion de model servicio quite consulta inesesaria hacia categoria
 
 Actualizacion de service service para quitar validadacione con categoria id
 
-Se agregaron estilos con ayuda tailwind css al modulo de servicios y ademas se agrego un filtro
-para que busque por tipo de servicio avanzado y basico y un boton para ver todos los servicios disponibles
+
+
+
+21/10/2025 Jeferson
+- Se implementoo page para registro y a la ves se unio las paginas (inicioSesion - Home)
+- Implementación de módulo de órdenes e items siguiendo arquitectura MVC con DTOs
+- Actualización de modelos para incluir timestamp created_at
+- Implementación de DTOs para validación y transformación de datos
+- Mejora en relaciones entre órdenes, clientes y productos
+
+
+
+21/10/2025 Keiner Tez 
+-Se implemento la vista para productos usando ejs y multer, hay que realizar mejoras 
+-Creación del DTO productos

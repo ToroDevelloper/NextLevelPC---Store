@@ -24,11 +24,8 @@ a:hover {
 
 body {
   margin: 0;
-  display: flex;
-  justify-content: center;  
-  align-items: center;      
-  min-width: 320px;
   min-height: 100vh;
+  width: 100%;
 }
 
 h1 {
@@ -71,4 +68,12 @@ button:focus-visible {
 .centered-button {
   width: 100%;
   margin-top: 1rem;
+}
+
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  width: 100%;
 }

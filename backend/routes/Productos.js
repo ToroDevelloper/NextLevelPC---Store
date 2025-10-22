@@ -18,17 +18,8 @@ router.get('/categoria/:categoria_id', ProductosController.obtenerProductosPorCa
 // POST - Crear nuevo producto
 router.post('/', ProductosController.crearProducto);
 
-// PUT - Actualizar producto completo
-router.put('/:id', ProductosController.actualizarProducto);
-
-// PATCH - Actualizar stock específico
-router.patch('/:id/stock', ProductosController.actualizarStock);
-
-// PATCH - Desactivar producto
-router.patch('/:id/desactivar', ProductosController.desactivarProducto);
-
-// PATCH - Activar producto
-router.patch('/:id/activar', ProductosController.activarProducto);
+// PATCH - Actualizar producto completo
+router.patch('/:id', ProductosController.actualizarProducto);
 
 // DELETE - Eliminar producto permanentemente
 router.delete('/:id', ProductosController.eliminarProducto);

@@ -6,6 +6,8 @@ const categoriaController = require('../controllers/categoriaController');
 // GET /api/categorias - Obtener todas las categorías
 router.get('/', categoriaController.getCategorias);
 
+router.get('/producto', categoriaController.getCategoriasProductos);
+
 // GET /api/categorias/:id - Obtener una categoría por ID
 router.get('/:id', categoriaController.getCategoria);
 

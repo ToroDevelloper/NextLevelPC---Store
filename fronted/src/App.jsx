@@ -6,6 +6,8 @@ import InicioSesion from './pages/inicioSesion'
 import Registro from './pages/Registro'
 import Productos from './pages/productos'
 import Servicios from './pages/Servicios'
+import "./styles/App.css";
+import "./styles/Global.css";
 
 function App() {
     useEffect(() => {

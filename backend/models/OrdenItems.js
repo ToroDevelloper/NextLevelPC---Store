@@ -6,7 +6,6 @@ class OrdenItems {
             orden_id, 
             tipo, 
             producto_id, 
-            servicio_id, 
             descripcion, 
             cantidad = 1, 
             precio_unitario 
@@ -21,35 +20,30 @@ class OrdenItems {
 
         const result = await executeQuery(
             `INSERT INTO orden_items 
-             (orden_id, tipo, producto_id, servicio_id, descripcion, cantidad, precio_unitario, subtotal) 
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-            [orden_id, tipo, producto_id, servicio_id, descripcion, cantidad, precio_unitario, subtotal]
+             (orden_id, tipo, producto_id, descripcion, cantidad, precio_unitario, subtotal) 
+             VALUES (?, ?, ?, ?, ?, ?, ?)`,
+            [orden_id, tipo, producto_id, descripcion, cantidad, precio_unitario, subtotal]
         );
 
         return result.insertId;
     }
 
-    
     static async obtenerTodos() {
         return await executeQuery(`
             SELECT oi.*,
-                   p.nombre as producto_nombre,
-                   s.nombre as servicio_nombre
+                   p.nombre as producto_nombre
             FROM orden_items oi 
             LEFT JOIN productos p ON oi.producto_id = p.id 
-            LEFT JOIN servicios s ON oi.servicio_id = s.id
-            ORDER BY oi.id DESC
+            ORDER BY oi.created_at DESC
         `);
     }
 
     static async obtenerPorId(id) {
         const result = await executeQuery(`
             SELECT oi.*,
-                   p.nombre as producto_nombre,
-                   s.nombre as servicio_nombre
+                   p.nombre as producto_nombre
             FROM orden_items oi 
             LEFT JOIN productos p ON oi.producto_id = p.id 
-            LEFT JOIN servicios s ON oi.servicio_id = s.id
             WHERE oi.id = ?
         `, [id]);
         
@@ -59,13 +53,11 @@ class OrdenItems {
     static async obtenerPorOrden(ordenId) {
         return await executeQuery(`
             SELECT oi.*,
-                   p.nombre as producto_nombre,
-                   s.nombre as servicio_nombre
+                   p.nombre as producto_nombre
             FROM orden_items oi 
             LEFT JOIN productos p ON oi.producto_id = p.id 
-            LEFT JOIN servicios s ON oi.servicio_id = s.id 
             WHERE oi.orden_id = ?
-            ORDER BY oi.id
+            ORDER BY oi.created_at DESC
         `, [ordenId]);
     }
 
@@ -74,6 +66,14 @@ class OrdenItems {
         const campos = Object.keys(data).filter(campo => camposPermitidos.includes(campo));
         
         if (campos.length === 0) return false;
+
+        // Recalcular subtotal si se actualiza cantidad o precio
+        if (data.cantidad !== undefined || data.precio_unitario !== undefined) {
+            const itemExistente = await this.obtenerPorId(id);
+            const nuevaCantidad = data.cantidad !== undefined ? data.cantidad : itemExistente.cantidad;
+            const nuevoPrecio = data.precio_unitario !== undefined ? data.precio_unitario : itemExistente.precio_unitario;
+            data.subtotal = nuevaCantidad * nuevoPrecio;
+        }
 
         const columnas = campos.map(campo => `${campo} = ?`).join(', ');
         const valores = campos.map(campo => data[campo]);

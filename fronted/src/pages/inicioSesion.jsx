@@ -29,7 +29,7 @@ async function handleSubmit(e) {
     });
 
     const text = await res.text();
-    console.log('📥 Respuesta completa del servidor:', text); // Agrega este log
+    console.log('Respuesta completa del servidor:', text); // Agrega este log
     
     let data = {};
     try { 
@@ -38,7 +38,7 @@ async function handleSubmit(e) {
       console.warn('Respuesta no JSON:', text);
     }
 
-    console.log('📊 Datos parseados:', data); // Agrega este log
+    console.log('Datos parseados:', data); // Agrega este log
 
     if (!res.ok) {
       setError(data.mensaje || data.message || `Error ${res.status}`);
@@ -48,10 +48,10 @@ async function handleSubmit(e) {
 
     // CORREGIDO: El token está en data.data.token según tu controlador
     const token = data.data?.token || data.token || data.access_token || data.accessToken;
-    console.log('🔑 Token extraído:', token); // Agrega este log
+    console.log('Token extraído:', token); // Agrega este log
 
     if (!token) {
-      console.error('❌ No se encontró token en:', data);
+      console.error('No se encontró token en:', data);
       setError('No se recibió token del servidor.');
       setLoading(false);
       return;
@@ -59,7 +59,7 @@ async function handleSubmit(e) {
 
     try {
       localStorage.setItem('token', token);
-      console.log('💾 Token guardado en localStorage');
+      console.log('Token guardado en localStorage');
     } catch (storageErr) {
       console.error('Error guardando token:', storageErr);
       setError('No se pudo guardar el token en el navegador.');
@@ -68,7 +68,7 @@ async function handleSubmit(e) {
     }
 
     setLoading(false);
-    console.log('✅ Login exitoso, redirigiendo a Home...');
+    console.log('Login exitoso, redirigiendo a Home...');
     navigate('/home');
       
   } catch (err) {

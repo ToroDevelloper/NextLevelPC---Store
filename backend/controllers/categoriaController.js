@@ -1,8 +1,7 @@
-// controllers/categoriaController.js
 const categoriaService = require('../services/categoriaService');
 
 class CategoriaController {
-    async getCategorias(req, res) {
+   static async getCategorias(req, res) {
         try {
             const categorias = await categoriaService.getAllCategorias();
             res.json(categorias);
@@ -12,7 +11,17 @@ class CategoriaController {
         }
     }
 
-    async getCategoria(req, res) {
+   static async getCategoriasProductos(req, res) {
+    try {
+        const categorias = await categoriaService.getCategoriasProductos();
+        res.json(categorias);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+}
+
+
+    static async getCategoria(req, res) {
         try {
             const { id } = req.params;
             const categoria = await categoriaService.getCategoriaById(id);
@@ -26,7 +35,7 @@ class CategoriaController {
         }
     }
 
-    async createCategoria(req, res) {
+    static async createCategoria(req, res) {
         try {
             const categoria = await categoriaService.createCategoria(req.body);
             res.status(201).json({
@@ -41,7 +50,7 @@ class CategoriaController {
         }
     }
 
-    async updateCategoria(req, res) {
+   static async updateCategoria(req, res) {
         try {
             const { id } = req.params;
             const categoria = await categoriaService.updateCategoria(id, req.body);
@@ -57,7 +66,7 @@ class CategoriaController {
         }
     }
 
-    async deleteCategoria(req, res) {
+    static async deleteCategoria(req, res) {
         try {
             const { id } = req.params;
             await categoriaService.deleteCategoria(id);
@@ -72,4 +81,4 @@ class CategoriaController {
     }
 }
 
-module.exports = new CategoriaController();
+module.exports = CategoriaController;

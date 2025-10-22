@@ -9,7 +9,10 @@
 /* Contenedor principal del Home */
 .home-container {
     min-height: 100vh;
+    width: 100%;
     background: linear-gradient(to bottom right, #f9fafb, #e5e7eb);
+    display: flex;
+    flex-direction: column;
 }
 
 /* ========================================
@@ -275,16 +278,17 @@
 }
 
 /* ========================================
-   HOME FOOTER
+   HOME FOOTER (PEGADO ABAJO)
    ======================================== */
 
 .home-footer {
     background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
     color: white;
     padding: 1.5rem;
-    margin-top: 2rem;
+    margin-top: auto; /* Esto hace que el footer se pegue abajo */
     box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
     position: relative;
+    width: 100%;
 }
 
 .home-footer::before {

@@ -1,4 +1,3 @@
-// models/Categoria.js
 const { db } = require('../config/db');
 
 class Categoria {
@@ -15,6 +14,19 @@ class Categoria {
             throw new Error('Error al obtener categorías de la base de datos');
         }
     }
+
+    static async findAllProductos() {
+    try {
+        const [rows] = await db.execute(
+            "SELECT * FROM categorias WHERE tipo = 'producto' ORDER BY nombre"
+        );
+        return rows;
+    } catch (error) {
+        console.error('Error en Categoria.findAllProductos:', error.message);
+        throw new Error('Error al obtener categorías de productos');
+    }
+}
+
 
     static async findById(id) {
         try {
