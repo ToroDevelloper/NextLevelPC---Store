@@ -111,10 +111,9 @@ class UsuariosService {
         return token;
     }
 
-    // 🆕 MÉTODO PARA OBTENER CLIENTES (necesario para órdenes)
+    //MÉTODO PARA OBTENER CLIENTES (necesario para órdenes)
     static async obtenerClientes() {
         try {
-            // Asumiendo que rol_id 2 son clientes - ajusta según tu sistema
             const usuarios = await Usuarios.obtenerTodos();
             const clientes = usuarios.filter(usuario => usuario.rol_id === 2);
             return clientes;
