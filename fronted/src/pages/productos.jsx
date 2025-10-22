@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import '../styles/Home.css';
+import "../styles/Product.css";
 
 const API_BASE = 'http://localhost:8080';
 
