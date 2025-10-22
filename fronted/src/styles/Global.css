@@ -1,0 +1,23 @@
+/* src/styles/Global.css */
+:root {
+  --primary-blue: #3b82f6;
+  --primary-purple: #4f46e5;
+  --dark-bg: #1f2937;
+  --darker-bg: #111827;
+  --light-bg: #f9fafb;
+  --text-light: #e5e7eb;
+  --text-dark: #1f2937;
+  --gradient-primary: linear-gradient(135deg, #3b82f6 0%, #4f46e5 100%);
+  --gradient-dark: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+  --spacing-xs: 0.5rem;
+  --spacing-sm: 1rem;
+  --spacing-md: 1.5rem;
+  --spacing-lg: 2rem;
+  --border-radius: 0.75rem;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
