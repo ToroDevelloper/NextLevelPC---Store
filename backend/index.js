@@ -15,6 +15,10 @@ const ordenesRoutes = require('./routes/Ordenes');
 const ordenItemsRoutes = require('./routes/OrdenItems');
 const imagenProductoRoutes = require('./routes/imagenProductoRoutes');
 
+// Importar rutas de VISTAS
+const productosViews = require('./routesViews/productosViews');
+const ordenesViews = require('./routesViews/ordenesViews'); 
+
 // Importar conexión a DB
 const { testConnection } = require('./config/db');
 
@@ -39,15 +43,14 @@ app.use((req, res, next) => {
     next();
 });
 
-//rutas para vistas
+// Servir archivos estáticos
 app.use('/uploads', express.static('uploads'));
 
-const productosViews = require('./routesViews/productosViews');
+// Rutas de VISTAS
 app.use('/productos', productosViews);
+app.use('/', ordenesViews); 
 
-
-
-// Rutas
+// Rutas API
 app.use('/api/categorias', categoriasRoutes);
 app.use('/api/servicios', serviciosRoutes);
 app.use('/api/productos', productosRoutes);
@@ -93,6 +96,10 @@ app.get('/', (req, res) => {
             roles: '/api/roles',
             imagenes_producto: '/api/imagenes-producto',
             health: '/api/health'
+        },
+        vistas: {
+            productos: '/productos',
+            ordenes: '/ordenes' 
         }
     });
 });
@@ -128,12 +135,14 @@ const startServer = async () => {
         }
 
         app.listen(PORT, () => {
+            console.log('-------------------------------');
             console.log('BACKEND NEXTLEVELPC INICIADO');
-            console.log('=====================================');
+            console.log('-------------------------------');
             console.log(`Puerto: ${PORT}`);
             console.log(`URL: http://localhost:${PORT}`);
             console.log(`Health: http://localhost:${PORT}/api/health`);
-   
+            console.log(`Vista Productos: http://localhost:${PORT}/productos`);
+            console.log(`Vista Órdenes: http://localhost:${PORT}/ordenes`);
         });
 
     } catch (error) {
