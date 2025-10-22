@@ -16,3 +16,9 @@ Actualizacion de service service para quitar validadacione con categoria id
 - Actualización de modelos para incluir timestamp created_at
 - Implementación de DTOs para validación y transformación de datos
 - Mejora en relaciones entre órdenes, clientes y productos
+
+
+
+21/10/2025 Keiner Tez 
+-Se implemento la vista para productos usando ejs y multer, hay que realizar mejoras 
+-Creación del DTO productos
