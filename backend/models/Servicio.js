@@ -2,18 +2,29 @@
 const { executeQuery } = require('../config/db');
 
 class Servicio {
-    // Obtener todos los servicios — SIN JOIN con categorías
+    // Obtener todos los servicios
     static async findAll() {
         const query = `
             SELECT * 
             FROM servicios 
             WHERE activo = 1
-            ORDER BY nombre
+            ORDER BY tipo, nombre
         `;
         return await executeQuery(query);
     }
 
-    // Obtener servicio por ID — SIN JOIN
+    // Obtener servicios por tipo
+    static async findByTipo(tipo) {
+        const query = `
+            SELECT * 
+            FROM servicios 
+            WHERE activo = 1 AND tipo = ?
+            ORDER BY nombre
+        `;
+        return await executeQuery(query, [tipo]);
+    }
+
+    // Obtener servicio por ID
     static async findById(id) {
         const query = `
             SELECT * 
@@ -24,30 +35,30 @@ class Servicio {
         return resultados.length > 0 ? resultados[0] : null;
     }
 
-    // Crear nuevo servicio — sin categoria_id
+    // Crear nuevo servicio
     static async create(servicioData) {
-        const { nombre, precio, descripcion = null } = servicioData;
+        const { nombre, tipo = 'basico', precio, descripcion = null } = servicioData;
 
         const query = `
-            INSERT INTO servicios (nombre, precio, descripcion, activo) 
-            VALUES (?, ?, ?, 1)
+            INSERT INTO servicios (nombre, tipo, precio, descripcion, activo) 
+            VALUES (?, ?, ?, ?, 1)
         `;
 
-        const result = await executeQuery(query, [nombre, precio, descripcion]);
+        const result = await executeQuery(query, [nombre, tipo, precio, descripcion]);
         return this.findById(result.insertId);
     }
 
-    // Actualizar servicio — sin categoria_id
+    // Actualizar servicio
     static async update(id, servicioData) {
-        const { nombre, precio, descripcion } = servicioData;
+        const { nombre, tipo, precio, descripcion } = servicioData;
 
         const query = `
             UPDATE servicios 
-            SET nombre = ?, precio = ?, descripcion = ? 
+            SET nombre = ?, tipo = ?, precio = ?, descripcion = ? 
             WHERE id = ? AND activo = 1
         `;
 
-        await executeQuery(query, [nombre, precio, descripcion, id]);
+        await executeQuery(query, [nombre, tipo, precio, descripcion, id]);
         return this.findById(id);
     }
 

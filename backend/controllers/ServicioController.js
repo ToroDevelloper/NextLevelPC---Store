@@ -19,6 +19,25 @@ class ServicioController {
         }
     }
 
+    // GET /api/servicios/tipo/:tipo
+    async getServiciosByTipo(req, res) {
+        try {
+            const { tipo } = req.params;
+            const servicios = await servicioService.getServiciosByTipo(tipo);
+
+            res.json({
+                success: true,
+                data: servicios,
+                count: servicios.length
+            });
+        } catch (error) {
+            res.status(400).json({
+                success: false,
+                message: error.message
+            });
+        }
+    }
+
     // GET /api/servicios/:id
     async getServicioById(req, res) {
         try {
@@ -50,10 +69,10 @@ class ServicioController {
             const servicioData = req.body;
 
             // Validaciones básicas
-            if (!servicioData.nombre || !servicioData.categoria_id || !servicioData.precio) {
+            if (!servicioData.nombre || !servicioData.precio) {
                 return res.status(400).json({
                     success: false,
-                    message: 'Nombre, categoría_id y precio son campos requeridos'
+                    message: 'Nombre y precio son campos requeridos'
                 });
             }
 
@@ -65,7 +84,7 @@ class ServicioController {
                 data: nuevoServicio
             });
         } catch (error) {
-            if (error.message.includes('Ya existe')) {
+            if (error.message.includes('Ya existe') || error.message.includes('inválido')) {
                 return res.status(409).json({
                     success: false,
                     message: error.message
@@ -85,14 +104,6 @@ class ServicioController {
             const { id } = req.params;
             const servicioData = req.body;
 
-            // Validaciones básicas
-            if (!servicioData.nombre || !servicioData.categoria_id || !servicioData.precio) {
-                return res.status(400).json({
-                    success: false,
-                    message: 'Nombre, categoría_id y precio son campos requeridos'
-                });
-            }
-
             const servicioActualizado = await servicioService.updateServicio(id, servicioData);
 
             res.json({
@@ -108,7 +119,7 @@ class ServicioController {
                 });
             }
 
-            if (error.message.includes('Ya existe')) {
+            if (error.message.includes('Ya existe') || error.message.includes('inválido')) {
                 return res.status(409).json({
                     success: false,
                     message: error.message
@@ -140,25 +151,6 @@ class ServicioController {
                 });
             }
 
-            res.status(500).json({
-                success: false,
-                message: error.message
-            });
-        }
-    }
-
-    // GET /api/servicios/categoria/:categoriaId
-    async getServiciosByCategoria(req, res) {
-        try {
-            const { categoriaId } = req.params;
-            const servicios = await servicioService.getServiciosByCategoria(categoriaId);
-
-            res.json({
-                success: true,
-                data: servicios,
-                count: servicios.length
-            });
-        } catch (error) {
             res.status(500).json({
                 success: false,
                 message: error.message

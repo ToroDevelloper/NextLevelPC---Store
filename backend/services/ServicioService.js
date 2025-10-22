@@ -11,6 +11,19 @@ class ServicioService {
         }
     }
 
+    // Obtener servicios por tipo
+    async getServiciosByTipo(tipo) {
+        try {
+            // Validar que el tipo sea válido
+            if (!['basico', 'avanzado'].includes(tipo)) {
+                throw new Error('Tipo de servicio inválido. Use "basico" o "avanzado"');
+            }
+            return await Servicio.findByTipo(tipo);
+        } catch (error) {
+            throw new Error(`Error al obtener servicios por tipo: ${error.message}`);
+        }
+    }
+
     // Obtener servicio por ID
     async getServicioById(id) {
         try {
@@ -27,9 +40,9 @@ class ServicioService {
     // Crear nuevo servicio
     async createServicio(servicioData) {
         try {
-            // Validar campos requeridos — sin categoria_id
-            if (!servicioData.nombre || !servicioData.precio) {
-                throw new Error('Nombre y precio son campos requeridos');
+            // Validar tipo si se proporciona
+            if (servicioData.tipo && !['basico', 'avanzado'].includes(servicioData.tipo)) {
+                throw new Error('Tipo de servicio inválido. Use "basico" o "avanzado"');
             }
 
             // Validar que no exista un servicio con el mismo nombre
@@ -58,9 +71,9 @@ class ServicioService {
                 throw new Error('Servicio no encontrado');
             }
 
-            // Validar campos requeridos
-            if (!servicioData.nombre || !servicioData.precio) {
-                throw new Error('Nombre y precio son campos requeridos');
+            // Validar tipo si se proporciona
+            if (servicioData.tipo && !['basico', 'avanzado'].includes(servicioData.tipo)) {
+                throw new Error('Tipo de servicio inválido. Use "basico" o "avanzado"');
             }
 
             // Validar que no exista otro servicio con el mismo nombre
@@ -70,7 +83,7 @@ class ServicioService {
             }
 
             // Validar precio
-            if (servicioData.precio <= 0) {
+            if (servicioData.precio && servicioData.precio <= 0) {
                 throw new Error('El precio debe ser mayor a 0');
             }
 
@@ -101,4 +114,3 @@ class ServicioService {
 }
 
 module.exports = new ServicioService();
-//
