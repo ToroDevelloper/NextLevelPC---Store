@@ -47,7 +47,6 @@ class UsuariosService {
     }
 
     static async actualizar(id, datos) {
-
         const usuarioExistente = await Usuarios.obtenerPorId(id);
         if (!usuarioExistente) {
             throw new Error('Usuario no encontrado');
@@ -102,10 +101,27 @@ class UsuariosService {
             throw new Error('Credenciales inválidas');
         }
         
-        const token = await jwt.sign({ id: usuario.id, correo: usuario.correo, rol_id: usuario.rol_id }, process.env.JWT_SECRET || 'fallback_secret_key', { expiresIn: '1h' });
+        const token = await jwt.sign({ 
+            id: usuario.id, 
+            correo: usuario.correo, 
+            rol_id: usuario.rol_id 
+        }, process.env.JWT_SECRET || 'fallback_secret_key', { 
+            expiresIn: '1h' 
+        });
         return token;
     }
 
+    // 🆕 MÉTODO PARA OBTENER CLIENTES (necesario para órdenes)
+    static async obtenerClientes() {
+        try {
+            // Asumiendo que rol_id 2 son clientes - ajusta según tu sistema
+            const usuarios = await Usuarios.obtenerTodos();
+            const clientes = usuarios.filter(usuario => usuario.rol_id === 2);
+            return clientes;
+        } catch (error) {
+            throw new Error('Error al obtener clientes: ' + error.message);
+        }
+    }
 }
 
 module.exports = UsuariosService;
