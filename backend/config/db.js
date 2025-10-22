@@ -7,7 +7,7 @@ const dbConfig = {
     user: process.env.DB_USER || 'root',
     password: process.env.DB_PASSWORD || '',
     database: process.env.DB_NAME || 'nextlevel', 
-    port: process.env.DB_PORT || 3306,
+    port: process.env.DB_PORT || 3308,
     charset: 'utf8mb4',
     waitForConnections: true,
     connectionLimit: 10
