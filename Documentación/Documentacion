@@ -12,10 +12,11 @@ Actualizacion de service service para quitar validadacione con categoria id
 
 21/10/2025 Jeferson
 - Se implementoo page para registro y a la ves se unio las paginas (inicioSesion - Home)
-- Implementación de módulo de órdenes e items siguiendo arquitectura MVC con DTOs
-- Actualización de modelos para incluir timestamp created_at
-- Implementación de DTOs para validación y transformación de datos
-- Mejora en relaciones entre órdenes, clientes y productos
+- Implementación de DTOs de órdenes y orden_items siguiendo arquitectura MVC
+- Actualización de modelos para Ordenes_items para incluir timestamp created_at
+- Creación de 4 vistas EJS completas (listar, crear, detalle, editar)
+- Configuración de rutas web separadas para vistas HTML junto a la API existente
+- En el fronted se modifico la estructura de los estilos, dando un estilo global a todas las paginas y separando estilos simples personalizados para cada pagina
 
 
 
