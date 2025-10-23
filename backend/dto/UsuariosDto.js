@@ -70,6 +70,13 @@ class LoginDTO{
         if (!this.hash_password) errors.push('password es obligatorio y no puede ser solo espacios');
         return errors;
     }
+
+    toLogin(){
+        return{
+            correo: this.correo,
+            hash_password:this.hash_password
+        }
+    }
 }
 
 module.exports = { UsuarioCreateDTO, UsuarioUpdateDTO, LoginDTO };
