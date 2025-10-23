@@ -71,6 +71,21 @@ class Productos {
         ORDER BY p.nombre
     `);
 }
+
+// Agregar este método al final de la clase Productos en backend/models/Productos.js
+
+    static async obtenerDestacados(limite = 6) {
+        return await executeQuery(`
+        SELECT p.*, 
+               ip.url as imagen_principal,
+               ip.es_principal
+        FROM productos p
+        LEFT JOIN imagenes_productos ip ON p.id = ip.producto_id AND ip.es_principal = 1
+        WHERE p.estado = 1 AND p.stock > 0
+        ORDER BY p.stock DESC
+        LIMIT ?
+    `, [limite]);
+    }
 }
 
 module.exports = Productos;

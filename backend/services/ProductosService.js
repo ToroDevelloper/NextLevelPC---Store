@@ -122,6 +122,16 @@ class ProductosService {
             throw new Error(`Error al obtener productos con imágenes: ${error.message}`);
         }
     }
+
+    // Agregar este método al final de la clase ProductosService en backend/services/ProductosService.js
+
+    static async obtenerProductosDestacados(limite = 6) {
+        try {
+            return await Productos.obtenerDestacados(limite);
+        } catch (error) {
+            throw new Error(`Error al obtener productos destacados: ${error.message}`);
+        }
+    }
 }
 
 module.exports = ProductosService;

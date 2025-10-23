@@ -27,3 +27,8 @@ Actualizacion de service service para quitar validadacione con categoria id
 
 23/10/2025 Keiner Tez 
 -Nabvar global para reutilizar código
+
+
+23/10/2025 Angel Toro
+-Implementacion de productos destacados en la pantalla de home que estan sincronizados
+en la db los productos destacados se clasifican por nivel de stock. Oferta y demanda

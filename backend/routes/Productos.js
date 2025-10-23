@@ -2,8 +2,15 @@ const express = require('express');
 const router = express.Router();
 const ProductosController = require('../controllers/ProductosController');
 
+
+
 // GET - Obtener todos los productos
 router.get('/', ProductosController.obtenerTodosLosProductos);
+
+// Agregar esta ruta ANTES de las rutas con parámetros en backend/routes/Productos.js
+// La ruta debe ir después de la línea: router.get('/con-imagenes', ProductosController.obtenerProductosConImagenes);
+
+router.get('/destacados', ProductosController.obtenerProductosDestacados);
 
 router.get('/con-imagenes', ProductosController.obtenerProductosConImagenes);
 // GET - Obtener productos activos

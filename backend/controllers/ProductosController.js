@@ -137,6 +137,26 @@ class ProductosController {
             });
         }
     }
+
+    // Agregar este método al final de la clase ProductosController en backend/controllers/ProductosController.js
+
+    static async obtenerProductosDestacados(req, res) {
+        try {
+            const limite = req.query.limite || 6;
+            const productos = await ProductosService.obtenerProductosDestacados(parseInt(limite));
+
+            res.status(200).json({
+                success: true,
+                data: productos,
+                count: productos.length
+            });
+        } catch (error) {
+            res.status(500).json({
+                success: false,
+                message: error.message
+            });
+        }
+    }
 }
 
 module.exports = ProductosController;
