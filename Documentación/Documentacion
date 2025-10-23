@@ -23,3 +23,7 @@ Actualizacion de service service para quitar validadacione con categoria id
 21/10/2025 Keiner Tez 
 -Se implemento la vista para productos usando ejs y multer, hay que realizar mejoras 
 -Creación del DTO productos
+
+
+23/10/2025 Keiner Tez 
+-Nabvar global para reutilizar código
