@@ -1,0 +1,67 @@
+<nav class="col-md-3 col-lg-2 d-md-block sidebar collapse" style="background: linear-gradient(180deg, #2c3e50 0%, #1a2530 100%); min-height: 100vh;">
+    <div class="position-sticky pt-3">
+        <div class="text-center mb-4">
+            <h4 class="text-white">
+                <i class="fas fa-desktop me-2"></i>
+                NextLevelPC
+            </h4>
+            <p class="text-light small">Panel de Administración</p>
+        </div>
+        
+        <ul class="nav flex-column">
+            <li class="nav-item mb-2">
+                <a class="nav-link text-white d-flex align-items-center <%= currentPage === 'productos' ? 'active-nav' : '' %>" 
+                   href="/productos">
+                    <i class="fas fa-box me-3"></i>
+                    Productos
+                </a>
+            </li>
+            <li class="nav-item mb-2">
+                <a class="nav-link text-white d-flex align-items-center <%= currentPage === 'ordenes' ? 'active-nav' : '' %>" 
+                   href="/ordenes">
+                    <i class="fas fa-shopping-cart me-3"></i>
+                    Órdenes
+                </a>
+            </li>
+            <li class="nav-item mb-2">
+                <a class="nav-link text-white d-flex align-items-center <%= currentPage === 'clientes' ? 'active-nav' : '' %>" 
+                   href="#">
+                    <i class="fas fa-users me-3"></i>
+                    Clientes
+                </a>
+            </li>
+            <li class="nav-item mb-2">
+                <a class="nav-link text-white d-flex align-items-center <%= currentPage === 'reportes' ? 'active-nav' : '' %>" 
+                   href="#">
+                    <i class="fas fa-chart-bar me-3"></i>
+                    Reportes
+                </a>
+            </li>
+        </ul>
+
+        <div class="mt-5 px-3">
+            <div class="card bg-dark border-light">
+                <div class="card-body text-center">
+                    <small class="text-light">Sistema de Gestión</small>
+                    <br>
+                    <small class="text-muted">v1.0.0</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<style>
+    .active-nav {
+        background: rgba(255,255,255,0.2) !important;
+        border-radius: 8px;
+        font-weight: bold;
+    }
+    .sidebar .nav-link {
+        transition: all 0.3s ease;
+    }
+    .sidebar .nav-link:hover {
+        background: rgba(255,255,255,0.1);
+        border-radius: 8px;
+    }
+</style>

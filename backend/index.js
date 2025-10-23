@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const expressLayouts = require('express-ejs-layouts');
 
 // Cargar variables de entorno
 require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
@@ -33,6 +34,10 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
+app.use(expressLayouts);
+app.set('layout', 'layouts/main');
+app.set('layout extractScripts', true);
+app.set('layout extractStyles', true);
 
 // Logging middleware
 app.use((req, res, next) => {
