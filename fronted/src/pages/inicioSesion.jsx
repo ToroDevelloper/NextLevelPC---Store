@@ -262,7 +262,7 @@ export default function InicioSesion() {
                                     backgroundColor: NEXTLEVEL_GREEN,
                                     color: 'rgba(33,89,56,0.7)',
                                     border: '2px solid transparent',
-                                    borderRadius: '8px',
+                                    borderRadius: '50px',
                                     fontSize: '1rem',
                                     fontWeight: '600',
                                     cursor: 'pointer',
@@ -278,11 +278,12 @@ export default function InicioSesion() {
                                 style={{
                                     flex: 'none',
                                     width: '150px',
+                                    marginRight: '350px',
                                     padding: '0.75rem 1.5rem',
                                     backgroundColor: loading ? '#ccc' : NEXTLEVEL_CYAN,
                                     color: 'rgba(16,69,67,0.87)',
                                     border: 'none',
-                                    borderRadius: '8px',
+                                    borderRadius: '50px',
                                     fontSize: '1rem',
                                     fontWeight: '600',
                                     cursor: loading ? 'not-allowed' : 'pointer',
@@ -301,14 +302,14 @@ export default function InicioSesion() {
                 bottom: '0',
                 left: '0',
                 width: '100%',
-                backgroundColor: BACKGROUND_DARK,
-                color: '#fff',
+                backgroundColor: '#060347',
+                color: '#ffffff',
                 padding: '0.5rem 1rem',
                 fontSize: '0.8rem',
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
-                borderTop: '1px solid #1A1A1A'
+                borderTop: '1px solid #100C25'
             }}>
                 <p style={{ margin: 0 }}>
                     © 2025 NextLevelPc. Todos los derechos reservados.
