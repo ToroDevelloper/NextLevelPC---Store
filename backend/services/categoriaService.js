@@ -1,5 +1,6 @@
 const Categoria = require('../models/Categoria');
 const { db } = require('../config/db');
+const {CreateCategoriaDto,UpdateCategoriaDto} = require('../dto/CategoriasDto')
 
 class CategoriaService {
     static async getAllCategorias() {
@@ -32,26 +33,19 @@ class CategoriaService {
 
   static  async createCategoria(categoriaData) {
         try {
-            const { nombre, tipo = 'Producto' } = categoriaData;
+            const categoria = new CreateCategoriaDto(categoriaData);
+            const errors = categoria.validate();
 
-            if (!nombre || nombre.trim() === '') {
-                throw new Error('El nombre de la categoría es requerido');
+            if (errors.length > 0) {
+                throw new Error('Errores de validación: ', errors.join(', '));
             }
 
-            if (nombre.length < 2) {
-                throw new Error('El nombre debe tener al menos 2 caracteres');
-            }
-
-            if (!['Producto', 'Servicio'].includes(tipo)) {
-                throw new Error('El tipo debe ser "Producto" o "Servicio"');
-            }
-
-            const exists = await Categoria.exists(nombre);
+            const exists = await Categoria.exists(categoria.nombre);
             if (exists) {
                 throw new Error('Ya existe una categoría con este nombre');
             }
 
-            return await Categoria.create(nombre, tipo);
+            return await Categoria.create(categoria.toModel());
         } catch (error) {
             throw new Error('Error al crear categoría: ' + error.message);
         }
@@ -64,24 +58,25 @@ class CategoriaService {
                 throw new Error('Categoría no encontrada');
             }
 
-            const { nombre, tipo } = categoriaData;
-
-            if (nombre && nombre.trim() === '') {
-                throw new Error('El nombre de la categoría es requerido');
+            const data = new UpdateCategoriaDto(categoriaData);
+            const errores = data.validate();
+            if(errores.length > 0){
+                throw new Error('Errores de validación: ',errores.join(', '))
             }
 
-            if (tipo && !['Producto', 'Servicio'].includes(tipo)) {
-                throw new Error('El tipo debe ser "Producto" o "Servicio"');
+            const patch = data.toPatchObject();
+            if(Object.keys(patch).length === 0){
+                throw new Error('No se enviaron campos para actualizar')
             }
 
-            if (nombre && nombre !== categoria.nombre) {
-                const exists = await Categoria.exists(nombre, id);
+            if (patch.nombre &&patch.nombre !== categoria.nombre) {
+                const exists = await Categoria.exists(patch.nombre, id);
                 if (exists) {
                     throw new Error('Ya existe una categoría con este nombre');
                 }
             }
 
-            return await Categoria.update(id, categoriaData);
+            return await Categoria.update(id,patch);
         } catch (error) {
             throw new Error('Error al actualizar categoría: ' + error.message);
         }

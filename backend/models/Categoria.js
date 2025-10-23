@@ -45,8 +45,9 @@ class Categoria {
         }
     }
 
-    static async create(nombre, tipo) {
+    static async create(dto) {
         try {
+            const {nombre,tipo} = dto;
             const [result] = await db.execute(
                 'INSERT INTO categorias (nombre, tipo) VALUES (?, ?)',
                 [nombre, tipo || 'Producto']
@@ -65,11 +66,13 @@ class Categoria {
 
     static async update(id, categoriaData) {
         try {
-            const { nombre, tipo } = categoriaData;
+            const campos = Object.keys(categoriaData);
+            const columnas = campos.map(campo => `${campo} = ?`).join(', ');
+            const valores = Object.values(categoriaData)
 
             await db.execute(
-                'UPDATE categorias SET nombre = ?, tipo = ? WHERE id = ?',
-                [nombre, tipo, id]
+                `UPDATE categorias SET ${columnas} WHERE id = ?`,
+                [...valores, id]
             );
             return this.findById(id);
         } catch (error) {

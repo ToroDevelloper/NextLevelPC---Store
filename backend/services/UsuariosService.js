@@ -92,11 +92,11 @@ class UsuariosService {
         if (errores.length > 0) {
             throw new Error('Errores de validación: ' + errores.join(', '));
         }
-        const usuario = await Usuarios.obtenerPorCorreo(dto.correo);
+        const usuario = await Usuarios.obtenerPorCorreo(dto.toLogin().correo);
         if (!usuario) {
             throw new Error('Credenciales inválidas');
         }
-        const passwordValido = await bcrypt.compare(dto.hash_password, usuario.hash_password);
+        const passwordValido = await bcrypt.compare(dto.toLogin().hash_password, usuario.hash_password);
         if (!passwordValido) {
             throw new Error('Credenciales inválidas');
         }

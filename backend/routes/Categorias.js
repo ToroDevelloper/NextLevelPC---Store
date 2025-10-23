@@ -2,6 +2,8 @@
 const express = require('express');
 const router = express.Router();
 const categoriaController = require('../controllers/categoriaController');
+const verificarToken = require('../middlewares/authMiddleware')
+const verificarRol = require('../middlewares/roleMiddleware')
 
 // GET /api/categorias - Obtener todas las categorías
 router.get('/', categoriaController.getCategorias);
@@ -12,12 +14,12 @@ router.get('/producto', categoriaController.getCategoriasProductos);
 router.get('/:id', categoriaController.getCategoria);
 
 // POST /api/categorias - Crear una nueva categoría
-router.post('/', categoriaController.createCategoria);
+router.post('/',verificarToken,verificarRol([1]), categoriaController.createCategoria);
 
 // PUT /api/categorias/:id - Actualizar una categoría
-router.put('/:id', categoriaController.updateCategoria);
+router.patch('/:id',verificarToken,verificarRol([1]), categoriaController.updateCategoria);
 
 // DELETE /api/categorias/:id - Eliminar una categoría
-router.delete('/:id', categoriaController.deleteCategoria);
+router.delete('/:id',verificarToken,verificarRol([1]), categoriaController.deleteCategoria);
 
 module.exports = router;
