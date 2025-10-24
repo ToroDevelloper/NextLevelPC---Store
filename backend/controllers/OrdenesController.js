@@ -76,6 +76,12 @@ class OrdenController {
             const id = req.params.id;
             const orden = await ordenesService.obtenerPorId(id);
 
+            if (req.usuario.rol_id !== 1 && req.usuario.id !== parseInt(orden.clienteId)) {
+            return res.status(403).json({
+                success: false,
+                mensaje: 'Solo puedes ver ordenes que son tuyas'
+            });}
+
             if (!orden) {
                 return res.status(404).json({ 
                     success: false,
