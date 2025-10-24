@@ -19,7 +19,7 @@ CREATE TABLE `usuarios` (
   `apellido` varchar(100) DEFAULT NULL,
   `correo` varchar(150) NOT NULL,
   `hash_password` varchar(255) NOT NULL,
-  `rol_id` int(11) DEFAULT NULL,
+  `rol_id` int(11) DEFAULT 2,
   `estado` enum('activo','inactivo') DEFAULT 'activo',
   PRIMARY KEY (`id`),
   UNIQUE KEY `correo` (`correo`),
