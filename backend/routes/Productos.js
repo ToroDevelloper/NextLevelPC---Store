@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const ProductosController = require('../controllers/ProductosController');
-
-
+const verificarToken = require('../middlewares/authMiddleware.js');
+const verificarRol = require('../middlewares/roleMiddleware.js');
 
 // GET - Obtener todos los productos
 router.get('/', ProductosController.obtenerTodosLosProductos);
@@ -23,12 +23,12 @@ router.get('/:id', ProductosController.obtenerProductoPorId);
 router.get('/categoria/:categoria_id', ProductosController.obtenerProductosPorCategoria);
 
 // POST - Crear nuevo producto
-router.post('/', ProductosController.crearProducto);
+router.post('/',verificarToken,verificarRol([1]),ProductosController.crearProducto);
 
 // PATCH - Actualizar producto completo
-router.patch('/:id', ProductosController.actualizarProducto);
+router.patch('/:id',verificarToken,verificarRol([1]), ProductosController.actualizarProducto);
 
 // DELETE - Eliminar producto permanentemente
-router.delete('/:id', ProductosController.eliminarProducto);
+router.delete('/:id', verificarToken,verificarRol([1]),ProductosController.eliminarProducto);
 
 module.exports = router;
