@@ -1,8 +1,8 @@
-// models/Servicio.js
+
 const { executeQuery } = require('../config/db');
 
 class Servicio {
-    // Obtener todos los servicios
+
     static async findAll() {
         const query = `
             SELECT * 
@@ -13,7 +13,7 @@ class Servicio {
         return await executeQuery(query);
     }
 
-    // Obtener servicios por tipo
+
     static async findByTipo(tipo) {
         const query = `
             SELECT * 
@@ -24,7 +24,7 @@ class Servicio {
         return await executeQuery(query, [tipo]);
     }
 
-    // Obtener servicio por ID
+
     static async findById(id) {
         const query = `
             SELECT * 
@@ -35,7 +35,7 @@ class Servicio {
         return resultados.length > 0 ? resultados[0] : null;
     }
 
-    // Crear nuevo servicio
+
     static async create(servicioData) {
         const { nombre, tipo = 'basico', precio, descripcion = null } = servicioData;
 
@@ -48,7 +48,7 @@ class Servicio {
         return this.findById(result.insertId);
     }
 
-    // Actualizar servicio
+
     static async update(id, servicioData) {
         const { nombre, tipo, precio, descripcion } = servicioData;
 
@@ -62,14 +62,14 @@ class Servicio {
         return this.findById(id);
     }
 
-    // Eliminar servicio (soft delete)
+
     static async delete(id) {
         const query = `UPDATE servicios SET activo = 0 WHERE id = ?`;
         const result = await executeQuery(query, [id]);
         return result.affectedRows > 0;
     }
 
-    // Verificar si existe servicio con mismo nombre
+
     static async findByNombre(nombre, excludeId = null) {
         let query = `SELECT * FROM servicios WHERE nombre = ? AND activo = 1`;
         const params = [nombre];

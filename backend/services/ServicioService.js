@@ -1,8 +1,8 @@
-// services/servicioService.js
+
 const Servicio = require('../models/Servicio');
 
 class ServicioService {
-    // Obtener todos los servicios
+
     async getAllServicios() {
         try {
             return await Servicio.findAll();
@@ -11,10 +11,10 @@ class ServicioService {
         }
     }
 
-    // Obtener servicios por tipo
+
     async getServiciosByTipo(tipo) {
         try {
-            // Validar que el tipo sea válido
+
             if (!['basico', 'avanzado'].includes(tipo)) {
                 throw new Error('Tipo de servicio inválido. Use "basico" o "avanzado"');
             }
@@ -24,7 +24,7 @@ class ServicioService {
         }
     }
 
-    // Obtener servicio por ID
+
     async getServicioById(id) {
         try {
             const servicio = await Servicio.findById(id);
@@ -37,21 +37,21 @@ class ServicioService {
         }
     }
 
-    // Crear nuevo servicio
+
     async createServicio(servicioData) {
         try {
-            // Validar tipo si se proporciona
+
             if (servicioData.tipo && !['basico', 'avanzado'].includes(servicioData.tipo)) {
                 throw new Error('Tipo de servicio inválido. Use "basico" o "avanzado"');
             }
 
-            // Validar que no exista un servicio con el mismo nombre
+
             const servicioExistente = await Servicio.findByNombre(servicioData.nombre);
             if (servicioExistente) {
                 throw new Error('Ya existe un servicio con ese nombre');
             }
 
-            // Validar precio
+
             if (servicioData.precio <= 0) {
                 throw new Error('El precio debe ser mayor a 0');
             }
@@ -62,27 +62,27 @@ class ServicioService {
         }
     }
 
-    // Actualizar servicio
+
     async updateServicio(id, servicioData) {
         try {
-            // Verificar que el servicio existe
+
             const servicioExistente = await Servicio.findById(id);
             if (!servicioExistente) {
                 throw new Error('Servicio no encontrado');
             }
 
-            // Validar tipo si se proporciona
+
             if (servicioData.tipo && !['basico', 'avanzado'].includes(servicioData.tipo)) {
                 throw new Error('Tipo de servicio inválido. Use "basico" o "avanzado"');
             }
 
-            // Validar que no exista otro servicio con el mismo nombre
+
             const servicioConMismoNombre = await Servicio.findByNombre(servicioData.nombre, id);
             if (servicioConMismoNombre) {
                 throw new Error('Ya existe otro servicio con ese nombre');
             }
 
-            // Validar precio
+
             if (servicioData.precio && servicioData.precio <= 0) {
                 throw new Error('El precio debe ser mayor a 0');
             }
@@ -93,7 +93,7 @@ class ServicioService {
         }
     }
 
-    // Eliminar servicio
+
     async deleteServicio(id) {
         try {
             const servicio = await Servicio.findById(id);

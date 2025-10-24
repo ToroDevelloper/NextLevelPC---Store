@@ -72,7 +72,7 @@ class Productos {
     `);
 }
 
-// Agregar este método al final de la clase Productos en backend/models/Productos.js
+
 
     static async obtenerDestacados(limite = 6) {
         return await executeQuery(`

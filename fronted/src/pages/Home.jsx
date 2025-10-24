@@ -11,7 +11,7 @@ const Home = () => {
     const [cartItems, setCartItems] = useState([]);
     const [cartOpen, setCartOpen] = useState(false);
 
-    // Cargar carrito desde localStorage
+
     useEffect(() => {
         try {
             const saved = localStorage.getItem('nlpc_cart');
@@ -21,7 +21,7 @@ const Home = () => {
         }
     }, []);
 
-    // Guardar carrito en localStorage
+
     useEffect(() => {
         try {
             localStorage.setItem('nlpc_cart', JSON.stringify(cartItems));
@@ -30,7 +30,7 @@ const Home = () => {
         }
     }, [cartItems]);
 
-    // Cargar productos destacados
+
     useEffect(() => {
         const fetchProductosDestacados = async () => {
             try {
@@ -59,7 +59,7 @@ const Home = () => {
         fetchProductosDestacados();
     }, []);
 
-    // Funciones del carrito
+
     const addToCart = (product) => {
         const item = {
             id: product.id,
@@ -250,7 +250,7 @@ const Home = () => {
                     </div>
                 </header>
 
-                {/* Main Content */}
+                {}
                 <main className="home-main">
                     <h2 className="home-title">Productos Destacados</h2>
 
@@ -378,7 +378,7 @@ const Home = () => {
                     )}
                 </main>
 
-                {/* Footer */}
+                {}
                 <footer className="home-footer">
                     <div className="home-footer-container">
                         <h3 className="home-footer-title">Soporte</h3>

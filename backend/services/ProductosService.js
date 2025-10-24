@@ -123,7 +123,6 @@ class ProductosService {
         }
     }
 
-    // Agregar este método al final de la clase ProductosService en backend/services/ProductosService.js
 
     static async obtenerProductosDestacados(limite = 6) {
         try {
