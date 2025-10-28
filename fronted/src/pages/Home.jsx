@@ -35,7 +35,7 @@ const Home = () => {
         const fetchProductosDestacados = async () => {
             try {
                 setLoading(true);
-                const response = await fetch(`${API_BASE}/api/productos/destacados?limite=6`);
+                const response = await fetch(`${API_BASE}/api/productos/destacados?limite=10`);
 
                 if (!response.ok) {
                     throw new Error(`HTTP ${response.status}`);

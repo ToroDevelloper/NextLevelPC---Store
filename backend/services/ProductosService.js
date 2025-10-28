@@ -25,7 +25,7 @@ class ProductosService {
         }
     }
 
-    //ALIAS para compatibilidad con órdenes
+
     static async obtenerTodos() {
         return await this.obtenerTodosLosProductos();
     }
