@@ -13,7 +13,7 @@ const Servicios = () => {
     const [cartItems, setCartItems] = useState([]);
     const [cartOpen, setCartOpen] = useState(false);
 
-    // Cargar carrito desde localStorage
+
     useEffect(() => {
         try {
             const saved = localStorage.getItem('nlpc_cart');
@@ -23,7 +23,7 @@ const Servicios = () => {
         }
     }, []);
 
-    // Guardar carrito en localStorage
+
     useEffect(() => {
         try {
             localStorage.setItem('nlpc_cart', JSON.stringify(cartItems));
@@ -32,7 +32,7 @@ const Servicios = () => {
         }
     }, [cartItems]);
 
-    // Obtener todos los servicios al cargar
+
     useEffect(() => {
         fetchTodosLosServicios();
     }, []);

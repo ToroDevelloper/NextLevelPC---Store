@@ -1,8 +1,8 @@
-// controllers/servicioController.js
+
 const servicioService = require('../services/servicioService');
 
 class ServicioController {
-    // GET /api/servicios
+
     async getAllServicios(req, res) {
         try {
             const servicios = await servicioService.getAllServicios();
@@ -19,7 +19,7 @@ class ServicioController {
         }
     }
 
-    // GET /api/servicios/tipo/:tipo
+
     async getServiciosByTipo(req, res) {
         try {
             const { tipo } = req.params;
@@ -38,7 +38,7 @@ class ServicioController {
         }
     }
 
-    // GET /api/servicios/:id
+
     async getServicioById(req, res) {
         try {
             const { id } = req.params;
@@ -63,12 +63,12 @@ class ServicioController {
         }
     }
 
-    // POST /api/servicios
+
     async createServicio(req, res) {
         try {
             const servicioData = req.body;
 
-            // Validaciones básicas
+
             if (!servicioData.nombre || !servicioData.precio) {
                 return res.status(400).json({
                     success: false,
@@ -98,7 +98,7 @@ class ServicioController {
         }
     }
 
-    // PUT /api/servicios/:id
+
     async updateServicio(req, res) {
         try {
             const { id } = req.params;
@@ -133,7 +133,7 @@ class ServicioController {
         }
     }
 
-    // DELETE /api/servicios/:id
+
     async deleteServicio(req, res) {
         try {
             const { id } = req.params;
