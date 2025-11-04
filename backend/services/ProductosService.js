@@ -24,6 +24,13 @@ class ProductosService {
             throw new Error(`Error al obtener productos: ${error.message}`);
         }
     }
+    static async buscarProductos(query) {
+        if (!query || query.trim() === '') {
+            throw new Error("El termino de busqueda es requerido");
+        }
+        const productos = await Productos.buscarPorNombre(query);
+        return productos;
+    }
 
 
     static async obtenerTodos() {

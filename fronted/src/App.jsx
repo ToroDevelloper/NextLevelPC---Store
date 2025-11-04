@@ -9,6 +9,7 @@ import Servicios from './pages/Servicios'
 import "./styles/App.css";
 import "./styles/Global.css";
 
+
 function App() {
     useEffect(() => {
         console.log('Intentando conectar con backend...')
@@ -30,6 +31,8 @@ function App() {
             <Route path="/" element={<InicioSesion />} />
             <Route path="/productos" element={<Productos />} />
             <Route path="/servicios" element={<Servicios />} />
+            <Route path="/productos/buscar" element={<Productos />} />
+            <Route path="/productos/:id" element={<Productos />} />
         </Routes>
     )
 }

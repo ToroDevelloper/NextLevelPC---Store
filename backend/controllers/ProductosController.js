@@ -18,7 +18,28 @@ class ProductosController {
             });
         }
     }
-
+    static async buscarProductos(req, res) {
+        try {
+            const { q } = req.query;
+            const producto = await ProductosService.buscarProductos(q);
+            res.status(200).json({
+                success: true,
+                data: producto
+            });
+        } catch (error) {
+            if (error.message.includes('requerido')) {
+                res.status(400).json({
+                    success: false,
+                    message: error.message
+                });
+            } else {
+                res.status(500).json({
+                    success: false,
+                    message: error.message || 'Error al buscar productos'
+                });
+            }
+        }
+    }
     static async obtenerTodosLosProductos(req, res) {
         try {
             const productos = await ProductosService.obtenerTodosLosProductos();

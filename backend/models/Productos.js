@@ -16,6 +16,19 @@ class Productos {
        const productos = await executeQuery('SELECT * FROM productos');
        return productos;
     }
+    static async buscarPorNombre(query) {
+        const searchQuery = `%${query}%`;
+        return await executeQuery(` 
+            SELECT p.*, 
+                   ip.url as imagen_principal,
+                   c.nombre as categoria_nombre
+            FROM productos p
+            LEFT JOIN categorias c ON p.categoria_id = c.id
+            LEFT JOIN imagenes_productos ip ON p.id = ip.producto_id AND ip.es_principal = 1
+            WHERE p.nombre LIKE ? AND p.activo = 1
+            ORDER BY p.nombre
+        `, [searchQuery]);
+    }
 
     static async obtenerActivos() {
         const productos = await executeQuery('SELECT * FROM productos WHERE activo = 1');

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import '../styles/Home.css';
 
 const API_BASE = 'http://localhost:8080';
@@ -17,6 +17,11 @@ const IconCart = () => (
 const IconEye = () => (
     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
 );
+
+// --- Ícono de Búsqueda ---
+const IconSearch = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+);
 // --- Fin de SVGs ---
 
 const Home = () => {
@@ -25,6 +30,10 @@ const Home = () => {
     const [error, setError] = useState(null);
     const [cartItems, setCartItems] = useState([]);
     const [cartOpen, setCartOpen] = useState(false);
+
+    // State para la búsqueda y hook de navegación
+    const [searchQuery, setSearchQuery] = useState('');
+    const navigate = useNavigate();
 
     // Cargar carrito desde localStorage
     useEffect(() => {
@@ -112,7 +121,6 @@ const Home = () => {
 
     const cartCount = cartItems.reduce((s, i) => s + i.quantity, 0);
 
-    // Formateador para el total del carrito
     const formatCartTotal = (total) => {
         return new Intl.NumberFormat('es-CO', {
             style: 'currency',
@@ -123,7 +131,6 @@ const Home = () => {
 
     const cartTotal = cartItems.reduce((s, i) => s + i.quantity * i.price, 0);
 
-    // Función para formatear el precio
     const formatPrice = (price) => {
         const number = Number(price);
         if (isNaN(number)) {
@@ -132,33 +139,52 @@ const Home = () => {
         return new Intl.NumberFormat('es-ES').format(number);
     };
 
+    // Función para manejar el envío de la búsqueda
+    const handleSearchSubmit = (e) => {
+        e.preventDefault();
+        const query = searchQuery.trim();
+        if (query) {
+            navigate(`/productos/buscar?q=${encodeURIComponent(query)}`);
+            setSearchQuery('');
+        }
+    };
+
     return (
         <div className="home-page-wrapper">
 
             {/* ===== Header ===== */}
             <header className="home-header">
                 <div className="header-container">
-                    <div className="header-container">
-                        <div className="header-left">
-                            <button className="header-icon-btn" aria-label="Menú">
-                                <IconMenu />
-                            </button>
+                    {/* Contenedor izquierdo: Menú y Logo */}
+                    <div className="header-left">
+                        <button className="header-icon-btn" aria-label="Menú">
+                            <IconMenu />
+                        </button>
 
-                            <Link to="/home" className="home-logo">
-                                <img
-                                    src="/logo.png"
-                                    alt="NextLevelPC"
-                                    className="logo-img"
-                                />
-                            </Link>
-                        </div>
-
-                        <div className="header-right">
-                            {/* 🔹 Aquí irían tus botones: Productos, Repuestos, etc. */}
-                        </div>
+                        <Link to="/home" className="home-logo">
+                            <img
+                                src="/logo.png"
+                                alt="NextLevelPC"
+                                className="logo-img"
+                            />
+                        </Link>
                     </div>
 
+                    {/* Barra de Búsqueda - CENTRO */}
+                    <form className="header-search-form" onSubmit={handleSearchSubmit}>
+                        <input
+                            type="text"
+                            className="header-search-input"
+                            placeholder="Buscar productos..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                        />
+                        <button type="submit" className="header-search-btn" aria-label="Buscar">
+                            <IconSearch />
+                        </button>
+                    </form>
 
+                    {/* Navegación Principal */}
                     <nav className="home-nav">
                         <Link to="/productos" className="home-nav-link">Productos</Link>
                         <Link to="/repuestos" className="home-nav-link">Repuestos</Link>
@@ -166,6 +192,7 @@ const Home = () => {
                         <Link to="/servicios" className="home-nav-link">Servicios</Link>
                     </nav>
 
+                    {/* Contenedor derecho: Usuario y Carrito */}
                     <div className="header-right">
                         <button className="header-icon-btn" aria-label="Perfil de usuario">
                             <IconUser />
