@@ -124,7 +124,7 @@ class ProductosService {
 
     static async obtenerProductosConImagenes() {
         try {
-            return await Productos.productosConImagenes();
+            return await Productos.obtenerTodosConImagenes();
         } catch (error) {
             throw new Error(`Error al obtener productos con imágenes: ${error.message}`);
         }

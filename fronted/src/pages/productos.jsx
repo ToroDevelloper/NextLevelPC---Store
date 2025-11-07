@@ -106,14 +106,16 @@ const Productos = () => {
         };
     };
 
+
     const handleSearchSubmit = (e) => {
         e.preventDefault();
         const query = localSearchQuery.trim();
         if (query) {
-            navigate(`/products/buscar?q=${encodeURIComponent(query)}`);
+            navigate(`/productos/buscar?q=${encodeURIComponent(query)}`);
             setLocalSearchQuery('');
         }
     };
+
 
     const getTitle = () => {
         if (productId) return 'Detalle del Producto';
@@ -259,7 +261,7 @@ const Productos = () => {
                         <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
                             <h1 className="home-logo">NextLevelPc</h1>
                             <nav className="home-nav">
-                                <Link to="/products" className="home-nav-link">Productos</Link>
+                                <Link to="/productos" className="home-nav-link">Productos</Link>
                                 <Link to="/repuestos" className="home-nav-link">Repuestos</Link>
                                 <Link to="/accesorios" className="home-nav-link">Accesorios</Link>
                                 <Link to="/servicios" className="home-nav-link">Servicios</Link>
