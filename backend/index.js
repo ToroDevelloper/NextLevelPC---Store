@@ -6,8 +6,8 @@ const expressLayouts = require('express-ejs-layouts');
 // Cargar variables de entorno
 require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
 
-// Importar rutas
-const categoriasRoutes = require('./routes/categorias');
+// Importar rutas (usar nombres exactos de archivo para compatibilidad case-sensitive en contenedores)
+const categoriasRoutes = require('./routes/Categorias');
 const serviciosRoutes = require('./routes/servicios');
 const productosRoutes = require('./routes/Productos');
 const rolesRoutes = require('./routes/roles');
