@@ -10,7 +10,6 @@ RUN npm install
 
 # Copiar código fuente
 COPY . .
-
 # Exponer puerto
 EXPOSE 8080
 
