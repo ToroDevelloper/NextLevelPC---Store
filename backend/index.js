@@ -23,6 +23,7 @@ const ordenesViews = require('./routesViews/ordenesViews');
 // Importar conexión a DB
 const { testConnection } = require('./config/db');
 
+
 const app = express();
 
 // Middlewares
@@ -38,6 +39,7 @@ app.use(expressLayouts);
 app.set('layout', 'layouts/main');
 app.set('layout extractScripts', true);
 app.set('layout extractStyles', true);
+
 
 // Logging middleware
 app.use((req, res, next) => {

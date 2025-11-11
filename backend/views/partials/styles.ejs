@@ -39,3 +39,22 @@
     margin: 5px;
     border: 2px solid #dee2e6;
 }
+
+.btn-icon-sq {
+    /* Define la misma altura y anchura para que sea un cuadrado */
+    width: 34px !important; 
+    height: 34px !important;
+    
+    /* Centra el contenido (el icono) */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
+    /* Asegúrate de que no haya padding extra si el de Bootstrap está causando diferencia */
+    padding: 0; 
+}
+
+/* Opcional: Asegurar que el icono dentro del botón también se centre correctamente */
+.btn-icon-sq i {
+    line-height: 1; /* Esto ayuda a centrar verticalmente si el icono tiene un tamaño fijo */
+}
