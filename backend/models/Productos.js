@@ -16,7 +16,7 @@ class Productos {
        const productos = await executeQuery('SELECT * FROM productos');
        return productos;
     }
-    static async buscarPorNombre(query) {
+static async buscarPorNombre(query) {
         const searchQuery = `%${query}%`;
         return await executeQuery(` 
             SELECT p.*, 
@@ -25,7 +25,7 @@ class Productos {
             FROM productos p
             LEFT JOIN categorias c ON p.categoria_id = c.id
             LEFT JOIN imagenes_productos ip ON p.id = ip.producto_id AND ip.es_principal = 1
-            WHERE p.nombre LIKE ? AND p.activo = 1
+            WHERE p.nombre LIKE ? AND p.estado = 1
             ORDER BY p.nombre
         `, [searchQuery]);
     }
