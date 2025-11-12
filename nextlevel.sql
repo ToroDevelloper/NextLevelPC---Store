@@ -130,6 +130,17 @@ CREATE TABLE IF NOT EXISTS `servicios` (
 
 -- Data exporting was unselected.
 
+-- Estructura de la tabla para almacenar los Refresh Tokens
+CREATE TABLE refresh_tokens (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    token VARCHAR(512) NOT NULL UNIQUE,
+    expires_at DATETIME NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES usuarios(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    INDEX idx_user_id (user_id)
+);
+
 -- Dumping structure for table nextlevel.usuarios
 CREATE TABLE IF NOT EXISTS `usuarios` (
   `id` int(11) NOT NULL AUTO_INCREMENT,

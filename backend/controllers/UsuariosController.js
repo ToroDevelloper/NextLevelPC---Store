@@ -25,21 +25,59 @@ class UsuariosController {
         }
     }
 
-    static async login(req, res) {
+   static async login(req, res) {
         try {
             const data = req.body;
-            const token = await UsuariosService.login(data);
-            res.status(201).json({
+            const { accessToken, refreshToken } = await UsuariosService.login(data);
+            
+            res.cookie('refreshToken', refreshToken, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                maxAge: 7 * 24 * 60 * 60 * 1000,
+                sameSite: 'strict', 
+                path: '/'
+            });
+
+            res.status(200).json({
                 success: true,
                 mensaje: 'Login exitoso',
-                access_token:token
+                access_token: accessToken 
             });
 
         } catch (error) {
             console.error('Error en login:', error);
-            res.status(500).json({
+            const statusCode = error.message.includes('Credenciales inválidas') ? 401 : 500;
+            res.status(statusCode).json({
                 success: false,
-                mensaje: 'Error interno del servidor' + error.message
+                mensaje: error.message
+            });
+        }
+    }
+
+    static async refresh(req, res) {
+        try {
+            const refreshToken = req.cookies.refreshToken;
+            
+            if (!refreshToken) {
+                return res.status(401).json({ 
+                    success: false, 
+                    mensaje: 'No autorizado. Se requiere token de refresco.' 
+                });
+            }
+
+            const { newAccessToken } = await UsuariosService.refreshTokens(refreshToken);
+
+            res.status(200).json({
+                success: true,
+                mensaje: 'Token de acceso renovado exitosamente',
+                access_token: newAccessToken
+            });
+
+        } catch (error) {
+            console.error('Error al refrescar token:', error);
+            res.status(403).json({
+                success: false,
+                mensaje: 'Token de refresco inválido o expirado. Vuelva a iniciar sesión.'
             });
         }
     }

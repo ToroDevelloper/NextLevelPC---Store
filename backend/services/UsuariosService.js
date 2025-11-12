@@ -92,23 +92,77 @@ class UsuariosService {
         if (errores.length > 0) {
             throw new Error('Errores de validación: ' + errores.join(', '));
         }
+        
         const usuario = await Usuarios.obtenerPorCorreo(dto.toLogin().correo);
         if (!usuario) {
             throw new Error('Credenciales inválidas');
         }
+        
         const passwordValido = await bcrypt.compare(dto.toLogin().hash_password, usuario.hash_password);
         if (!passwordValido) {
             throw new Error('Credenciales inválidas');
         }
         
-        const token = await jwt.sign({ 
+        const payload = { 
             id: usuario.id, 
             correo: usuario.correo, 
             rol_id: usuario.rol_id 
-        }, process.env.JWT_SECRET || 'fallback_secret_key', { 
-            expiresIn: '1h' 
-        });
-        return token;
+        };
+        
+        const accessToken = jwt.sign(payload, 
+            process.env.JWT_ACCESS_SECRET || 'fallback_access_key', 
+            { expiresIn: '15m' } 
+        );
+
+        const REFRESH_TOKEN_EXPIRATION_DAYS = 7;
+        const refreshToken = jwt.sign(payload, 
+            process.env.JWT_REFRESH_SECRET || 'fallback_refresh_key', 
+            { expiresIn: `${REFRESH_TOKEN_EXPIRATION_DAYS}d` } 
+        );
+        
+        const expirationDate = new Date();
+        expirationDate.setDate(expirationDate.getDate() + REFRESH_TOKEN_EXPIRATION_DAYS);
+        const expiresAtMySQLFormat = expirationDate.toISOString().slice(0, 19).replace('T', ' ');
+
+        try {
+             await Usuarios.guardarRefreshToken(usuario.id, refreshToken, expiresAtMySQLFormat);
+        } catch (dbError) {
+             console.error('Error al guardar Refresh Token en DB:', dbError);
+             throw new Error('Error de servidor al procesar sesión.');
+        }
+        return { accessToken, refreshToken };
+    }
+
+    static async refreshTokens(refreshToken) {
+        if (!refreshToken) {
+            throw new Error('Token de refresco no proporcionado.');
+        }
+
+        try {
+            const tokenRecord = await Usuarios.obtenerRefreshToken(refreshToken);
+
+            if (!tokenRecord) {
+                throw new Error('Token de refresco inválido o expirado.');
+            }
+
+            const payload = jwt.verify(refreshToken, 
+                process.env.JWT_REFRESH_SECRET || 'fallback_refresh_key'
+            );
+            
+            const newAccessToken = jwt.sign({ 
+                id: payload.id, 
+                correo: payload.correo, 
+                rol_id: payload.rol_id 
+            }, process.env.JWT_ACCESS_SECRET || 'fallback_access_key', { 
+                expiresIn: '15m' 
+            });
+
+            return { newAccessToken };
+
+        } catch (error) {
+            console.error('Error de verificación de Refresh Token:', error.message);
+            throw new Error('Token de refresco inválido. Vuelva a iniciar sesión.');
+        }
     }
 
     //MÉTODO PARA OBTENER CLIENTES (necesario para órdenes)

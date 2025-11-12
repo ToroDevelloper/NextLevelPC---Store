@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { setAuthToken } from '../utils/authorizedFetch';
+import { useAuth } from '../utils/AuthContext';
 
 export default function InicioSesion() {
     const [correo, setCorreo] = useState('');
     const [hash_password, setHashPassword] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const { login } = useAuth(); 
     const navigate = useNavigate();
 
     const NEXTLEVEL_BLUE = 'rgba(154,235,247,0.32)';
@@ -16,7 +19,7 @@ export default function InicioSesion() {
     const LOGO_PATH = "/logo.png";
     // -----------------------------------------------------------------
 
-    async function handleSubmit(e) {
+async function handleSubmit(e) {
         e.preventDefault();
         setError(null);
 
@@ -51,29 +54,34 @@ export default function InicioSesion() {
                 return;
             }
 
-            const token = data.data?.token || data.token || data.access_token || data.accessToken;
-            console.log('Token extraído:', token);
+            const token = data.access_token || data.data?.token || data.token || data.accessToken;
+            console.log('Access Token extraído:', token);
 
             if (!token) {
                 console.error('No se encontró token en:', data);
-                setError('No se recibió token del servidor.');
+                setError('No se recibió Access Token del servidor.');
                 setLoading(false);
                 return;
             }
 
             try {
-                localStorage.setItem('token', token);
-                console.log('Token guardado en localStorage');
+                setAuthToken(token);
+                login({
+                    email: correo,
+                    token: token
+                });
+                console.log('Login exitoso, redirigiendo a Home...');
+                
+                setTimeout(() => {
+                    navigate('/home');
+                }, 100);
+                
             } catch (storageErr) {
-                console.error('Error guardando token:', storageErr);
-                setError('No se pudo guardar el token en el navegador.');
+                console.error('Error estableciendo token:', storageErr);
+                setError('No se pudo inicializar el token de sesión.');
                 setLoading(false);
                 return;
             }
-
-            setLoading(false);
-            console.log('Login exitoso, redirigiendo a Home...');
-            navigate('/home');
 
         } catch (err) {
             console.error('Error en login:', err);
