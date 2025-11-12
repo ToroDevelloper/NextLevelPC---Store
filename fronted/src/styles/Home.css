@@ -1,26 +1,37 @@
 /* === Variables de Color (basadas en la imagen) === */
 :root {
-    --color-logo: rgba(59, 111, 122, 0.89);       /* Verde/Azul del logo y links */
-    --color-primary-light: #c0f0eb; /* Azul claro de los botones nav */
-    --color-green: #bffabf;       /* Verde claro del botón "Añadir" */
-    --color-green-text: #498549;  /* Texto oscuro para botón verde */
-    --color-pink-bg: #fff0f0;     /* Rosa claro del banner "Lo mas vendido" */
-    --color-pink-text: #ef7676;   /* Rojo oscuro del texto del banner */
-    --color-dark: #333;           /* Gris oscuro para texto */
-    --color-footer-bg: #000000;      /* Fondo oscuro del footer */
-    --color-light-gray: #ffffff;  /* Fondo general */
-    --color-white: #e9ffff;
-    --color-border: #d7fffc;
+    --color-logo: #3B6F7A;           /* Tono principal (verde/azul desaturado) */
+    --color-accent: var(--color-logo);
+    --color-accent-text: #FFFFFF;
+    
+    --color-background: #FFFFFF;     /* Fondo general (blanco puro) */
+    --color-background-soft: #f8f9fa; /* Un gris muy claro para fondos sutiles */
+    
+    --color-text: #333333;           /* Texto principal (gris oscuro en lugar de negro) */
+    --color-text-light: #777777;     /* Texto secundario (para stock, placeholders) */
+    
+    --color-border: #e9ecef;         /* Borde neutral y suave */
+    
+    /* --- Variables antiguas reemplazadas --- */
+    --color-white: #FFFFFF;
+    --color-dark: var(--color-text);
+    --color-light-gray: var(--color-background);
+    
+    /* Estas variables ya no las usaremos, pero las dejamos por si acaso */
+    --color-primary-light: #f0f8ff; /* Reemplazado por --color-background-soft */
+    --color-green: var(--color-accent); /* Reemplazado por --color-accent */
+    --color-green-text: var(--color-accent-text); /* Reemplazado por --color-accent-text */
+    --color-pink-bg: transparent; /* Reemplazado por transparente */
+    --color-pink-text: var(--color-text); /* Reemplazado por --color-text */
 }
 
 /* === Reseteo Básico y Fuente === */
 body {
     margin: 0;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-    background-color: var(--color-light-gray);
-    color: var(--color-dark);
+    background-color: var(--color-background); 
+    color: var(--color-text); 
 }
-
 /* === Contenedor Principal === */
 .home-page-wrapper {
     display: flex;
@@ -33,11 +44,11 @@ body {
  * ============================ */
 .home-header {
     width: 100%;
-    background-color: var(--color-white);
-    border-bottom: 1px solid var(--color-border);
+    background-color: var(--color-background); /* Fondo blanco */
+    border-bottom: 1px solid var(--color-border); /* Borde gris suave */
     padding: 0.8rem 1.5rem;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-    box-sizing: border-box; /* Asegura que el padding no afecte el width */
+    box-shadow: none; /* Sin sombra para un look más plano */
+    box-sizing: border-box; 
 }
 
 
@@ -90,7 +101,7 @@ body {
     border-radius: 50%;
 }
 .header-icon-btn:hover {
-    background-color: var(--color-light-gray);
+    background-color: var(--color-background-soft);
 }
 .header-icon-btn svg {
     width: 22px;
@@ -107,19 +118,19 @@ body {
 
 .home-nav-link {
     text-decoration: none;
-    color: var(--color-logo);
-    background-color: var(--color-primary-light);
+    color: var(--color-text-light); 
+    background-color: transparent; 
     font-weight: 600;
-    padding: 0.6rem 1.2rem;
-    border-radius: 999px; /* Píldora */
+    padding: 0.6rem 0.8rem;
+    border-radius: 6px; 
     transition: all 0.2s ease;
 }
 
 .home-nav-link:hover {
-    background-color: var(--color-logo);
-    color: var(--color-white);
-    transform: translateY(-2px);
-    box-shadow: 0 10px 10px rgba(15, 178, 168, 0.3);
+    background-color: var(--color-background-soft); 
+    color: var(--color-accent); 
+    transform: none;
+    box-shadow: none; 
 }
 
 /* --- Widget del Carrito --- */
@@ -151,19 +162,19 @@ body {
 .home-cart-dropdown {
     position: absolute;
     right: 0;
-    top: calc(100% + 12px); /* Espacio desde el botón */
+    top: calc(100% + 12px);
     width: 340px;
-    background: var(--color-white);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    background: var(--color-background);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.07); 
     border-radius: 8px;
     padding: 1rem;
     z-index: 100;
-    border: 1px solid var(--color-border);
+    border: 1px solid var(--color-border); 
 }
 
 .home-cart-dropdown h4 {
     margin: 0 0 1rem 0;
-    color: var(--color-dark);
+    color: var(--color-text);
     font-size: 1.2rem;
 }
 
@@ -171,17 +182,16 @@ body {
     list-style: none;
     padding: 0;
     margin: 0;
-    max-height: 280px; /* Límite de altura */
+    max-height: 280px;
     overflow-y: auto;
 }
-
 .cart-dropdown-item {
     display: flex;
     gap: 0.75rem;
     align-items: center;
     margin-bottom: 0.75rem;
     padding-bottom: 0.75rem;
-    border-bottom: 1px solid var(--color-light-gray);
+    border-bottom: 1px solid var(--color-border); 
 }
 .cart-dropdown-item:last-child {
     border-bottom: none;
@@ -202,14 +212,14 @@ body {
 
 .cart-item-title {
     font-size: 0.95rem;
-    color: var(--color-dark);
+    color: var(--color-text); 
     font-weight: 600;
     line-height: 1.3;
 }
 
 .cart-item-price {
     font-size: 0.9rem;
-    color: #555;
+    color: var(--color-text-light);
     margin-top: 4px;
 }
 
@@ -219,17 +229,29 @@ body {
     gap: 4px;
 }
 .cart-item-controls button {
-    background: #f0f0f0;
-    border: none;
+    background: var(--color-background-soft);
+    border: 1px solid var(--color-border);
+    color: var(--color-text-light);
     font-weight: bold;
     cursor: pointer;
-    border-radius: 4px;
+    border-radius: 6px; 
     width: 24px;
     height: 24px;
     line-height: 1;
+    transition: all 0.2s ease;
 }
+.cart-item-controls button:hover {
+    background: var(--color-border);
+    color: var(--color-text); 
+}
+
 .cart-item-controls button.btn-remove {
-    background: #fee;
+    background: transparent;
+    border-color: transparent;
+    color: #dc3545;
+}
+.cart-item-controls button.btn-remove:hover {
+    background: #f8d7da;
     color: #a00;
 }
 
@@ -250,22 +272,33 @@ body {
 }
 .cart-dropdown-actions .btn-checkout {
     flex: 1;
-    background: var(--color-logo);
+    background: var(--color-accent);
     color: var(--color-white);
     border: none;
     padding: 0.75rem;
-    border-radius: 6px;
+    border-radius: 8px;
     font-weight: 600;
     cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.cart-dropdown-actions .btn-checkout:hover {
+    background-color: #2a5a64;
 }
 .cart-dropdown-actions .btn-clear-cart {
-    background: var(--color-light-gray);
-    color: var(--color-dark);
+    background: transparent; /* Estilo "outline" */
+    color: var(--color-text-light);
     border: 1px solid var(--color-border);
     padding: 0.75rem;
-    border-radius: 6px;
+    border-radius: 8px;
     font-weight: 600;
     cursor: pointer;
+    transition: all 0.2s ease;
+}
+.cart-dropdown-actions .btn-clear-cart:hover {
+    background: var(--color-background-soft);
+    color: var(--color-text);
+    border-color: var(--color-background-soft);
 }
 
 /* ============================
@@ -274,22 +307,22 @@ body {
 .home-main {
     flex: 1; /* Ocupa el espacio restante */
     width: 100%;
-    max-width: 1400px;
+    max-width: 1200px;
     margin: 0 auto;
     padding: 1.5rem;
     box-sizing: border-box;
 }
 
 .featured-title-banner {
-    background-color: var(--color-pink-bg);
-    border-radius: 8px;
-    padding: 0.75rem 1.5rem;
+    background-color: transparent;
+    border-radius: 0;
+    padding: 0.75rem 0;
     margin-bottom: 1.5rem;
 }
 .featured-title-banner h2 {
-    color: var(--color-pink-text);
+    color: var(--color-text);
     margin: 0;
-    font-size: 1.5rem;
+    font-size: 1.8rem;
     font-weight: 700;
 }
 
@@ -310,79 +343,148 @@ body {
     margin: 1rem 0;
 }
 
-/* --- Contenedor de Scroll Horizontal --- */
+/* === CONTENEDOR DEL CARRUSEL MEJORADO === */
 .scroll-wrapper {
     position: relative;
+    overflow: hidden;
+    padding: 0 50px; /* Más espacio para los botones */
+    margin: 1rem 0;
 }
 
 .home-products-scroll-container {
     display: flex;
     gap: 1.5rem;
-    overflow-x: auto; /* Habilita el scroll horizontal */
-    padding-bottom: 1.5rem; /* Espacio para la barra de scroll */
-
-    /* Ocultar la barra de scroll estándar */
-    scrollbar-width: thin; /* Firefox */
-    scrollbar-color: var(--color-logo) var(--color-light-gray); /* Firefox */
-}
-/* Estilos barra de scroll para Webkit (Chrome, Safari) */
-.home-products-scroll-container::-webkit-scrollbar {
-    height: 8px;
-}
-.home-products-scroll-container::-webkit-scrollbar-track {
-    background: var(--color-light-gray);
-    border-radius: 4px;
-}
-.home-products-scroll-container::-webkit-scrollbar-thumb {
-    background-color: var(--color-logo);
-    border-radius: 4px;
+    transition: transform 0.4s ease-in-out;
+    will-change: transform; /* Mejora el rendimiento de la animación */
 }
 
-/* --- Flecha de Scroll (Decorativa) --- */
-.scroll-arrow {
+/* === BOTONES DEL CARRUSEL MEJORADOS === */
+.carousel-btn {
     position: absolute;
-    right: -10px;
     top: 50%;
     transform: translateY(-50%);
-    width: 40px;
-    height: 40px;
-    background: var(--color-white);
+    background: var(--color-background);
     border: 1px solid var(--color-border);
+    color: var(--color-text-light);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    font-size: 1.5rem;
+    font-weight: bold;
+    cursor: pointer;
+    width: 44px;
+    height: 44px;
     border-radius: 50%;
+    z-index: 10;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.5rem;
-    font-weight: bold;
-    color: var(--color-dark);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    pointer-events: none; /* No se puede hacer clic */
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease;
+}
+
+.carousel-btn:hover {
+    background: var(--color-accent);
+    color: var(--color-white);
+    border-color: var(--color-accent);
+    transform: translateY(-50%) scale(1.05); /* Escala sutil */
+    box-shadow: none;
+}
+
+.carousel-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: translateY(-50%);
+}
+
+.carousel-btn:disabled:hover {
+    background: var(--color-background);
+    color: var(--color-text-light);
+    transform: translateY(-50%);
+    border-color: var(--color-border);
+}
+
+.carousel-btn.prev { 
+    left: 5px;
+}
+
+.carousel-btn.next { 
+    right: 5px;
+}
+
+/* === INDICADORES DEL CARRUSEL === */
+.carousel-indicators {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 1.5rem;
+}
+
+.carousel-indicator {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--color-border);
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.carousel-indicator.active {
+    background: var(--color-accent);
+    transform: scale(1.2);
+}
+
+.carousel-indicator:hover {
+    background: var(--color-text-light);
+    transform: scale(1.1);
+}
+
+/* === BOTÓN VER TODOS === */
+.view-all-container {
+    text-align: center;
+    margin-top: 2rem;
+    padding: 1rem;
+}
+
+.btn-view-all {
+    display: inline-block;
+    background: transparent;
+    color: var(--color-accent);
+    text-decoration: none;
+    padding: 0.8rem 2rem;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border: 2px solid var(--color-border); 
+}
+
+.btn-view-all:hover {
+    background: var(--color-background-soft); 
+    color: var(--color-accent);
+    border-color: var(--color-background-soft); 
+    transform: none;
+    box-shadow: none;
 }
 
 /* ============================
  * TARJETA DE PRODUCTO
  * ============================ */
 .home-product-card {
-    background: var(--color-white);
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    background: var(--color-background);
+    border-radius: 8px; /* Redondeo más sutil */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04); /* Sombra muy, muy suave */
     border: 1px solid var(--color-border);
     padding: 1.25rem;
-    position: relative;
-
-    /* Para que todas las tarjetas tengan el mismo ancho en el scroll */
-    flex: 0 0 280px; /* No crece, no se encoge, base de 280px */
-
+    position: relative;;
+    flex: 0 0 280px; 
     display: flex;
     flex-direction: column;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 .home-product-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+    transform: translateY(-4px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.07); 
 }
 
-/* --- Ícono de "Ojo" (Vista Rápida) --- */
 .product-quick-view {
     position: absolute;
     top: 1rem;
@@ -449,22 +551,21 @@ body {
 }
 
 .product-stock {
-    color: #000000;
+    color: var(--color-text-light); 
 }
 
 .product-price {
     font-weight: 700;
     font-size: 1.2rem;
-    color: #000000;;
-    margin-top: auto; /* Empuja el precio y el botón hacia abajo */
+    color: var(--color-text); 
     padding-top: 0.5rem;
 }
 
 .btn-add-cart {
-    background-color: var(--color-green);
-    color: var(--color-green-text);
+    background-color: var(--color-accent); 
+    color: var(--color-accent-text); 
     border: none;
-    border-radius: 999px; /* Píldora */
+    border-radius: 8px; 
     padding: 0.75rem 1rem;
     font-size: 1rem;
     font-weight: 600;
@@ -474,21 +575,21 @@ body {
     transition: all 0.2s ease;
 }
 .btn-add-cart:hover {
-    background-color: #79d679; /* Un verde un poco más oscuro */
-    box-shadow: 0 4px 10px rgba(144, 238, 144, 0.5);
-    transform: translateY(-2px);
+    background-color: #2a5a64; /* Un poco más oscuro que el acento */
+    box-shadow: none;
+    transform: none;
 }
 
 /* === Barra de Búsqueda en el Header === */
 .header-search-form {
     display: flex;
     align-items: center;
-    background: var(--color-white);
-    border: 1px solid var(--color-border);
-    border-radius: 999px;
+    background: var(--color-background-soft);
+    border: 1px solid var(--color-background-soft); 
+    border-radius: 8px; 
     overflow: hidden;
     margin: 0 2rem;
-    flex: 0 1 400px; /* Ancho flexible pero máximo 400px */
+    flex: 0 1 400px; 
     min-width: 250px;
 }
 
@@ -499,19 +600,19 @@ body {
     padding: 0.75rem 1rem;
     background: transparent;
     font-size: 0.95rem;
-    color: var(--color-dark);
+    color: var(--color-text);
 }
 
 .header-search-input::placeholder {
-    color: #888;
+    color: var(--color-text-light);
 }
 
 .header-search-btn {
-    background: var(--color-primary-light);
+    background: transparent;
     border: none;
     padding: 0.75rem;
     cursor: pointer;
-    color: var(--color-logo);
+    color: var(--color-text-light);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -519,8 +620,8 @@ body {
 }
 
 .header-search-btn:hover {
-    background: var(--color-logo);
-    color: var(--color-white);
+    background: transparent;
+    color: var(--color-accent);
 }
 
 /* Ajustes para el header-container principal */
@@ -547,7 +648,7 @@ body {
     display: flex;
     gap: 1rem;
     margin-left: auto;
-    margin-right: 2rem; /* Reducido el margen derecho */
+    margin-right: rem; /* Reducido el margen derecho */
     flex-shrink: 0; /* Evita que se encoja */
 }
 
@@ -558,31 +659,39 @@ body {
     gap: 0.5rem;
     flex-shrink: 0; /* Evita que se encoja */
 }
-/* ============================
- * FOOTER
- * ============================ */
-.home-footer {
-    position: fixed;
-    bottom: 0;
-    left: 0;
+
+.home-info-section {
     width: 100%;
-    background-color: #060347;
-    color: #ffffff;
-    padding: 0.5rem 1rem;
-    font-size: 0.8rem;
+    background-color: #222529; 
+    color: #e9ecef;
+    padding: 2.5rem 2rem; 
+    font-size: 0.9rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-top: 1px solid #100C25;
+    border-top: none;
     box-sizing: border-box;
-    margin-top: 0;
+    margin-top: 3rem; 
 }
 
-.home-footer p {
+.home-info-section p {
+    margin: 0;
+    color: #e9ecef;
+}
+.home-info-section p {
     margin: 0;
 }
 
-.home-footer a {
+.home-info-section a {
+    color: #FFFFFF; 
+    text-decoration: none;
+    font-weight: 600;
+}
+.home-info-section a:hover {
+    text-decoration: underline;
+}
+
+.home-info-section a {
     color: #9fe4e6;
     text-decoration: none;
 }

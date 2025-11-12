@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import '../styles/Home.css';
 
@@ -34,6 +34,90 @@ const Home = () => {
     // State para la búsqueda y hook de navegación
     const [searchQuery, setSearchQuery] = useState('');
     const navigate = useNavigate();
+
+    // --- Lógica del Carrusel ---
+    const [currentIndex, setCurrentIndex] = useState(0);
+    const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+    const trackRef = useRef(null);
+    const containerRef = useRef(null);
+    const [slideWidth, setSlideWidth] = useState(0);
+    const [visibleItems, setVisibleItems] = useState(3);
+    const totalItems = productosDestacados.length;
+
+    // Calcular métricas del carrusel
+    useEffect(() => {
+        const calculateMetrics = () => {
+            if (trackRef.current && trackRef.current.children.length > 0) {
+                const track = trackRef.current;
+                const firstItem = track.children[0];
+                const trackStyle = window.getComputedStyle(track);
+
+                const itemWidth = firstItem.offsetWidth;
+                const itemGap = parseFloat(trackStyle.gap) || 0;
+                
+                setSlideWidth(itemWidth + itemGap);
+
+                if (containerRef.current) {
+                    const containerWidth = containerRef.current.offsetWidth;
+                    const newVisibleItems = Math.floor(containerWidth / (itemWidth + itemGap));
+                    setVisibleItems(Math.max(1, newVisibleItems));
+                }
+            }
+        };
+
+        calculateMetrics();
+        window.addEventListener('resize', calculateMetrics);
+        
+        return () => window.removeEventListener('resize', calculateMetrics);
+    }, [productosDestacados, loading]);
+
+    // Aplicar transformación
+    useEffect(() => {
+        if (trackRef.current && slideWidth > 0) {
+            const offset = -currentIndex * slideWidth;
+            trackRef.current.style.transform = `translateX(${offset}px)`;
+        }
+    }, [currentIndex, slideWidth]);
+
+    // Navegación del carrusel con useCallback
+    const nextSlide = useCallback(() => {
+        setCurrentIndex(prev => {
+            if (prev >= totalItems - visibleItems) {
+                return 0; // Volver al inicio
+            }
+            return prev + 1;
+        });
+    }, [totalItems, visibleItems]);
+
+    const prevSlide = useCallback(() => {
+        setCurrentIndex(prev => {
+            if (prev <= 0) {
+                return Math.max(0, totalItems - visibleItems); // Ir al final
+            }
+            return prev - 1;
+        });
+    }, [totalItems, visibleItems]);
+
+    // Ir a slide específico
+    const goToSlide = (index) => {
+        setCurrentIndex(Math.max(0, Math.min(index, totalItems - visibleItems)));
+    };
+
+    // Autoplay mejorado
+    useEffect(() => {
+        if (!isAutoPlaying || totalItems <= visibleItems) return;
+
+        const autoPlay = setInterval(nextSlide, 4000); // 4 segundos
+        
+        return () => clearInterval(autoPlay);
+    }, [nextSlide, totalItems, visibleItems, isAutoPlaying]);
+
+    // Pausar autoplay al interactuar
+    const handleInteraction = () => {
+        setIsAutoPlaying(false);
+        // Reanudar después de 10 segundos sin interacción
+        setTimeout(() => setIsAutoPlaying(true), 10000);
+    };
 
     // Cargar carrito desde localStorage
     useEffect(() => {
@@ -170,7 +254,6 @@ const Home = () => {
                         </Link>
                     </div>
 
-                    {/* Barra de Búsqueda - CENTRO */}
                     <form className="header-search-form" onSubmit={handleSearchSubmit}>
                         <input
                             type="text"
@@ -282,10 +365,18 @@ const Home = () => {
                     </div>
                 )}
 
-                {/* Contenedor de Scroll Horizontal */}
+                {/* Carrusel de Productos */}
                 {!loading && !error && productosDestacados.length > 0 && (
-                    <div className="scroll-wrapper">
-                        <div className="home-products-scroll-container">
+                    <div 
+                        className="scroll-wrapper" 
+                        ref={containerRef}
+                        onMouseEnter={() => setIsAutoPlaying(false)}
+                        onMouseLeave={() => setIsAutoPlaying(true)}
+                    >
+                        <div 
+                            className="home-products-scroll-container" 
+                            ref={trackRef}
+                        >
                             {productosDestacados.map(product => (
                                 <div key={product.id} className="home-product-card">
                                     <Link
@@ -318,21 +409,64 @@ const Home = () => {
                                         <div className="product-actions">
                                             <button
                                                 className="btn-add-cart"
-                                                onClick={() => addToCart(product)}
+                                                onClick={() => {
+                                                    addToCart(product);
+                                                    handleInteraction();
+                                                }}
                                                 aria-label={`Añadir ${product.nombre} al carrito`}
                                             >
                                                 Añadir al Carrito
                                             </button>
-
                                         </div>
                                     </div>
                                 </div>
                             ))}
                         </div>
-                        {/* Flecha decorativa */}
-                        <div className="scroll-arrow" aria-hidden="true">
-                            &gt;
-                        </div>
+                        
+                        {/* Botones del Carrusel */}
+                        {totalItems > visibleItems && (
+                            <>
+                                <button 
+                                    className="carousel-btn prev" 
+                                    onClick={() => {
+                                        prevSlide();
+                                        handleInteraction();
+                                    }}
+                                    aria-label="Producto anterior"
+                                    disabled={currentIndex === 0}
+                                >
+                                    &#10094;
+                                </button>
+                                <button 
+                                    className="carousel-btn next" 
+                                    onClick={() => {
+                                        nextSlide();
+                                        handleInteraction();
+                                    }}
+                                    aria-label="Producto siguiente"
+                                    disabled={currentIndex >= totalItems - visibleItems}
+                                >
+                                    &#10095;
+                                </button>
+                            </>
+                        )}
+                    </div>
+                )}
+
+                {/* Indicadores del Carrusel */}
+                {!loading && !error && totalItems > visibleItems && (
+                    <div className="carousel-indicators">
+                        {Array.from({ length: Math.ceil(totalItems / visibleItems) }).map((_, index) => (
+                            <button
+                                key={index}
+                                className={`carousel-indicator ${Math.floor(currentIndex / visibleItems) === index ? 'active' : ''}`}
+                                onClick={() => {
+                                    goToSlide(index * visibleItems);
+                                    handleInteraction();
+                                }}
+                                aria-label={`Ir a slide ${index + 1}`}
+                            />
+                        ))}
                     </div>
                 )}
 
@@ -349,13 +483,13 @@ const Home = () => {
                 )}
             </main>
 
-            {/* ===== Footer ===== */}
-            <footer className="home-footer">
+            <section className="home-info-section">
                 <p>© 2025 NextLevelPc. Todos los derechos reservados.</p>
                 <p>
                     Soporte: <a href="mailto:NextLevel@gmail.com">NextLevel@gmail.com</a>
                 </p>
-            </footer>
+            </section>
+
         </div>
     );
 };

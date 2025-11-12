@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import "../styles/Productos.css";
-//<Link to="/productos" className="home-nav-link">Productos</Link>
+
 const API_BASE = 'http://localhost:8080';
 const IconSearch = () => (
     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
@@ -153,11 +153,10 @@ const Productos = () => {
     const cartCount = cartItems.reduce((s, i) => s + i.quantity, 0);
     const cartTotal = cartItems.reduce((s, i) => s + i.quantity * i.price, 0);
 
-    // --- useEffect DE CARGA DE DATOS CORREGIDO ---
     useEffect(() => {
         console.log('Iniciando carga de datos...');
 
-        // Decide qué endpoint de la API usar
+
         let endpoint = '';
         if (productId) {
             // 1. Caso: Viendo un solo producto
@@ -258,8 +257,14 @@ const Productos = () => {
             <div className="home-container">
                 <header className="home-header">
                     <div className="home-header-container">
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
-                            <h1 className="home-logo">NextLevelPc</h1>
+                        <div style={{ display: 'flex', alignItems: 'start', gap: '1.5rem' }}>
+                            <Link to="/home" className="home-logo">
+                                        <img
+                                            src="/logo.png"
+                                                alt="NextLevelPC"
+                                                className="logo-img"
+                                        />
+                             </Link>
                             <nav className="home-nav">
                                 <Link to="/productos" className="home-nav-link">Productos</Link>
                                 <Link to="/repuestos" className="home-nav-link">Repuestos</Link>
@@ -307,6 +312,7 @@ const Productos = () => {
                                 )}
                             </button>
 
+                            {/* El carrito mantiene sus estilos en línea ya que no están en Productos.css */}
                             {cartOpen && (
                                 <div className="home-cart-dropdown" style={{
                                     position: 'absolute', right: 0, top: 'calc(100% + 8px)', width: 320,
@@ -363,15 +369,23 @@ const Productos = () => {
                                 </p>
                             )}
 
-                            <div className="home-products-grid">
+                            {/* ====================================================== */}
+                            {/* AQUÍ ESTÁN LAS CLASES CORREGIDAS */}
+                            {/* ====================================================== */}
+
+                            <div className="products-grid"> {/* <- CORREGIDO */}
                                 {products.map(product => (
-                                    <div key={product.id} className="home-product-card">
-                                        <img src={product.image} alt={product.nombre || 'Producto'} className="home-product-image" />
-                                        <div className="home-product-content">
-                                            <h3 style={{ color: '#000' }}>{product.nombre}</h3>
-                                            <p style={{ color: '#000' }}>${Number(product.price).toFixed(2)}</p>
+                                    <div key={product.id} className="product-card"> {/* <- CORREGIDO */}
+                                        <img src={product.image} alt={product.nombre || 'Producto'} className="product-image" /> {/* <- CORREGIDO */}
+                                        
+                                        <div className="product-content"> {/* <- CORREGIDO */}
+                                            
+                                            {/* Clases aplicadas y estilos en línea eliminados */}
+                                            <h3 className="product-name">{product.nombre}</h3> {/* <- CORREGIDO */}
+                                            <p className="product-price">${Number(product.price).toFixed(2)}</p> {/* <- CORREGIDO */}
+                                            
                                             <div style={{ display: 'flex', gap: 8 }}>
-                                                <button className="home-add-cart-button" onClick={() => addToCart(product)} aria-label={`Añadir ${product.nombre} al carrito`}>
+                                                <button className="add-cart-button" onClick={() => addToCart(product)} aria-label={`Añadir ${product.nombre} al carrito`}> {/* <- CORREGIDO */}
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ marginRight: 6 }}>
                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M3 3h2l.4 2M7 13h10l3-8H6.4M7 13L5.1 6M7 13l-2 7h13" />
                                                     </svg>
@@ -387,7 +401,8 @@ const Productos = () => {
                     ) : (
                         <>
                             <h2 className="home-title">{getTitle()}</h2>
-                            <div className="home-products-grid">
+                            {/* Esta clase también se corrige por si acaso */}
+                            <div className="products-grid"> 
                                 <p>Contenido de {getTitle()} no disponible. Ve a <Link to="/productos">Productos</Link> para ver el catálogo.</p>
                             </div>
                         </>
