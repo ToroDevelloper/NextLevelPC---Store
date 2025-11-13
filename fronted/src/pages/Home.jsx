@@ -1,6 +1,9 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import '../styles/Home.css';
+// --- NUEVAS IMPORTACIONES ---
+import { useAuth } from '../utils/AuthContext'; // Asegúrate que la ruta sea correcta
+import { setAuthToken } from '../utils/authorizedFetch'; // Asegúrate que la ruta sea correcta
 
 const API_BASE = 'http://localhost:8080';
 
@@ -17,25 +20,25 @@ const IconCart = () => (
 const IconEye = () => (
     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
 );
-
-// --- Ícono de Búsqueda ---
 const IconSearch = () => (
     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+);
+// --- NUEVO: Ícono para cerrar el modal ---
+const IconX = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
 );
 // --- Fin de SVGs ---
 
 const Home = () => {
+    // --- Estados existentes ---
     const [productosDestacados, setProductosDestacados] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [cartItems, setCartItems] = useState([]);
     const [cartOpen, setCartOpen] = useState(false);
-
-    // State para la búsqueda y hook de navegación
     const [searchQuery, setSearchQuery] = useState('');
-    const navigate = useNavigate();
-
-    // --- Lógica del Carrusel ---
+    
+    // --- Lógica del Carrusel (sin cambios) ---
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isAutoPlaying, setIsAutoPlaying] = useState(true);
     const trackRef = useRef(null);
@@ -44,7 +47,20 @@ const Home = () => {
     const [visibleItems, setVisibleItems] = useState(3);
     const totalItems = productosDestacados.length;
 
-    // Calcular métricas del carrusel
+    // --- NUEVO: Estados para el Modal de Login ---
+    const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+    
+    // --- NUEVO: Estados del formulario de Login (de inicioSesion.jsx) ---
+    const [loginCorreo, setLoginCorreo] = useState('');
+    const [loginPassword, setLoginPassword] = useState('');
+    const [loginLoading, setLoginLoading] = useState(false);
+    const [loginError, setLoginError] = useState(null);
+    
+    // --- NUEVO: Hooks de autenticación y navegación (de inicioSesion.jsx) ---
+    const { login } = useAuth();
+    const navigate = useNavigate(); // Ya estaba presente
+
+    // --- Lógica del Carrusel (sin cambios)... ---
     useEffect(() => {
         const calculateMetrics = () => {
             if (trackRef.current && trackRef.current.children.length > 0) {
@@ -71,7 +87,6 @@ const Home = () => {
         return () => window.removeEventListener('resize', calculateMetrics);
     }, [productosDestacados, loading]);
 
-    // Aplicar transformación
     useEffect(() => {
         if (trackRef.current && slideWidth > 0) {
             const offset = -currentIndex * slideWidth;
@@ -79,7 +94,6 @@ const Home = () => {
         }
     }, [currentIndex, slideWidth]);
 
-    // Navegación del carrusel con useCallback
     const nextSlide = useCallback(() => {
         setCurrentIndex(prev => {
             if (prev >= totalItems - visibleItems) {
@@ -98,12 +112,10 @@ const Home = () => {
         });
     }, [totalItems, visibleItems]);
 
-    // Ir a slide específico
     const goToSlide = (index) => {
         setCurrentIndex(Math.max(0, Math.min(index, totalItems - visibleItems)));
     };
 
-    // Autoplay mejorado
     useEffect(() => {
         if (!isAutoPlaying || totalItems <= visibleItems) return;
 
@@ -112,14 +124,14 @@ const Home = () => {
         return () => clearInterval(autoPlay);
     }, [nextSlide, totalItems, visibleItems, isAutoPlaying]);
 
-    // Pausar autoplay al interactuar
     const handleInteraction = () => {
         setIsAutoPlaying(false);
         // Reanudar después de 10 segundos sin interacción
         setTimeout(() => setIsAutoPlaying(true), 10000);
     };
 
-    // Cargar carrito desde localStorage
+
+    // --- Lógica del Carrito (sin cambios)... ---
     useEffect(() => {
         try {
             const saved = localStorage.getItem('nlpc_cart');
@@ -129,7 +141,6 @@ const Home = () => {
         }
     }, []);
 
-    // Guardar carrito en localStorage
     useEffect(() => {
         try {
             localStorage.setItem('nlpc_cart', JSON.stringify(cartItems));
@@ -138,7 +149,7 @@ const Home = () => {
         }
     }, [cartItems]);
 
-    // Cargar productos destacados
+    // --- Cargar productos (sin cambios) ---
     useEffect(() => {
         const fetchProductosDestacados = async () => {
             try {
@@ -167,7 +178,7 @@ const Home = () => {
         fetchProductosDestacados();
     }, []);
 
-    // Funciones del carrito
+    // --- Funciones del Carrito (sin cambios)... ---
     const addToCart = (product) => {
         const item = {
             id: product.id,
@@ -223,7 +234,7 @@ const Home = () => {
         return new Intl.NumberFormat('es-ES').format(number);
     };
 
-    // Función para manejar el envío de la búsqueda
+    // --- Función de Búsqueda (sin cambios) ---
     const handleSearchSubmit = (e) => {
         e.preventDefault();
         const query = searchQuery.trim();
@@ -232,6 +243,70 @@ const Home = () => {
             setSearchQuery('');
         }
     };
+
+    // --- NUEVO: Lógica de Submit de Login (de inicioSesion.jsx) ---
+    const handleLoginSubmit = async (e) => {
+        e.preventDefault();
+        setLoginError(null);
+
+        if (!loginCorreo || !loginPassword) {
+            setLoginError('Completa correo y contraseña.');
+            return;
+        }
+
+        setLoginLoading(true);
+        try {
+            const res = await fetch(`${API_BASE}/api/usuarios/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    correo: loginCorreo, 
+                    hash_password: loginPassword // Usamos loginPassword para el campo hash_password
+                }),
+            });
+
+            const text = await res.text();
+            let data = {};
+            try { 
+                data = text ? JSON.parse(text) : {}; 
+            } catch (err) { 
+                console.warn('Respuesta no JSON:', text); 
+            }
+
+            if (!res.ok) {
+                setLoginError(data.mensaje || data.message || `Error ${res.status}`);
+                setLoginLoading(false);
+                return;
+            }
+
+            const token = data.access_token || data.data?.token || data.token || data.accessToken;
+
+            if (!token) {
+                setLoginError('No se recibió Access Token del servidor.');
+                setLoginLoading(false);
+                return;
+            }
+
+            setAuthToken(token);
+            login({
+                email: loginCorreo,
+                token: token
+            });
+
+            console.log('Login exitoso desde el modal.');
+            setLoginLoading(false);
+            setIsLoginModalOpen(false); // <-- Cerrar modal al éxito
+            setLoginCorreo(''); // Limpiar formulario
+            setLoginPassword(''); // Limpiar formulario
+            // No navegamos, ya estamos en Home.
+
+        } catch (err) {
+            console.error('Error en login modal:', err);
+            setLoginError('No se pudo conectar con el servidor.');
+            setLoginLoading(false);
+        }
+    };
+
 
     return (
         <div className="home-page-wrapper">
@@ -277,7 +352,11 @@ const Home = () => {
 
                     {/* Contenedor derecho: Usuario y Carrito */}
                     <div className="header-right">
-                        <button className="header-icon-btn" aria-label="Perfil de usuario">
+                        <button 
+                            className="header-icon-btn" 
+                            aria-label="Perfil de usuario"
+                            onClick={() => setIsLoginModalOpen(true)} // <-- MODIFICADO
+                        >
                             <IconUser />
                         </button>
                         <div className="cart-widget-container">
@@ -339,7 +418,7 @@ const Home = () => {
                 </div>
             </header>
 
-            {/* ===== Main Content ===== */}
+            {/* ===== Main Content (sin cambios) ===== */}
             <main className="home-main">
                 {/* Banner "Lo mas vendido" */}
                 <div className="featured-title-banner">
@@ -489,6 +568,80 @@ const Home = () => {
                     Soporte: <a href="mailto:NextLevel@gmail.com">NextLevel@gmail.com</a>
                 </p>
             </section>
+
+
+            {/* ===== NUEVO: Modal de Inicio de Sesión ===== */}
+            {isLoginModalOpen && (
+                <>
+                    <div 
+                        className="login-modal-overlay" 
+                        onClick={() => setIsLoginModalOpen(false)}
+                    ></div>
+                    <div className="login-modal-content">
+                        <button 
+                            className="login-modal-close"
+                            onClick={() => setIsLoginModalOpen(false)}
+                            aria-label="Cerrar"
+                        >
+                            <IconX />
+                        </button>
+                        
+                        <h2>Regístrate/Inicia sesión</h2>
+                        <p className="modal-subtitle">Tu información está protegida.</p>
+
+                        <form className="login-modal-form" onSubmit={handleLoginSubmit}>
+                            <div className="form-group">
+                                <label htmlFor="login-correo">Email</label>
+                                <input 
+                                    type="email" 
+                                    id="login-correo"
+                                    value={loginCorreo}
+                                    onChange={(e) => setLoginCorreo(e.target.value)}
+                                    placeholder="Email o número de teléfono"
+                                    required
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label htmlFor="login-password">Contraseña</label>
+                                <input 
+                                    type="password" 
+                                    id="login-password"
+                                    value={loginPassword}
+                                    onChange={(e) => setLoginPassword(e.target.value)}
+                                    placeholder="Contraseña"
+                                    required
+                                />
+                            </div>
+                            
+                            {loginError && (
+                                <div className="login-modal-error">
+                                    {loginError}
+                                </div>
+                            )}
+
+                            <button 
+                                type="submit" 
+                                className="btn-login-submit"
+                                disabled={loginLoading}
+                            >
+                                {loginLoading ? 'Ingresando...' : 'Continuar'}
+                            </button>
+                        </form>
+
+                        <div className="login-modal-footer">
+                            <p>¿No tienes cuenta?</p>
+                            <Link 
+                                to="/registro" 
+                                className="btn-login-register"
+                                onClick={() => setIsLoginModalOpen(false)} // Cierra modal al ir a registro
+                            >
+                                Registrarse
+                            </Link>
+                        </div>
+                    </div>
+                </>
+            )}
+            {/* ===== Fin del Modal ===== */}
 
         </div>
     );
