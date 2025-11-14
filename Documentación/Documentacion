@@ -1,35 +1,8 @@
-21/10/2025 Angel Toro
+lo que queda faltando es:
+- el login que no se logea correctamente, ósea inicia pero seria buen de que al logiarse se muestre el nombre del usuario que se logio o algo asi,y un apartado para el perfil
 
-Implementacion de modulo servicios en el fronted siguiendo el diseño de baja fidelidad
-podemos ver los difrentes tipos de mantenimientos que ofrecemos
+-la organización de productos algo como mas dinamico de manera horizontal con Carruseles o algo asi y cosas asi…
 
-Actualizacion de model servicio quite consulta inesesaria hacia categoria
+- también falta poner iconos mas reales en la parte de abajo, como los logos de Facebook, Instagram, etc para que se vea mas profesional
 
-Actualizacion de service service para quitar validadacione con categoria id
-
-
-
-21/10/2025 Jeferson
-- Se implementoo page para registro y a la ves se unio las paginas (inicioSesion - Home)
-- Implementación de DTOs de órdenes y orden_items siguiendo arquitectura MVC
-- Actualización de modelos para Ordenes_items para incluir timestamp created_at
-
-
-
-21/10/2025 Keiner Tez 
--Se implemento la vista para productos usando ejs y multer, hay que realizar mejoras 
--Creación del DTO productos
-
-
-23/10/2025 Keiner Tez 
--Nabvar global para reutilizar código
-
-
-23/10/2025 Angel Toro
--Implementacion de productos destacados en la pantalla de home que estan sincronizados
-en la db los productos destacados se clasifican por nivel de stock. Oferta y demanda
-
-23/10/2025 Jeferson
-- Creación de 4 vistas EJS completas (listar, crear, detalle, editar)
-- Configuración de rutas web separadas para vistas HTML junto a la API existente
-- En el fronted se modifico la estructura de los estilos, dando un estilo global a todas las paginas y separando estilos simples personalizados para cada pagina
+- también falta la de ver destalle del producto y lo mismo con servicios
