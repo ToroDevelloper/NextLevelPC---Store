@@ -120,6 +120,7 @@ CREATE TABLE IF NOT EXISTS `servicios` (
   `nombre` varchar(200) NOT NULL,
   `precio` decimal(12,2) NOT NULL,
   `descripcion` text DEFAULT NULL,
+  `imagen_url` varchar(255) DEFAULT NULL,
   `activo` tinyint(1) DEFAULT 1,
   `ordenes_id` int(11) DEFAULT NULL,
   `tipo` enum('basico','avanzado') DEFAULT 'basico',
@@ -127,6 +128,25 @@ CREATE TABLE IF NOT EXISTS `servicios` (
   KEY `ordenes_id` (`ordenes_id`),
   CONSTRAINT `servicios_ibfk_1` FOREIGN KEY (`ordenes_id`) REFERENCES `ordenes` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- Data exporting was unselected.
+
+-- Dumping structure for table nextlevel.citas_servicios
+CREATE TABLE IF NOT EXISTS `citas_servicios` (
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `servicio_id` INT(11) NOT NULL,
+  `nombre_cliente` VARCHAR(255) NOT NULL,
+  `email_cliente` VARCHAR(255) NOT NULL,
+  `telefono_cliente` VARCHAR(50) NOT NULL,
+  `direccion_cliente` TEXT NOT NULL,
+  `fecha_cita` DATETIME NOT NULL,
+  `descripcion_problema` TEXT DEFAULT NULL,
+  `estado` ENUM('pendiente', 'confirmada', 'cancelada', 'completada') NOT NULL DEFAULT 'pendiente',
+  `created_at` TIMESTAMP NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `servicio_id` (`servicio_id`),
+  CONSTRAINT `citas_servicios_ibfk_1` FOREIGN KEY (`servicio_id`) REFERENCES `servicios` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- Data exporting was unselected.
 

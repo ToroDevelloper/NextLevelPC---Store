@@ -16,6 +16,7 @@ const usuariosRoutes = require('./routes/usuarios');
 const ordenesRoutes = require('./routes/Ordenes');        
 const ordenItemsRoutes = require('./routes/OrdenItems');
 const imagenProductoRoutes = require('./routes/imagenProductoRoutes');
+const citasServiciosRoutes = require('./routes/citasServicios'); // Importar nueva ruta
 
 // Importar rutas de VISTAS
 const productosViews = require('./routesViews/productosViews');
@@ -68,6 +69,7 @@ app.use('/api/usuarios', usuariosRoutes);
 app.use('/api/ordenes', ordenesRoutes);         
 app.use('/api/ordenitems', ordenItemsRoutes);
 app.use('/api/imagenes-producto', imagenProductoRoutes);
+app.use('/api/citas-servicios', citasServiciosRoutes); // Registrar nueva ruta
 
 // Ruta de salud
 app.get('/api/health', async (req, res) => {

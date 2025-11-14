@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import '../styles/Navbar.css';
-
-const API_BASE = 'http://localhost:8080';
+import { useCart } from '../utils/CartContext'; // Importar useCart
 
 // Íconos SVG
 const IconCart = () => (
@@ -25,7 +24,8 @@ const IconUser = () => (
   </svg>
 );
 
-const Navbar = ({ onLoginClick, cartItems = [], onCartUpdate }) => {
+const Navbar = ({ onLoginClick }) => { // Eliminar props del carrito
+  const { cartItems, removeFromCart, updateQuantity, clearCart } = useCart(); // Usar el contexto
   const location = useLocation();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
@@ -47,24 +47,8 @@ const Navbar = ({ onLoginClick, cartItems = [], onCartUpdate }) => {
     return location.pathname.startsWith(path);
   };
 
-  const removeFromCart = (productId) => {
-    if (onCartUpdate) {
-      onCartUpdate(prev => prev.filter(p => p.id !== productId));
-    }
-  };
-
-  const changeQuantity = (productId, delta) => {
-    if (onCartUpdate) {
-      onCartUpdate(prev =>
-        prev
-          .map(p => p.id === productId ? { ...p, quantity: Math.max(0, p.quantity + delta) } : p)
-          .filter(p => p.quantity > 0)
-      );
-    }
-  };
-
   const cartCount = cartItems.reduce((s, i) => s + i.quantity, 0);
-  const cartTotal = cartItems.reduce((s, i) => s + i.quantity * i.price, 0);
+  const cartTotal = cartItems.reduce((s, i) => s + i.quantity * i.precio, 0);
 
   return (
     <header className="navbar">
@@ -154,22 +138,22 @@ const Navbar = ({ onLoginClick, cartItems = [], onCartUpdate }) => {
                   <>
                     <ul className="navbar-cart-list">
                       {cartItems.map(item => (
-                        <li key={item.id} className="navbar-cart-item">
+                        <li key={`${item.type}-${item.id}`} className="navbar-cart-item">
                           <img
-                            src={item.image}
-                            alt={item.title}
+                            src={item.imagen_url || 'https://placehold.co/600x400/EEE/31343C?text=Item'}
+                            alt={item.nombre}
                             className="navbar-cart-image"
                           />
                           <div className="navbar-cart-info">
-                            <div className="navbar-cart-title">{item.title}</div>
+                            <div className="navbar-cart-title">{item.nombre}</div>
                             <div className="navbar-cart-price">
-                              ${(item.price * item.quantity).toFixed(2)} (x{item.quantity})
+                              ${(item.precio * item.quantity).toFixed(2)} (x{item.quantity})
                             </div>
                           </div>
                           <div className="navbar-cart-controls">
-                            <button onClick={() => changeQuantity(item.id, 1)} aria-label="Aumentar">+</button>
-                            <button onClick={() => changeQuantity(item.id, -1)} aria-label="Disminuir">−</button>
-                            <button onClick={() => removeFromCart(item.id)} aria-label="Eliminar" className="btn-remove">x</button>
+                            <button onClick={() => updateQuantity(item.id, item.type, item.quantity + 1)} aria-label="Aumentar">+</button>
+                            <button onClick={() => updateQuantity(item.id, item.type, item.quantity - 1)} aria-label="Disminuir">−</button>
+                            <button onClick={() => removeFromCart(item.id, item.type)} aria-label="Eliminar" className="btn-remove">x</button>
                           </div>
                         </li>
                       ))}
@@ -182,7 +166,7 @@ const Navbar = ({ onLoginClick, cartItems = [], onCartUpdate }) => {
                       <button className="btn-checkout" onClick={() => setCartOpen(false)}>
                         Checkout
                       </button>
-                      <button className="btn-clear-cart" onClick={() => onCartUpdate && onCartUpdate([])}>
+                      <button className="btn-clear-cart" onClick={clearCart}>
                         Vaciar
                       </button>
                     </div>

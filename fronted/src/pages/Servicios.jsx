@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import '../styles/Servicios.css';
+import { useCart } from '../utils/CartContext';
 
 const API_BASE = 'http://localhost:8080';
 
@@ -10,6 +11,20 @@ const Servicios = () => {
     const [filtroActivo, setFiltroActivo] = useState('todos');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const { addToCart } = useCart();
+    const navigate = useNavigate();
+
+    const handleAddToCart = (e, servicio) => {
+        e.preventDefault(); // Evita la navegación al hacer clic en el botón
+        e.stopPropagation(); // Detiene la propagación del evento
+        addToCart({ ...servicio, type: 'servicio' });
+        console.log('Servicio añadido al carrito:', servicio.nombre);
+        // Opcional: Mostrar una notificación de que se añadió al carrito
+    };
+
+    const handleCardClick = (id) => {
+        navigate(`/servicios/${id}`);
+    };
 
     useEffect(() => {
         fetchTodosLosServicios();
@@ -131,26 +146,31 @@ const Servicios = () => {
 
                 <div className="servicios-grid">
                     {serviciosFiltrados.map(servicio => (
-                        <div key={servicio.id} className="servicio-card">
-                            <div className="servicio-icon">
-                                {servicio.tipo === 'basico' ? '🔧' : '⚙️'}
-                            </div>
-                            <div className="servicio-info">
-                                <h3>{servicio.nombre}</h3>
-                                {servicio.descripcion && (
-                                    <p className="servicio-descripcion">
-                                        {servicio.descripcion}
+                        <div key={servicio.id} className="servicio-card-link" onClick={() => handleCardClick(servicio.id)}>
+                            <div className="servicio-card">
+                                <img
+                                    src={servicio.imagen_url || 'https://placehold.co/600x400/EEE/31343C?text=Servicio'}
+                                    alt={servicio.nombre}
+                                    className="servicio-card-image"
+                                    onError={(e) => { e.target.onerror = null; e.target.src = 'https://placehold.co/600x400/EEE/31343C?text=Servicio'; }}
+                                />
+                                <div className="servicio-info">
+                                    <h3>{servicio.nombre}</h3>
+                                    {servicio.descripcion && (
+                                        <p className="servicio-descripcion">
+                                            {servicio.descripcion.substring(0, 100)}{servicio.descripcion.length > 100 && '...'}
+                                        </p>
+                                    )}
+                                    <p className="servicio-precio">
+                                        ${Number(servicio.precio).toFixed(2)}
                                     </p>
-                                )}
-                                <p className="servicio-precio">
-                                    ${Number(servicio.precio).toFixed(2)}
-                                </p>
-                                <button className="servicio-add-btn">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 3h2l.4 2M7 13h10l3-8H6.4M7 13L5.1 6M7 13l-2 7h13" />
-                                    </svg>
-                                    Contratar Servicio
-                                </button>
+                                    <button className="servicio-add-btn" onClick={(e) => handleAddToCart(e, servicio)}>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 3h2l.4 2M7 13h10l3-8H6.4M7 13L5.1 6M7 13l-2 7h13" />
+                                        </svg>
+                                        Añadir al carrito
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     ))}

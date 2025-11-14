@@ -8,3 +8,24 @@ lo que queda faltando es:
 - falta la de ver destalle del producto y lo mismo con servicios (que solo permita ver si esta logiado, lo mismo cuando quiera añadirlo al carrito)
 
 - Al logiarse como admin que haya una opcion de subir productos desde la interfaz para hacerlo de manera mas rapida.
+
+### Funcionalidades Implementadas (Resumen)
+
+1.  **Detalle de Servicios:**
+    *   Se creó una página de detalles para cada servicio, accesible al hacer clic en una tarjeta de servicio.
+    *   La página muestra el nombre, descripción, precio e imagen del servicio.
+
+2.  **Imágenes en Servicios:**
+    *   Se añadió un campo `imagen_url` a la tabla `servicios` en la base de datos.
+    *   Las imágenes se muestran tanto en la lista de servicios como en la página de detalles.
+    *   Si un servicio no tiene imagen, se muestra una imagen por defecto.
+
+3.  **Carrito de Compras para Servicios:**
+    *   Se implementó un contexto de carrito (`CartContext`) que persiste en `localStorage`.
+    *   El botón "Añadir al carrito" en las tarjetas de servicio ahora agrega el servicio al carrito.
+    *   El `Navbar` se ha integrado con el `CartContext` para mostrar los artículos, la cantidad y el total.
+
+4.  **Agendamiento de Citas para Servicios a Domicilio:**
+    *   En la página de detalles del servicio, el botón "Contratar Servicio" abre un formulario modal.
+    *   El formulario permite al cliente ingresar sus datos (nombre, email, teléfono, dirección), seleccionar una fecha y describir el problema.
+    *   Se ha creado un nuevo endpoint en el backend (`POST /api/citas-servicios`) y una tabla `citas_servicios` en la base de datos para guardar estas solicitudes.

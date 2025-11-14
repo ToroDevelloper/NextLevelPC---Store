@@ -4,6 +4,7 @@ import Home from './pages/Home';
 import Registro from './pages/Registro';
 import Productos from './pages/productos';
 import Servicios from './pages/Servicios';
+import ServicioDetail from './pages/ServicioDetail'; // Importar el nuevo componente
 import { useAuth } from './utils/AuthContext';
 import Layout from './components/Layout';
 import TransicionBienvenida from './pages/TransicionBienvenida'; 
@@ -56,6 +57,7 @@ function App() {
                         <Route path="/repuestos" element={<Productos />} />
                         <Route path="/accesorios" element={<Productos />} />
                         <Route path="/servicios" element={<Servicios />} />
+                        <Route path="/servicios/:id" element={<ServicioDetail />} />
                         <Route path="*" element={<Navigate to="/" replace />} />
                     </Routes>
                 </Layout>

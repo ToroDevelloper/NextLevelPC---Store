@@ -1,4 +1,3 @@
-
 const { executeQuery } = require('../config/db');
 
 class Servicio {
@@ -37,28 +36,28 @@ class Servicio {
 
 
     static async create(servicioData) {
-        const { nombre, tipo = 'basico', precio, descripcion = null } = servicioData;
+        const { nombre, tipo = 'basico', precio, descripcion = null, imagen_url = null } = servicioData;
 
         const query = `
-            INSERT INTO servicios (nombre, tipo, precio, descripcion, activo) 
-            VALUES (?, ?, ?, ?, 1)
+            INSERT INTO servicios (nombre, tipo, precio, descripcion, imagen_url, activo) 
+            VALUES (?, ?, ?, ?, ?, 1)
         `;
 
-        const result = await executeQuery(query, [nombre, tipo, precio, descripcion]);
+        const result = await executeQuery(query, [nombre, tipo, precio, descripcion, imagen_url]);
         return this.findById(result.insertId);
     }
 
 
     static async update(id, servicioData) {
-        const { nombre, tipo, precio, descripcion } = servicioData;
+        const { nombre, tipo, precio, descripcion, imagen_url } = servicioData;
 
         const query = `
             UPDATE servicios 
-            SET nombre = ?, tipo = ?, precio = ?, descripcion = ? 
+            SET nombre = ?, tipo = ?, precio = ?, descripcion = ?, imagen_url = ? 
             WHERE id = ? AND activo = 1
         `;
 
-        await executeQuery(query, [nombre, tipo, precio, descripcion, id]);
+        await executeQuery(query, [nombre, tipo, precio, descripcion, imagen_url, id]);
         return this.findById(id);
     }
 
