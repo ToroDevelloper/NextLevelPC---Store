@@ -4,21 +4,21 @@ import '../styles/login.css';
 
 // Ícono para cerrar el modal
 const IconX = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <line x1="18" y1="6" x2="6" y2="18"></line>
-        <line x1="6" y1="6" x2="18" y2="18"></line>
-    </svg>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="18" y1="6" x2="6" y2="18"></line>
+    <line x1="6" y1="6" x2="18" y2="18"></line>
+  </svg>
 );
 
 export default function Registro() {
   const [formData, setFormData] = useState({
     nombre: '',
-    apellido: '', 
+    apellido: '',
     correo: '',
     hash_password: '',
     confirmPassword: ''
   });
-  
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
@@ -59,8 +59,8 @@ export default function Registro() {
 
       const text = await res.text();
       let data = {};
-      try { 
-        data = text ? JSON.parse(text) : {}; 
+      try {
+        data = text ? JSON.parse(text) : {};
       } catch (err) {
         console.warn('Respuesta no JSON:', text);
       }
@@ -74,7 +74,7 @@ export default function Registro() {
       setLoading(false);
       alert('¡Registro exitoso! Ahora puedes iniciar sesión.');
       navigate('/');
-      
+
     } catch (err) {
       console.error('Error en registro:', err);
       setError('No se pudo conectar con el servidor.');
@@ -89,59 +89,105 @@ export default function Registro() {
   const handleGoToLogin = () => {
     navigate('/');
   };
+// --- LOGO REBOTANDO ---
+useEffect(() => {
+  const imgs = document.querySelectorAll(".floating-img");
 
-  // --- LOGO REBOTANDO ---
-  useEffect(() => {
-    const logo = document.querySelector(".logo-rebote");
-    if (!logo) return;
+  const objects = [];
 
-let x = Math.random() * (window.innerWidth - 260);
-let y = Math.random() * (window.innerHeight - 260);
+  imgs.forEach(img => {
+    // Tamaño real del elemento
+    const rect = img.getBoundingClientRect();
+    const w = rect.width;
+    const h = rect.height;
 
-    let dx = (Math.random() * 1.2) + 0.4; // velocidad suave
-    let dy = (Math.random() * 1.2) + 0.4;
+    // Centro
+    let x = window.innerWidth / 2 - w / 2;
+    let y = window.innerHeight / 2 - h / 2;
 
-    function mover() {
-      x += dx;
-      y += dy;
+    // Velocidad inicial impulsada
+    let vX = (Math.random() * 4 - 2);
+    let vY = (Math.random() * 4 - 2);
 
-    if (x <= 0 || x + 260 >= window.innerWidth) dx = -dx;
-if (y <= 0 || y + 260 >= window.innerHeight) dy = -dy;
+    // Que nunca salgan con velocidad muy baja
+    if (Math.abs(vX) < 1) vX *= 2;
+    if (Math.abs(vY) < 1) vY *= 2;
 
-      logo.style.left = x + "px";
-      logo.style.top = y + "px";
-      logo.style.transform = `rotate(${x + y}deg)`; // giro suave
+    objects.push({ img, x, y, vX, vY, w, h });
+  });
 
-      requestAnimationFrame(mover);
-    }
+  function animate() {
+    const W = window.innerWidth;
+    const H = window.innerHeight;
 
-    mover();
-  }, []);
+    // ⭐ MARGENES DIFERENTES PARA CADA LADO ⭐
+    const marginTop = 20;     // Poco margen arriba
+    const marginLeft = 10;    // Poco margen izquierda
+    const marginRight = 100;  // Mucho margen derecha
+    const marginBottom = 100; // Mucho margen abajo
+
+    objects.forEach(o => {
+      // Movimiento
+      o.x += o.vX;
+      o.y += o.vY;
+
+      // Rebote horizontal - diferentes márgenes para izquierda y derecha
+      if (o.x <= -marginLeft || o.x + o.w >= W + marginRight) {
+        o.vX *= -1;
+      }
+
+      // Rebote vertical - diferentes márgenes para arriba y abajo
+      if (o.y <= -marginTop || o.y + o.h >= H + marginBottom) {
+        o.vY *= -1;
+      }
+
+      // Aplicar posición
+      o.img.style.left = o.x + "px";
+      o.img.style.top = o.y + "px";
+    });
+
+    requestAnimationFrame(animate);
+  }
+
+  animate();
+}, []);
+
 
   return (
     <div className="registro-page">
-      
-      {/* Logo rebotando en el fondo */}
-      <div className="logo-rebote">
-        <img src="/logo.png" alt="NextLevelPC" />
-      </div>
+<div className="login-container">
+  <img src="/logo.png" className="floating-img" />
+  <img src="/logo.png" className="floating-img" />
+  <img src="/logo.png" className="floating-img" />
+  <img src="/icono.png" className="floating-img" />
+  <img src="/icono.png" className="floating-img" />
+  <img src="/icono.png" className="floating-img" />
+  <img src="/logo.png" className="floating-img" />
+    <img src="/logo.png" className="floating-img" />
+  <img src="/logo.png" className="floating-img" />
+  <img src="/logo.png" className="floating-img" />
+  <img src="/icono.png" className="floating-img" />
+   <img src="/icono.png" className="floating-img" />
 
+</div>
+
+    
       {/* Overlay borroso */}
-      <div 
-        className="login-modal-overlay" 
+      <div
+        className="login-modal-overlay"
         onClick={handleClose}
       ></div>
 
       {/* Modal de Registro */}
       <div className="login-modal-content" style={{ maxWidth: '480px' }}>
-        <button 
+        <button
           className="login-modal-close"
           onClick={handleClose}
           aria-label="Cerrar"
         >
           <IconX />
         </button>
-        
+
         <h2>Crear cuenta</h2>
         <p className="modal-subtitle">Únete a nuestra comunidad</p>
 
@@ -216,8 +262,8 @@ if (y <= 0 || y + 260 >= window.innerHeight) dy = -dy;
             </div>
           )}
 
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             className="btn-login-submit"
             disabled={loading}
           >
@@ -227,8 +273,8 @@ if (y <= 0 || y + 260 >= window.innerHeight) dy = -dy;
 
         <div className="login-modal-footer">
           <p>¿Ya tienes cuenta?</p>
-          <Link 
-            to="/" 
+          <Link
+            to="/"
             className="btn-login-register"
             onClick={handleClose}
           >
