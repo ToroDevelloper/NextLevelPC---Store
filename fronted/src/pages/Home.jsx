@@ -4,18 +4,16 @@ import '../styles/Home.css';
 
 const API_BASE = 'http://localhost:8080';
 
-// --- SVG para el ícono ---
 const IconEye = () => (
     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
 );
 
 const Home = () => {
-    // --- Estados existentes ---
+   
     const [productosDestacados, setProductosDestacados] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    // --- Lógica del Carrusel ---
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isAutoPlaying, setIsAutoPlaying] = useState(true);
     const trackRef = useRef(null);
@@ -24,7 +22,6 @@ const Home = () => {
     const [visibleItems, setVisibleItems] = useState(3);
     const totalItems = productosDestacados.length;
 
-    // --- Lógica del Carrusel ---
     useEffect(() => {
         const calculateMetrics = () => {
             if (trackRef.current && trackRef.current.children.length > 0) {

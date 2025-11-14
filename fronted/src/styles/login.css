@@ -69,7 +69,7 @@ button:focus-visible {
   width: 100%;
   margin-top: 1rem;
 }
-/* 🎯 Contenedor del login/registro */
+
 .login-container {
   display: flex;
   justify-content: center;
@@ -77,10 +77,9 @@ button:focus-visible {
   min-height: 100vh;
   width: 100%;
   position: relative;
-  overflow: hidden; /* necesario para el rebote */
+  overflow: hidden;
 }
 
-/* 🎯 Cuadro transparente */
 .login-box {
   background: rgba(255, 255, 255, 0.13);
   backdrop-filter: blur(12px);

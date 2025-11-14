@@ -89,89 +89,83 @@ export default function Registro() {
   const handleGoToLogin = () => {
     navigate('/');
   };
-// --- LOGO REBOTANDO ---
-useEffect(() => {
-  const imgs = document.querySelectorAll(".floating-img");
 
-  const objects = [];
+  useEffect(() => {
+    const imgs = document.querySelectorAll(".floating-img");
 
-  imgs.forEach(img => {
-    // Tamaño real del elemento
-    const rect = img.getBoundingClientRect();
-    const w = rect.width;
-    const h = rect.height;
+    const objects = [];
 
-    // Centro
-    let x = window.innerWidth / 2 - w / 2;
-    let y = window.innerHeight / 2 - h / 2;
+    imgs.forEach(img => {
+     
+      const rect = img.getBoundingClientRect();
+      const w = rect.width;
+      const h = rect.height;
 
-    // Velocidad inicial impulsada
-    let vX = (Math.random() * 4 - 2);
-    let vY = (Math.random() * 4 - 2);
+      // Centro
+      let x = window.innerWidth / 2 - w / 2;
+      let y = window.innerHeight / 2 - h / 2;
 
-    // Que nunca salgan con velocidad muy baja
-    if (Math.abs(vX) < 1) vX *= 2;
-    if (Math.abs(vY) < 1) vY *= 2;
+      let vX = (Math.random() * 4 - 2);
+      let vY = (Math.random() * 4 - 2);
 
-    objects.push({ img, x, y, vX, vY, w, h });
-  });
+ 
+      if (Math.abs(vX) < 1) vX *= 2;
+      if (Math.abs(vY) < 1) vY *= 2;
 
-  function animate() {
-    const W = window.innerWidth;
-    const H = window.innerHeight;
-
-    // ⭐ MARGENES DIFERENTES PARA CADA LADO ⭐
-    const marginTop = 20;     // Poco margen arriba
-    const marginLeft = 10;    // Poco margen izquierda
-    const marginRight = 100;  // Mucho margen derecha
-    const marginBottom = 100; // Mucho margen abajo
-
-    objects.forEach(o => {
-      // Movimiento
-      o.x += o.vX;
-      o.y += o.vY;
-
-      // Rebote horizontal - diferentes márgenes para izquierda y derecha
-      if (o.x <= -marginLeft || o.x + o.w >= W + marginRight) {
-        o.vX *= -1;
-      }
-
-      // Rebote vertical - diferentes márgenes para arriba y abajo
-      if (o.y <= -marginTop || o.y + o.h >= H + marginBottom) {
-        o.vY *= -1;
-      }
-
-      // Aplicar posición
-      o.img.style.left = o.x + "px";
-      o.img.style.top = o.y + "px";
+      objects.push({ img, x, y, vX, vY, w, h });
     });
 
-    requestAnimationFrame(animate);
-  }
+    function animate() {
+      const W = window.innerWidth;
+      const H = window.innerHeight;
 
-  animate();
-}, []);
+      const marginTop = 20;     
+      const marginLeft = 10;    
+      const marginRight = 100;  
+      const marginBottom = 100; 
+
+      objects.forEach(o => {
+        o.x += o.vX;
+        o.y += o.vY;
+
+
+        if (o.x <= -marginLeft || o.x + o.w >= W + marginRight) {
+          o.vX *= -1;
+        }
+        if (o.y <= -marginTop || o.y + o.h >= H + marginBottom) {
+          o.vY *= -1;
+        }
+
+        o.img.style.left = o.x + "px";
+        o.img.style.top = o.y + "px";
+      });
+
+      requestAnimationFrame(animate);
+    }
+
+    animate();
+  }, []);
 
 
   return (
     <div className="registro-page">
-<div className="login-container">
-  <img src="/logo.png" className="floating-img" />
-  <img src="/logo.png" className="floating-img" />
-  <img src="/logo.png" className="floating-img" />
-  <img src="/icono.png" className="floating-img" />
-  <img src="/icono.png" className="floating-img" />
-  <img src="/icono.png" className="floating-img" />
-  <img src="/logo.png" className="floating-img" />
-    <img src="/logo.png" className="floating-img" />
-  <img src="/logo.png" className="floating-img" />
-  <img src="/logo.png" className="floating-img" />
-  <img src="/icono.png" className="floating-img" />
-   <img src="/icono.png" className="floating-img" />
+      <div className="login-container">
+        <img src="/logo.png" className="floating-img" />
+        <img src="/logo.png" className="floating-img" />
+        <img src="/logo.png" className="floating-img" />
+        <img src="/icono.png" className="floating-img" />
+        <img src="/icono.png" className="floating-img" />
+        <img src="/icono.png" className="floating-img" />
+        <img src="/logo.png" className="floating-img" />
+        <img src="/logo.png" className="floating-img" />
+        <img src="/logo.png" className="floating-img" />
+        <img src="/logo.png" className="floating-img" />
+        <img src="/icono.png" className="floating-img" />
+        <img src="/icono.png" className="floating-img" />
 
-</div>
+      </div>
 
-    
+
       {/* Overlay borroso */}
       <div
         className="login-modal-overlay"
