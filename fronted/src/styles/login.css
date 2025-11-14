@@ -77,3 +77,21 @@ button:focus-visible {
   min-height: 100vh;
   width: 100%;
 }
+
+/* ===== LOGO REBOTANDO (NÍTIDO Y SIN BORROSO) ===== */
+.logo-rebote {
+  position: fixed;
+  width: 220px;
+  height: 220px;
+  z-index: 5000;          /* encima del blur, pero debajo del modal */
+  pointer-events: none;
+  user-select: none;
+  opacity: 0.6;           /* se ve bien sin molestar */
+  filter: brightness(1.2);
+}
+
+.logo-rebote img {
+  width: 100%;            /* tamaño exacto */
+  height: 100%;
+  object-fit: contain;
+}

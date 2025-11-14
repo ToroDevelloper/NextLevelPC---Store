@@ -1,7 +1,14 @@
-// pages/Registro.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import '../styles/login.css';
+
+// Ícono para cerrar el modal
+const IconX = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+    </svg>
+);
 
 export default function Registro() {
   const [formData, setFormData] = useState({
@@ -11,6 +18,7 @@ export default function Registro() {
     hash_password: '',
     confirmPassword: ''
   });
+  
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
@@ -74,189 +82,160 @@ export default function Registro() {
     }
   }
 
+  const handleClose = () => {
+    navigate('/');
+  };
+
+  const handleGoToLogin = () => {
+    navigate('/');
+  };
+
+  // --- LOGO REBOTANDO ---
+  useEffect(() => {
+    const logo = document.querySelector(".logo-rebote");
+    if (!logo) return;
+
+let x = Math.random() * (window.innerWidth - 260);
+let y = Math.random() * (window.innerHeight - 260);
+
+    let dx = (Math.random() * 1.2) + 0.4; // velocidad suave
+    let dy = (Math.random() * 1.2) + 0.4;
+
+    function mover() {
+      x += dx;
+      y += dy;
+
+    if (x <= 0 || x + 260 >= window.innerWidth) dx = -dx;
+if (y <= 0 || y + 260 >= window.innerHeight) dy = -dy;
+
+      logo.style.left = x + "px";
+      logo.style.top = y + "px";
+      logo.style.transform = `rotate(${x + y}deg)`; // giro suave
+
+      requestAnimationFrame(mover);
+    }
+
+    mover();
+  }, []);
+
   return (
-    <div style={{ maxWidth: 420, margin: '2rem auto', padding: '0 1rem' }}>
-      <h2 style={{ textAlign: 'center', marginBottom: '2rem', color: '#333' }}>
-        Crear cuenta
-      </h2>
-      <form onSubmit={handleSubmit}>
-        <div style={{ marginBottom: '1rem' }}>
-          <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500', color: '#333' }}>
-            Nombre *
-          </label>
-          <input
-            type="text"
-            name="nombre"
-            value={formData.nombre}
-            onChange={handleChange}
-            required
-            style={{ 
-              width: '100%', 
-              padding: '0.75rem',
-              border: '1px solid #ddd',
-              borderRadius: '8px',
-              fontSize: '1rem',
-              boxSizing: 'border-box'
-            }}
-            placeholder="Tu nombre"
-          />
-        </div>
+    <div className="registro-page">
+      
+      {/* Logo rebotando en el fondo */}
+      <div className="logo-rebote">
+        <img src="/logo.png" alt="NextLevelPC" />
+      </div>
 
-        {/* NUEVO CAMPO APELLIDO */}
-        <div style={{ marginBottom: '1rem' }}>
-          <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500', color: '#333' }}>
-            Apellido
-          </label>
-          <input
-            type="text"
-            name="apellido"
-            value={formData.apellido}
-            onChange={handleChange}
-            style={{ 
-              width: '100%', 
-              padding: '0.75rem',
-              border: '1px solid #ddd',
-              borderRadius: '8px',
-              fontSize: '1rem',
-              boxSizing: 'border-box'
-            }}
-            placeholder="Tu apellido"
-          />
-        </div>
+      {/* Overlay borroso */}
+      <div 
+        className="login-modal-overlay" 
+        onClick={handleClose}
+      ></div>
 
-        <div style={{ marginBottom: '1rem' }}>
-          <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500', color: '#333' }}>
-            Correo electrónico *
-          </label>
-          <input
-            type="email"
-            name="correo"
-            value={formData.correo}
-            onChange={handleChange}
-            required
-            style={{ 
-              width: '100%', 
-              padding: '0.75rem',
-              border: '1px solid #ddd',
-              borderRadius: '8px',
-              fontSize: '1rem',
-              boxSizing: 'border-box'
-            }}
-            placeholder="tu@correo.com"
-          />
-        </div>
-        <div style={{ marginBottom: '1rem' }}>
-          <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500', color: '#333' }}>
-            Contraseña *
-          </label>
-          <input
-            type="password"
-            name="hash_password"
-            value={formData.hash_password}
-            onChange={handleChange}
-            required
-            style={{ 
-              width: '100%', 
-              padding: '0.75rem',
-              border: '1px solid #ddd',
-              borderRadius: '8px',
-              fontSize: '1rem',
-              boxSizing: 'border-box'
-            }}
-            placeholder="••••••••"
-          />
-        </div>
-        <div style={{ marginBottom: '1.5rem' }}>
-          <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500', color: '#333' }}>
-            Confirmar contraseña *
-          </label>
-          <input
-            type="password"
-            name="confirmPassword"
-            value={formData.confirmPassword}
-            onChange={handleChange}
-            required
-            style={{ 
-              width: '100%', 
-              padding: '0.75rem',
-              border: '1px solid #ddd',
-              borderRadius: '8px',
-              fontSize: '1rem',
-              boxSizing: 'border-box'
-            }}
-            placeholder="••••••••"
-          />
-        </div>
-
-        {error && (
-          <div style={{ 
-            color: 'red', 
-            marginBottom: '1rem', 
-            padding: '0.75rem',
-            backgroundColor: '#fee',
-            border: '1px solid #fcc',
-            borderRadius: '8px',
-            textAlign: 'center'
-          }}>
-            {error}
-          </div>
-        )}
-
+      {/* Modal de Registro */}
+      <div className="login-modal-content" style={{ maxWidth: '480px' }}>
         <button 
-          type="submit" 
-          disabled={loading} 
-          style={{ 
-            width: '100%',
-            padding: '0.75rem',
-            backgroundColor: loading ? '#ccc' : '#10b981',
-            color: 'white',
-            border: 'none',
-            borderRadius: '8px',
-            fontSize: '1rem',
-            fontWeight: '600',
-            cursor: loading ? 'not-allowed' : 'pointer',
-            marginBottom: '1.5rem'
-          }}
+          className="login-modal-close"
+          onClick={handleClose}
+          aria-label="Cerrar"
         >
-          {loading ? 'Creando cuenta...' : 'Crear cuenta'}
+          <IconX />
         </button>
+        
+        <h2>Crear cuenta</h2>
+        <p className="modal-subtitle">Únete a nuestra comunidad</p>
 
-        <div style={{ 
-          textAlign: 'center', 
-          padding: '1.5rem',
-          borderTop: '1px solid #e5e7eb',
-          marginTop: '1.5rem'
-        }}>
-          <p style={{ margin: '0 0 1rem 0', color: '#6b7280' }}>
-            ¿Ya tienes una cuenta?
-          </p>
+        <form className="login-modal-form" onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label htmlFor="registro-nombre">Nombre *</label>
+            <input
+              type="text"
+              id="registro-nombre"
+              name="nombre"
+              value={formData.nombre}
+              onChange={handleChange}
+              required
+              placeholder="Tu nombre"
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="registro-apellido">Apellido</label>
+            <input
+              type="text"
+              id="registro-apellido"
+              name="apellido"
+              value={formData.apellido}
+              onChange={handleChange}
+              placeholder="Tu apellido"
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="registro-correo">Correo electrónico *</label>
+            <input
+              type="email"
+              id="registro-correo"
+              name="correo"
+              value={formData.correo}
+              onChange={handleChange}
+              required
+              placeholder="tu@correo.com"
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="registro-password">Contraseña *</label>
+            <input
+              type="password"
+              id="registro-password"
+              name="hash_password"
+              value={formData.hash_password}
+              onChange={handleChange}
+              required
+              placeholder="••••••••"
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="registro-confirmPassword">Confirmar contraseña *</label>
+            <input
+              type="password"
+              id="registro-confirmPassword"
+              name="confirmPassword"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              required
+              placeholder="••••••••"
+            />
+          </div>
+
+          {error && (
+            <div className="login-modal-error">
+              {error}
+            </div>
+          )}
+
+          <button 
+            type="submit" 
+            className="btn-login-submit"
+            disabled={loading}
+          >
+            {loading ? 'Creando cuenta...' : 'Crear cuenta'}
+          </button>
+        </form>
+
+        <div className="login-modal-footer">
+          <p>¿Ya tienes cuenta?</p>
           <Link 
             to="/" 
-            style={{
-              display: 'inline-block',
-              padding: '0.75rem 1.5rem',
-              backgroundColor: 'transparent',
-              color: '#6b7280',
-              border: '2px solid #6b7280',
-              borderRadius: '8px',
-              textDecoration: 'none',
-              fontWeight: '600',
-              fontSize: '1rem',
-              transition: 'all 0.2s'
-            }}
-            onMouseEnter={(e) => {
-              e.target.style.backgroundColor = '#6b7280';
-              e.target.style.color = 'white';
-            }}
-            onMouseLeave={(e) => {
-              e.target.style.backgroundColor = 'transparent';
-              e.target.style.color = '#6b7280';
-            }}
+            className="btn-login-register"
+            onClick={handleClose}
           >
-            Iniciar sesión
+            Volver
           </Link>
         </div>
-      </form>
+      </div>
     </div>
   );
 }

@@ -1,20 +1,18 @@
 import { useEffect, Fragment } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import Home from './pages/Home';
 import Registro from './pages/Registro';
 import Productos from './pages/productos';
 import Servicios from './pages/Servicios';
 import { useAuth } from './utils/AuthContext';
-import "./styles/App.css";
-import "./styles/Global.css";
-
-// Asegúrate de que este import apunte al archivo .jsx
-// que te proporcioné (el que usa 'animandoSalida')
+import Layout from './components/Layout';
 import TransicionBienvenida from './pages/TransicionBienvenida'; 
+import './styles/Global.css';
 import './styles/TransicionBienvenida.css';
 
 function App() {
     const { isAuthenticated } = useAuth();
+    const location = useLocation();
 
     useEffect(() => {
         console.log('Intentando conectar con backend...');
@@ -29,7 +27,6 @@ function App() {
             });
     }, []);
 
-
     const ProtectedRoute = ({ element: Element }) => {
         if (!isAuthenticated) {
             return <Navigate to="/" replace />;
@@ -37,32 +34,32 @@ function App() {
         return Element;
     };
 
+    // Verificar si estamos en la ruta de registro para aplicar estilos especiales
+    const isRegistroRoute = location.pathname === '/registro';
+
     return (
         <Fragment>
             <TransicionBienvenida />
             
-            <Routes>
-                {/* --- Rutas Públicas --- */}
-                <Route path="/" element={<Home />} />
-                <Route path="/registro" element={<Registro />} />
-                
-                {/* 👇 CORRECCIÓN AQUÍ 👇
-                   Las rutas de productos ahora son públicas.
-                   Cualquiera puede ver, buscar y ver detalles de productos.
-                */}
-                <Route path="/productos" element={<Productos />} />
-                <Route path="/productos/buscar" element={<Productos />} />
-                <Route path="/productos/:id" element={<Productos />} />
-
-                
-                {/* --- Rutas Protegidas --- */}
-                {/* Servicios sigue siendo un ejemplo de ruta protegida */}
-                <Route path="/servicios" element={<ProtectedRoute element={<Servicios />} />} />
-
-                
-                {/* Ruta de fallback */}
-                <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
+            {/* Si estamos en registro, no mostrar el Layout normal */}
+            {isRegistroRoute ? (
+                <Registro />
+            ) : (
+                <Layout>
+                    <Routes>
+                        <Route path="/" element={<Home />} />
+                        <Route path="/home" element={<Home />} />
+                        <Route path="/registro" element={<Registro />} />
+                        <Route path="/productos" element={<Productos />} />
+                        <Route path="/productos/buscar" element={<Productos />} />
+                        <Route path="/productos/:id" element={<Productos />} />
+                        <Route path="/repuestos" element={<Productos />} />
+                        <Route path="/accesorios" element={<Productos />} />
+                        <Route path="/servicios" element={<Servicios />} />
+                        <Route path="*" element={<Navigate to="/" replace />} />
+                    </Routes>
+                </Layout>
+            )}
         </Fragment>
     );
 }
