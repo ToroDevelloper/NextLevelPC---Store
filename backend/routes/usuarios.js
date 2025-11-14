@@ -12,5 +12,6 @@ router.delete('/:id',verificarToken,verificarRol([1]),UsuariosController.elimina
 router.patch('/:id',verificarToken ,UsuariosController.actualizar);
 router.get('/:id',verificarToken ,UsuariosController.obtenerPorId);
 router.post('/login', UsuariosController.login);
+router.post('/refresh', UsuariosController.refresh);
 
 module.exports = router;

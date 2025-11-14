@@ -1,20 +1,49 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import "../styles/Productos.css";
 
 const API_BASE = 'http://localhost:8080';
+const IconSearch = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+);
 
 const Productos = () => {
     const location = useLocation();
-    const isProductsRoute =
-        location.pathname === '/productos' || location.pathname.startsWith('/productos');
+    const navigate = useNavigate();
+
+    // --- LÓGICA DE RUTA CORREGIDA ---
+    const searchParams = new URLSearchParams(location.search);
+    const searchQuery = searchParams.get('q');
+
+    // Definir rutas de manera más precisa
+    const isProductsRoute = location.pathname === '/productos';
+    const isSearchRoute = location.pathname === '/productos/buscar';
+    const isProductDetailRoute = /^\/productos\/[^/]+\/?$/.test(location.pathname) && !isSearchRoute;
+
+    // Obtener ID del producto solo si es una ruta de detalle
+    let productId = null;
+    if (isProductDetailRoute) {
+        const match = location.pathname.match(/^\/productos\/([^/]+)\/?$/);
+        productId = match ? match[1] : null;
+    }
+
+    // --- DEBUG: Logs para verificar la lógica de rutas ---
+    useEffect(() => {
+        console.log('Ruta actual:', location.pathname);
+        console.log('Parámetros de búsqueda:', location.search);
+        console.log('Término de búsqueda:', searchQuery);
+        console.log('Es ruta de productos:', isProductsRoute);
+        console.log('Es ruta de búsqueda:', isSearchRoute);
+        console.log('Es ruta de detalle:', isProductDetailRoute);
+        console.log('ID del producto:', productId);
+    }, [location.pathname, location.search, searchQuery, isProductsRoute, isSearchRoute, isProductDetailRoute, productId]);
 
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-
     const [cartItems, setCartItems] = useState([]);
     const [cartOpen, setCartOpen] = useState(false);
+    const [localSearchQuery, setLocalSearchQuery] = useState('');
 
     useEffect(() => {
         try {
@@ -34,7 +63,6 @@ const Productos = () => {
     }, [cartItems]);
 
     const parseImagenesField = field => {
-
         if (!field) return [];
         return String(field)
             .split(',')
@@ -59,7 +87,12 @@ const Productos = () => {
             imagenes = [{ url: raw.url_imagen, es_principal: raw.es_principal === 1 }];
         }
 
-        const firstImg = Array.isArray(imagenes) && imagenes.length > 0 ? (imagenes[0].url ?? imagenes[0]) : '/placeholder.png';
+        let firstImg = '/placeholder.png';
+        if (raw.imagen_principal) {
+            firstImg = raw.imagen_principal;
+        } else if (Array.isArray(imagenes) && imagenes.length > 0) {
+            firstImg = imagenes[0].url ?? imagenes[0];
+        }
 
         return {
             id,
@@ -71,6 +104,25 @@ const Productos = () => {
             imagenes,
             raw
         };
+    };
+
+
+    const handleSearchSubmit = (e) => {
+        e.preventDefault();
+        const query = localSearchQuery.trim();
+        if (query) {
+            navigate(`/productos/buscar?q=${encodeURIComponent(query)}`);
+            setLocalSearchQuery('');
+        }
+    };
+
+
+    const getTitle = () => {
+        if (productId) return 'Detalle del Producto';
+        if (isSearchRoute) return `Resultados para: "${searchQuery}"`;
+        if (isProductsRoute) return 'Todos los Productos';
+        const pageName = location.pathname.replace('/', '');
+        return pageName.charAt(0).toUpperCase() + pageName.slice(1);
     };
 
     const addToCart = product => {
@@ -101,77 +153,118 @@ const Productos = () => {
     const cartCount = cartItems.reduce((s, i) => s + i.quantity, 0);
     const cartTotal = cartItems.reduce((s, i) => s + i.quantity * i.price, 0);
 
-    const productIdMatch = location.pathname.match(/^\/productos\/([^/]+)\/?$/);
-    const productId = productIdMatch ? productIdMatch[1] : null;
-
     useEffect(() => {
-        if (!isProductsRoute) return;
+        console.log('Iniciando carga de datos...');
+
+
+        let endpoint = '';
+        if (productId) {
+            // 1. Caso: Viendo un solo producto
+            endpoint = `${API_BASE}/api/productos/${encodeURIComponent(productId)}`;
+            console.log('Cargando producto individual:', endpoint);
+        } else if (isSearchRoute && searchQuery) {
+            // 2. Caso: Viendo resultados de búsqueda
+            endpoint = `${API_BASE}/api/productos/buscar?q=${encodeURIComponent(searchQuery)}`;
+            console.log('Cargando resultados de búsqueda:', endpoint);
+        } else if (isProductsRoute) {
+            // 3. Caso: Viendo todos los productos
+            endpoint = `${API_BASE}/api/productos/con-imagenes`;
+            console.log('Cargando todos los productos:', endpoint);
+        } else if (isSearchRoute && !searchQuery) {
+            // Si es ruta de búsqueda pero no hay término, no hacer fetch
+            console.log('Ruta de búsqueda sin término, limpiando productos');
+            setLoading(false);
+            setProducts([]);
+            setError(null);
+            return;
+        } else {
+            // Ruta no reconocida (ej: /repuestos, /accesorios)
+            console.log(' Ruta no reconocida, limpiando productos');
+            setProducts([]);
+            setLoading(false);
+            setError(null);
+            return;
+        }
+
+        endpoint = endpoint.replace('//api', '/api');
+        console.log('🔗 Endpoint final:', endpoint);
 
         const abortCtrl = new AbortController();
         const signal = abortCtrl.signal;
 
-        const listEndpoint = `${API_BASE}/api/productos/con-imagenes`.replace('//api', '/api'); // evita doble slash cuando API_BASE == ''
-        const singleEndpoint = `${API_BASE}/api/productos/${encodeURIComponent(productId)}`.replace('//api', '/api');
-
-        const fetchList = async () => {
+        const fetchData = async () => {
             setLoading(true);
             setError(null);
+            setProducts([]);
+
             try {
-                const res = await fetch(listEndpoint, { signal });
+                console.log(' Haciendo fetch a:', endpoint);
+                const res = await fetch(endpoint, { signal });
+
                 if (!res.ok) {
-                    const text = await res.text().catch(() => null);
-                    throw new Error(`HTTP ${res.status} ${text ?? ''}`);
+                    const errorText = await res.text().catch(() => 'Sin detalles');
+                    console.error(`Error HTTP ${res.status}:`, errorText);
+                    throw new Error(`Error ${res.status}: No se pudieron cargar los productos`);
                 }
+
                 const json = await res.json();
-                const rawData = json && json.success ? json.data : json;
-                const list = Array.isArray(rawData) ? rawData.map(normalizeProduct) : [];
-                setProducts(list);
+                console.log('Respuesta de la API:', json);
+
+                if (!json || !json.success) {
+                    throw new Error('Respuesta inválida de la API');
+                }
+
+                const rawData = json.data;
+
+                if (productId) {
+                    // Carga de un solo producto
+                    const item = Array.isArray(rawData) ? rawData[0] : rawData;
+                    console.log(' Producto individual cargado:', item);
+                    setProducts(item ? [normalizeProduct(item)] : []);
+                } else {
+                    // Carga de una lista (todos o búsqueda)
+                    const list = Array.isArray(rawData) ? rawData.map(normalizeProduct) : [];
+                    console.log(' Lista de productos cargada:', list.length, 'elementos');
+                    setProducts(list);
+                }
             } catch (err) {
                 if (err.name !== 'AbortError') {
-                    console.error(err);
+                    console.error(' Error en fetch:', err);
+                    console.error(' Endpoint intentado:', endpoint);
                     setError(err.message || 'Error cargando productos');
+
+                    // Forzar un estado de no carga incluso en error
+                    setLoading(false);
+                    setProducts([]);
                 }
             } finally {
                 setLoading(false);
+                console.log(' Carga completada');
             }
         };
 
-        const fetchOne = async id => {
-            setLoading(true);
-            setError(null);
-            try {
-                const res = await fetch(singleEndpoint, { signal });
-                if (!res.ok) {
-                    const text = await res.text().catch(() => null);
-                    throw new Error(`HTTP ${res.status} ${text ?? ''}`);
-                }
-                const json = await res.json();
-                const raw = json && json.success ? json.data : json;
-                const item = Array.isArray(raw) ? raw[0] : raw;
-                setProducts(item ? [normalizeProduct(item)] : []);
-            } catch (err) {
-                if (err.name !== 'AbortError') {
-                    console.error(err);
-                    setError(err.message || 'Error cargando producto');
-                }
-            } finally {
-                setLoading(false);
-            }
+        fetchData();
+
+        return () => {
+            console.log(' Limpiando fetch anterior');
+            abortCtrl.abort();
         };
 
-        if (productId) fetchOne(productId);
-        else fetchList();
-
-        return () => abortCtrl.abort();
-    }, [location.pathname, isProductsRoute, productId]);
+    }, [location.pathname, location.search, productId, isSearchRoute, isProductsRoute, searchQuery]);
 
     return (
         <div className="principal">
             <div className="home-container">
                 <header className="home-header">
                     <div className="home-header-container">
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
-                            <h1 className="home-logo">NextLevelPc</h1>
+                        <div style={{ display: 'flex', alignItems: 'start', gap: '1.5rem' }}>
+                            <Link to="/home" className="home-logo">
+                                        <img
+                                            src="/logo.png"
+                                                alt="NextLevelPC"
+                                                className="logo-img"
+                                        />
+                             </Link>
                             <nav className="home-nav">
                                 <Link to="/productos" className="home-nav-link">Productos</Link>
                                 <Link to="/repuestos" className="home-nav-link">Repuestos</Link>
@@ -179,6 +272,20 @@ const Productos = () => {
                                 <Link to="/servicios" className="home-nav-link">Servicios</Link>
                             </nav>
                         </div>
+
+                        {/* Barra de búsqueda */}
+                        <form className="header-search-form" onSubmit={handleSearchSubmit}>
+                            <input
+                                type="text"
+                                className="header-search-input"
+                                placeholder="Buscar productos..."
+                                value={localSearchQuery}
+                                onChange={(e) => setLocalSearchQuery(e.target.value)}
+                            />
+                            <button type="submit" className="header-search-btn" aria-label="Buscar">
+                                <IconSearch />
+                            </button>
+                        </form>
 
                         <div className="home-user-section" style={{ position: 'relative' }}>
                             <span className="home-user-name">Usuario</span>
@@ -205,6 +312,7 @@ const Productos = () => {
                                 )}
                             </button>
 
+                            {/* El carrito mantiene sus estilos en línea ya que no están en Productos.css */}
                             {cartOpen && (
                                 <div className="home-cart-dropdown" style={{
                                     position: 'absolute', right: 0, top: 'calc(100% + 8px)', width: 320,
@@ -245,23 +353,39 @@ const Productos = () => {
                 </header>
 
                 <main className="home-main">
-                    {isProductsRoute ? (
+                    {(isProductsRoute || isSearchRoute || productId) ? (
                         <>
-                            <h2 className="home-title">{productId ? 'Producto' : 'Productos'}</h2>
+                            <h2 className="home-title">{getTitle()}</h2>
 
                             {loading && <p>Cargando productos...</p>}
                             {error && <p style={{ color: 'red' }}>Error: {error}</p>}
-                            {!loading && !error && products.length === 0 && <p>No hay productos para mostrar.</p>}
 
-                            <div className="home-products-grid">
+                            {!loading && !error && products.length === 0 && (
+                                <p>
+                                    {isSearchRoute
+                                        ? 'No se encontraron productos para tu búsqueda.'
+                                        : 'No hay productos para mostrar.'
+                                    }
+                                </p>
+                            )}
+
+                            {/* ====================================================== */}
+                            {/* AQUÍ ESTÁN LAS CLASES CORREGIDAS */}
+                            {/* ====================================================== */}
+
+                            <div className="products-grid"> {/* <- CORREGIDO */}
                                 {products.map(product => (
-                                    <div key={product.id} className="home-product-card">
-                                        <img src={product.image} alt={product.nombre || 'Producto'} className="home-product-image" />
-                                        <div className="home-product-content">
-                                            <h3 style={{ color: '#000' }}>{product.nombre}</h3>
-                                            <p style={{ color: '#000' }}>${Number(product.price).toFixed(2)}</p>
+                                    <div key={product.id} className="product-card"> {/* <- CORREGIDO */}
+                                        <img src={product.image} alt={product.nombre || 'Producto'} className="product-image" /> {/* <- CORREGIDO */}
+                                        
+                                        <div className="product-content"> {/* <- CORREGIDO */}
+                                            
+                                            {/* Clases aplicadas y estilos en línea eliminados */}
+                                            <h3 className="product-name">{product.nombre}</h3> {/* <- CORREGIDO */}
+                                            <p className="product-price">${Number(product.price).toFixed(2)}</p> {/* <- CORREGIDO */}
+                                            
                                             <div style={{ display: 'flex', gap: 8 }}>
-                                                <button className="home-add-cart-button" onClick={() => addToCart(product)} aria-label={`Añadir ${product.nombre} al carrito`}>
+                                                <button className="add-cart-button" onClick={() => addToCart(product)} aria-label={`Añadir ${product.nombre} al carrito`}> {/* <- CORREGIDO */}
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ marginRight: 6 }}>
                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M3 3h2l.4 2M7 13h10l3-8H6.4M7 13L5.1 6M7 13l-2 7h13" />
                                                     </svg>
@@ -276,9 +400,10 @@ const Productos = () => {
                         </>
                     ) : (
                         <>
-                            <h2 className="home-title">Productos Destacados</h2>
-                            <div className="home-products-grid">
-                                <p>Ve a <Link to="/productos">Productos</Link> para ver todos los productos.</p>
+                            <h2 className="home-title">{getTitle()}</h2>
+                            {/* Esta clase también se corrige por si acaso */}
+                            <div className="products-grid"> 
+                                <p>Contenido de {getTitle()} no disponible. Ve a <Link to="/productos">Productos</Link> para ver el catálogo.</p>
                             </div>
                         </>
                     )}

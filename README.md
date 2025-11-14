@@ -1,5 +1,11 @@
 # React + Vite
 
+Este repositorio tenía configuraciones de Docker que fueron removidas por petición del propietario.
+
+Si necesitas volver a usar Docker, restaura los archivos `docker-compose.yml` y `backend/Dockerfile` desde el historial de commits.
+
+---
+
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
 Currently, two official plugins are available:

@@ -1,13 +1,14 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const cookieParser = require('cookie-parser');
 const expressLayouts = require('express-ejs-layouts');
 
 // Cargar variables de entorno
 require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
 
-// Importar rutas
-const categoriasRoutes = require('./routes/categorias');
+// Importar rutas (usar nombres exactos de archivo para compatibilidad case-sensitive en contenedores)
+const categoriasRoutes = require('./routes/Categorias');
 const serviciosRoutes = require('./routes/servicios');
 const productosRoutes = require('./routes/Productos');
 const rolesRoutes = require('./routes/roles');
@@ -23,6 +24,7 @@ const ordenesViews = require('./routesViews/ordenesViews');
 // Importar conexión a DB
 const { testConnection } = require('./config/db');
 
+
 const app = express();
 
 // Middlewares
@@ -34,10 +36,12 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
+app.use(cookieParser());
 app.use(expressLayouts);
 app.set('layout', 'layouts/main');
 app.set('layout extractScripts', true);
 app.set('layout extractStyles', true);
+
 
 // Logging middleware
 app.use((req, res, next) => {

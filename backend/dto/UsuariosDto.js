@@ -40,6 +40,16 @@ class UsuarioUpdateDTO {
 
     validate() {
         const errors = [];
+        if (this.nombre !== undefined){
+            if(!this.nombre){
+                errors.push("nombre no puede ser solo espacios en blanco")
+            }
+        }
+        if (this.apellido !== undefined){
+            if(!this.apellido){
+                errors.push("apellido no puede ser solo espacios en blanco")
+            }
+        }
         if (this.hash_password !== undefined) {
             if (!this.hash_password) errors.push('password no puede ser solo espacios');
             else if (this.hash_password.length < 6) errors.push('password debe tener al menos 6 caracteres');

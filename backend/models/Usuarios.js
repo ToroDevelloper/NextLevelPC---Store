@@ -57,6 +57,31 @@ class Usuarios {
         const result = await executeQuery('DELETE FROM usuarios WHERE id = ?', [id]);
         return result.affectedRows > 0;
     }
+
+    static async guardarRefreshToken(userId, token, expiresAt) {
+    const result = await executeQuery(`
+        INSERT INTO refresh_tokens (user_id, token, expires_at)
+        VALUES (?, ?, ?);
+    `, [userId, token, expiresAt]); 
+    return result;
+}
+
+static async obtenerRefreshToken(token) {
+    const [rows] = await executeQuery(`
+        SELECT user_id
+        FROM refresh_tokens
+        WHERE token = ? AND expires_at > NOW();
+    `, [token]);
+    return rows.length > 0 ? rows[0] : null; 
+}
+
+static async eliminarRefreshToken(token) {
+    const result = await executeQuery(`
+        DELETE FROM refresh_tokens
+        WHERE token = ?;
+    `, [token]);
+    return result.affectedRows > 0; 
+}
 }
 
 module.exports = Usuarios;

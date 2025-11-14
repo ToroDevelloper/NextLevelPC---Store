@@ -24,8 +24,15 @@ class ProductosService {
             throw new Error(`Error al obtener productos: ${error.message}`);
         }
     }
+    static async buscarProductos(query) {
+        if (!query || query.trim() === '') {
+            throw new Error("El termino de busqueda es requerido");
+        }
+        const productos = await Productos.buscarPorNombre(query);
+        return productos;
+    }
 
-    //ALIAS para compatibilidad con órdenes
+
     static async obtenerTodos() {
         return await this.obtenerTodosLosProductos();
     }
@@ -117,7 +124,7 @@ class ProductosService {
 
     static async obtenerProductosConImagenes() {
         try {
-            return await Productos.productosConImagenes();
+            return await Productos.obtenerTodosConImagenes();
         } catch (error) {
             throw new Error(`Error al obtener productos con imágenes: ${error.message}`);
         }
