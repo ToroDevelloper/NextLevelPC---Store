@@ -30,11 +30,21 @@ class UsuariosController {
             const data = req.body;
             const { accessToken, refreshToken } = await UsuariosService.login(data);
             
+            // Cookie de refresh (solo backend)
             res.cookie('refreshToken', refreshToken, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === 'production',
                 maxAge: 7 * 24 * 60 * 60 * 1000,
                 sameSite: 'strict', 
+                path: '/'
+            });
+
+            // Cookie de accessToken para vistas (no httpOnly, solo para leer JWT en viewAuth)
+            res.cookie('accessToken', accessToken, {
+                httpOnly: false,
+                secure: process.env.NODE_ENV === 'production',
+                maxAge: 60 * 60 * 1000, // 1 hora
+                sameSite: 'lax',
                 path: '/'
             });
 
@@ -50,6 +60,23 @@ class UsuariosController {
             res.status(statusCode).json({
                 success: false,
                 mensaje: error.message
+            });
+        }
+    }
+
+    static async logout(req, res) {
+        try {
+            res.clearCookie('refreshToken', { path: '/' });
+            res.clearCookie('accessToken', { path: '/' });
+            return res.status(200).json({
+                success: true,
+                mensaje: 'Logout exitoso'
+            });
+        } catch (error) {
+            console.error('Error en logout:', error);
+            return res.status(500).json({
+                success: false,
+                mensaje: 'Error al cerrar sesión'
             });
         }
     }
@@ -81,6 +108,7 @@ class UsuariosController {
             });
         }
     }
+
 
     static async obtenerTodos(req, res) {
         try {

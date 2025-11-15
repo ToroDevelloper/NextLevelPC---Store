@@ -1,17 +1,20 @@
 const express = require('express');
 const UsuariosController = require('../controllers/UsuariosController.js');
-const verificarToken = require('../middlewares/authMiddleware.js');
-const verificarRol = require('../middlewares/roleMiddleware.js');
+const { verificarRol } = require('../middlewares/authMiddleware.js');
 
 const router = express.Router();
 
-router.get('/',verificarToken,verificarRol([1]),UsuariosController.obtenerTodos);
+// Rutas públicas
 router.post('/', UsuariosController.crear);
 router.post('/registro', UsuariosController.crear); 
-router.delete('/:id',verificarToken,verificarRol([1]),UsuariosController.eliminar);
-router.patch('/:id',verificarToken ,UsuariosController.actualizar);
-router.get('/:id',verificarToken ,UsuariosController.obtenerPorId);
 router.post('/login', UsuariosController.login);
 router.post('/refresh', UsuariosController.refresh);
+router.post('/logout', UsuariosController.logout);
+
+// Rutas protegidas
+router.get('/', verificarRol(['admin']), UsuariosController.obtenerTodos);
+router.delete('/:id', verificarRol(['admin']), UsuariosController.eliminar);
+router.patch('/:id', verificarRol(['admin', 'empleado']), UsuariosController.actualizar);
+router.get('/:id', verificarRol(['admin', 'empleado']), UsuariosController.obtenerPorId);
 
 module.exports = router;

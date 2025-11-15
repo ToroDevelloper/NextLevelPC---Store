@@ -163,3 +163,7 @@ const startServer = async () => {
 };
 
 startServer();
+
+// En UsuariosController.login ya se envía el accessToken en JSON y el refreshToken en cookie.
+// Si quieres que las vistas lean el accessToken desde cookie, deberíamos también setear una cookie accessToken allí.
+// Por ahora, viewAuth intentará usar Authorization: Bearer TOKEN enviado por la SPA si decides navegar a vistas con ese header.
