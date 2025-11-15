@@ -1,9 +1,10 @@
 .products-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: var(--spacing-md);
-  max-width: 56rem;
+  gap: 1.5rem;
+  max-width: 72rem;
   margin: 0 auto;
+  padding: 1rem;
 }
 
 .product-card {
@@ -13,6 +14,7 @@
   overflow: hidden;
   position: relative;
   transition: all 300ms ease;
+  cursor: pointer;
 }
 
 .product-card::before {

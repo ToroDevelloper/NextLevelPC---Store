@@ -175,11 +175,12 @@ const Home = () => {
 
                                 <div className="product-image-container">
                                     <img
-                                        src={product.imagen_principal || '/placeholder.png'}
+                                        src={product.imagen_principal || 'https://placehold.co/600x400/EEE/31343C?text=Producto'}
                                         alt={product.nombre || 'Producto'}
                                         className="home-product-image"
                                         onError={(e) => {
-                                            e.target.src = '/placeholder.png';
+                                            e.target.onerror = null;
+                                            e.target.src = 'https://placehold.co/600x400/EEE/31343C?text=Producto';
                                         }}
                                     />
                                 </div>

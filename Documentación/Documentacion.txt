@@ -157,3 +157,10 @@ Comportamiento esperado:
   - Retornar `201 Created` o `200 OK` con la cita creada en el `body` de la respuesta.
 
 Este mismo formato de JSON es el que se usa cuando el formulario en la página de detalle de un servicio (SPA React) dispara la solicitud al endpoint `/api/citas-servicios`.
+
+---
+
+15-11-2025
+- Frontend: se unificó el manejo de imágenes por defecto en el módulo de productos y en los productos destacados de Home.
+  - En `Productos.jsx` se usa una imagen placeholder cuando el producto no tiene imagen o la URL falla (onError), evitando íconos de imagen rota.
+  - En `Home.jsx` (carrusel de productos destacados) se aplicó la misma lógica de placeholder y onError para `imagen_principal`.

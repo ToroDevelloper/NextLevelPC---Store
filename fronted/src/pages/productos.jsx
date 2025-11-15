@@ -50,7 +50,10 @@ const Productos = () => {
             imagenes = [{ url: raw.url_imagen, es_principal: raw.es_principal === 1 }];
         }
 
-        let firstImg = '/placeholder.png';
+        // imagen por defecto
+        const DEFAULT_IMAGE = '/default-product.png';
+
+        let firstImg = DEFAULT_IMAGE;
         if (raw.imagen_principal) {
             firstImg = raw.imagen_principal;
         } else if (Array.isArray(imagenes) && imagenes.length > 0) {
@@ -187,8 +190,16 @@ const Productos = () => {
             )}
             <div className="products-grid">
                 {products.map(product => (
-                    <div key={product.id} className="product-card">
-                        <img src={product.image} alt={product.nombre || 'Producto'} className="product-image" />
+                    <div
+                        key={product.id}
+                        className="product-card"
+                    >
+                        <img
+                            src={product.image || 'https://placehold.co/600x400/EEE/31343C?text=Producto'}
+                            alt={product.nombre || 'Producto'}
+                            className="product-image"
+                            onError={(e) => { e.target.onerror = null; e.target.src = 'https://placehold.co/600x400/EEE/31343C?text=Producto'; }}
+                        />
 
                         <div className="product-content">
                             <h3 className="product-name">{product.nombre}</h3>
@@ -196,7 +207,10 @@ const Productos = () => {
                             <p className="product-stock">Stock: {product.stock}</p>
 
                             <div className="product-actions">
-                                <button className="add-cart-button">
+                                <button
+                                    className="add-cart-button"
+                                    type="button"
+                                >
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ marginRight: 6 }}>
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M3 3h2l.4 2M7 13h10l3-8H6.4M7 13L5.1 6M7 13l-2 7h13" />
                                     </svg>
@@ -212,3 +226,4 @@ const Productos = () => {
 };
 
 export default Productos;
+
