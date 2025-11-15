@@ -103,6 +103,12 @@ CREATE TABLE IF NOT EXISTS `productos` (
   CONSTRAINT `productos_ibfk_2` FOREIGN KEY (`estado`) REFERENCES `estado` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=29 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+-- 15-11-2025: columnas para descripción y especificaciones de productos
+ALTER TABLE `productos`
+  ADD COLUMN `descripcion_corta` VARCHAR(300) NULL AFTER `nombre`,
+  ADD COLUMN `descripcion_detallada` TEXT NULL AFTER `descripcion_corta`,
+  ADD COLUMN `especificaciones` TEXT NULL AFTER `descripcion_detallada`;
+
 -- Data exporting was unselected.
 
 -- Dumping structure for table nextlevel.roles

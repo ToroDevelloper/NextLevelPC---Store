@@ -36,7 +36,16 @@ static async buscarPorNombre(query) {
     }
 
     static async obtenerPorId(id) {
-        const result = await executeQuery('SELECT * FROM productos WHERE id = ?', [id]);
+        const result = await executeQuery(`
+            SELECT p.*, 
+                   ip.url AS imagen_principal
+            FROM productos p
+            LEFT JOIN imagenes_productos ip 
+              ON p.id = ip.producto_id 
+             AND ip.es_principal = 1
+            WHERE p.id = ?
+            LIMIT 1
+        `, [id]);
         return result.length > 0 ? result[0] : null;
     }
 

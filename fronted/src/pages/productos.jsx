@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useCart } from '../utils/CartContext';
 import "../styles/Productos.css";
 
 const API_BASE = 'http://localhost:8080';
@@ -7,6 +8,9 @@ const API_BASE = 'http://localhost:8080';
 const Productos = () => {
     const location = useLocation();
     const navigate = useNavigate();
+    const { addToCart } = useCart();
+    // pestaña activa en detalle: 'descripcion' o 'especificaciones'
+    const [activeTab, setActiveTab] = useState('descripcion');
 
     const searchParams = new URLSearchParams(location.search);
     const searchQuery = searchParams.get('q');
@@ -46,18 +50,20 @@ const Productos = () => {
             imagenes = raw.imagenes;
         } else if (typeof raw.imagenes === 'string') {
             imagenes = parseImagenesField(raw.imagenes);
-        } else if (raw.imagenes === null && raw.url_imagen) {
-            imagenes = [{ url: raw.url_imagen, es_principal: raw.es_principal === 1 }];
+        } else if (raw.imagenes === null && (raw.url_imagen || raw.url)) {
+            // compatibilidad con distintos nombres de campo en joins
+            const url = raw.url_imagen || raw.url;
+            imagenes = [{ url, es_principal: raw.es_principal === 1 }];
         }
 
-        // imagen por defecto
-        const DEFAULT_IMAGE = '/default-product.png';
+        const DEFAULT_IMAGE = 'https://placehold.co/600x400/EEE/31343C?text=Producto';
 
         let firstImg = DEFAULT_IMAGE;
         if (raw.imagen_principal) {
             firstImg = raw.imagen_principal;
         } else if (Array.isArray(imagenes) && imagenes.length > 0) {
-            firstImg = imagenes[0].url ?? imagenes[0];
+            const primera = imagenes[0];
+            firstImg = typeof primera === 'string' ? primera : (primera.url || DEFAULT_IMAGE);
         }
 
         return {
@@ -202,13 +208,52 @@ const Productos = () => {
         const product = products[0];
         if (!product) return null;
 
+        const { nombre, price, stock, image, raw } = product;
+        const descripcion = raw.descripcion_detallada || raw.descripcion || 'Sin descripción disponible.';
+
+        let specs = [];
+        if (raw.especificaciones) {
+            try {
+                const parsed = JSON.parse(raw.especificaciones);
+                if (Array.isArray(parsed)) {
+                    specs = parsed;
+                }
+            } catch (e) {
+                console.warn('No se pudo parsear `especificaciones` como JSON, se usará layout por defecto.', e);
+            }
+        }
+
+        if (specs.length === 0) {
+            specs = [
+                { label: 'Categoría', value: raw.categoria_nombre || raw.categoria || 'No especificada' },
+                { label: 'Stock', value: `${stock} unidades` },
+                { label: 'Estado', value: raw.activo === 0 ? 'No disponible' : 'Disponible' }
+            ];
+        }
+
+        const handleAddToCart = () => {
+            const qty = Number(document.getElementById('product-detail-qty')?.value || 1);
+            const safeQty = isNaN(qty) || qty <= 0 ? 1 : qty;
+
+            addToCart({
+                id: product.id,
+                nombre,
+                price,
+                stock,
+                image,
+                type: 'producto',
+                quantity: safeQty,
+            });
+        };
+
         return (
             <div className="product-detail">
                 <div className="product-detail-main">
+                    {/* Columna izquierda: imagen grande */}
                     <div className="product-detail-image-wrapper">
                         <img
-                            src={product.image || 'https://placehold.co/600x400/EEE/31343C?text=Producto'}
-                            alt={product.nombre || 'Producto'}
+                            src={image || 'https://placehold.co/600x400/EEE/31343C?text=Producto'}
+                            alt={nombre || 'Producto'}
                             className="product-detail-image"
                             onError={(e) => {
                                 e.target.onerror = null;
@@ -216,10 +261,77 @@ const Productos = () => {
                             }}
                         />
                     </div>
+
+                    {/* Columna derecha: info principal */}
                     <div className="product-detail-info">
-                        <h1 className="product-detail-name">{product.nombre}</h1>
-                        <p className="product-detail-price">${Number(product.price).toFixed(2)}</p>
-                        <p className="product-detail-stock">Stock: {product.stock}</p>
+                        <h1 className="product-detail-name">{nombre}</h1>
+                        <div className="product-detail-price-box">
+                            <span className="product-detail-price">${price.toFixed(2)}</span>
+                        </div>
+                        <p className="product-detail-stock">
+                            Stock: {stock > 0 ? `${stock} unidades disponibles` : 'Sin stock'}
+                        </p>
+
+                        {/* Cantidad + botón de carrito, encima de Envío/Devolución */}
+                        <div className="product-detail-actions">
+                            <input
+                                id="product-detail-qty"
+                                type="number"
+                                min="1"
+                                defaultValue="1"
+                                className="product-detail-quantity"
+                            />
+                            <button
+                                className="product-detail-buy-btn"
+                                type="button"
+                                onClick={handleAddToCart}
+                            >
+                                Añadir al carrito
+                            </button>
+                        </div>
+
+                        {/* Envío y devolución debajo del botón */}
+                        <div className="product-detail-extra">
+                            <p>Envío: {raw.envioDescripcion || 'Envío estándar disponible.'}</p>
+                            <p>Devolución: {raw.politicaDevolucion || 'Devoluciones dentro de 30 días.'}</p>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Sección inferior: descripción y especificaciones */}
+                <div className="product-detail-tabs">
+                    <div className="product-detail-tab-headers">
+                        <button
+                            className={`tab-header ${activeTab === 'descripcion' ? 'active' : ''}`}
+                            type="button"
+                            onClick={() => setActiveTab('descripcion')}
+                        >
+                            Descripción
+                        </button>
+                        <button
+                            className={`tab-header ${activeTab === 'especificaciones' ? 'active' : ''}`}
+                            type="button"
+                            onClick={() => setActiveTab('especificaciones')}
+                        >
+                            Especificaciones
+                        </button>
+                    </div>
+                    <div className="product-detail-tab-body">
+                        <div className={`tab-panel ${activeTab === 'descripcion' ? 'active' : ''}`}>
+                            <p className="product-detail-description">{descripcion}</p>
+                        </div>
+                        <div className={`tab-panel ${activeTab === 'especificaciones' ? 'active' : ''}`}>
+                            <table className="product-specs-table">
+                                <tbody>
+                                    {specs.map(spec => (
+                                        <tr key={spec.label}>
+                                            <th>{spec.label}</th>
+                                            <td>{spec.value}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>

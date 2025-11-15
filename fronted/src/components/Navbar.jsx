@@ -57,8 +57,12 @@ const Navbar = ({ onLoginClick }) => {
     }
   };
 
-  const cartCount = cartItems.reduce((s, i) => s + i.quantity, 0);
-  const cartTotal = cartItems.reduce((s, i) => s + i.quantity * i.precio, 0);
+  const cartCount = cartItems.reduce((s, i) => s + (i.quantity || 0), 0);
+  const cartTotal = cartItems.reduce((s, i) => {
+    const unitPrice = Number(i.price ?? i.precio ?? 0);
+    const qty = Number(i.quantity ?? 0);
+    return s + unitPrice * qty;
+  }, 0);
 
   return (
     <header className="navbar">
@@ -171,26 +175,37 @@ const Navbar = ({ onLoginClick }) => {
                 ) : (
                   <>
                     <ul className="navbar-cart-list">
-                      {cartItems.map(item => (
-                        <li key={`${item.type}-${item.id}`} className="navbar-cart-item">
-                          <img
-                            src={item.imagen_url || 'https://placehold.co/600x400/EEE/31343C?text=Item'}
-                            alt={item.nombre}
-                            className="navbar-cart-image"
-                          />
-                          <div className="navbar-cart-info">
-                            <div className="navbar-cart-title">{item.nombre}</div>
-                            <div className="navbar-cart-price">
-                              ${(item.precio * item.quantity).toFixed(2)} (x{item.quantity})
+                      {cartItems.map(item => {
+                        const unitPrice = Number(item.price ?? item.precio ?? 0);
+                        const lineTotal = unitPrice * (item.quantity ?? 0);
+
+                        const imgSrc = item.image || item.imagen_url || 'https://placehold.co/600x400/EEE/31343C?text=Item';
+
+                        return (
+                          <li key={`${item.type}-${item.id}`} className="navbar-cart-item">
+                            <img
+                              src={imgSrc}
+                              alt={item.nombre || 'Item del carrito'}
+                              className="navbar-cart-image"
+                              onError={(e) => {
+                                e.target.onerror = null;
+                                e.target.src = 'https://placehold.co/600x400/EEE/31343C?text=Item';
+                              }}
+                            />
+                            <div className="navbar-cart-info">
+                              <div className="navbar-cart-title">{item.nombre}</div>
+                              <div className="navbar-cart-price">
+                                ${lineTotal.toFixed(2)} (x{item.quantity})
+                              </div>
                             </div>
-                          </div>
-                          <div className="navbar-cart-controls">
-                            <button onClick={() => updateQuantity(item.id, item.type, item.quantity + 1)} aria-label="Aumentar">+</button>
-                            <button onClick={() => updateQuantity(item.id, item.type, item.quantity - 1)} aria-label="Disminuir">−</button>
-                            <button onClick={() => removeFromCart(item.id, item.type)} aria-label="Eliminar" className="btn-remove">x</button>
-                          </div>
-                        </li>
-                      ))}
+                            <div className="navbar-cart-controls">
+                              <button onClick={() => updateQuantity(item.id, item.type, (item.quantity || 0) + 1)} aria-label="Aumentar">+</button>
+                              <button onClick={() => updateQuantity(item.id, item.type, (item.quantity || 0) - 1)} aria-label="Disminuir">−</button>
+                              <button onClick={() => removeFromCart(item.id, item.type)} aria-label="Eliminar" className="btn-remove">x</button>
+                            </div>
+                          </li>
+                        );
+                      })}
                     </ul>
                     <div className="navbar-cart-total">
                       <strong>Total:</strong>

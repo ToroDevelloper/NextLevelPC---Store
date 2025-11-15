@@ -22,16 +22,18 @@ export const CartProvider = ({ children }) => {
     }, [cartItems]);
 
     const addToCart = (item) => {
+        const { id, type = 'producto', quantity = 1 } = item;
+
         setCartItems(prevItems => {
-            const existingItem = prevItems.find(i => i.id === item.id && i.type === item.type);
+            const existingItem = prevItems.find(i => i.id === id && i.type === type);
             if (existingItem) {
-                // Si ya existe, actualiza la cantidad
                 return prevItems.map(i =>
-                    i.id === item.id && i.type === item.type ? { ...i, quantity: i.quantity + 1 } : i
+                    i.id === id && i.type === type
+                        ? { ...i, quantity: i.quantity + quantity }
+                        : i
                 );
             } else {
-                // Si no existe, lo añade con cantidad 1
-                return [...prevItems, { ...item, quantity: 1, type: 'servicio' }];
+                return [...prevItems, { ...item, type, quantity }];
             }
         });
     };
@@ -66,4 +68,3 @@ export const CartProvider = ({ children }) => {
 
     return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 };
-

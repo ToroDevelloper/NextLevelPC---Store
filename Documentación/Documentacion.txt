@@ -173,3 +173,44 @@ Este mismo formato de JSON es el que se usa cuando el formulario en la página d
     - Modo lista (`/productos`): muestra el grid de productos y cada card es clicable para ir al detalle del producto.
     - Modo detalle (`/productos/:id`): muestra solo la información del producto seleccionado (imagen, nombre, precio, stock) usando el endpoint `/api/productos/:id`.
   - Se mantiene el uso de la imagen placeholder cuando falla la carga de la imagen real del producto.
+
+15-11-2025 (detalle de productos: nuevas columnas en `productos`)
+- Base de datos: se añadieron campos para soportar descripción detallada y especificaciones en productos.
+
+```sql
+USE `nextlevel`;
+
+ALTER TABLE `productos`
+  ADD COLUMN `descripcion_corta` VARCHAR(300) NULL AFTER `nombre`,
+  ADD COLUMN `descripcion_detallada` TEXT NULL AFTER `descripcion_corta`,
+  ADD COLUMN `especificaciones` TEXT NULL AFTER `descripcion_detallada`;
+```
+
+15-11-2025 (detalle de productos: imagen principal y carrito)
+- Backend:
+  - En `backend/models/Productos.js` se actualizó el método `obtenerPorId(id)` para que, además de los campos de `productos`, haga un JOIN con `imagenes_productos` y devuelva la URL de la imagen principal como `imagen_principal`:
+    - `SELECT p.*, ip.url AS imagen_principal FROM productos p LEFT JOIN imagenes_productos ip ON p.id = ip.producto_id AND ip.es_principal = 1 WHERE p.id = ? LIMIT 1;`
+  - Esto unifica el comportamiento con los listados que ya usaban `imagen_principal` (`obtenerTodosConImagenes`, `obtenerDestacados`, búsqueda) y permite que el detalle de producto tenga acceso a la misma imagen principal.
+
+- Frontend (detalle de productos):
+  - En `fronted/src/pages/Productos.jsx` se reforzó la normalización de productos en `normalizeProduct` para construir la imagen principal (`image`) a partir de:
+    - `raw.imagen_principal` (prioritario, viene del JOIN con `imagenes_productos`).
+    - `raw.imagenes` (array o string con URLs), tomando la primera URL disponible.
+    - Compatibilidad adicional con campos `url_imagen` / `url` (cuando el JOIN entrega estos nombres).
+    - Si no hay ninguna imagen, se usa un placeholder estándar de `placehold.co`.
+  - En el render de detalle (`renderProductDetail`) se muestra esta imagen principal en grande en la columna izquierda:
+    - `<img src={image || 'https://placehold.co/600x400/EEE/31343C?text=Producto'} ... onError` para asegurar que nunca se vea un icono de imagen rota.
+
+- Frontend (carrito):
+  - En `fronted/src/utils/CartContext.jsx` se ajustó `addToCart` para aceptar `type` y `quantity` genéricos, y se usa `price` para productos (manteniendo compatibilidad con `precio` para otros casos).
+  - En `fronted/src/components/Navbar.jsx` se unificó el cálculo del total del carrito utilizando `price` o `precio` según el item:
+    - `const unitPrice = Number(i.price ?? i.precio ?? 0);`
+    - `const cartTotal = cartItems.reduce((s, i) => s + unitPrice * quantity, 0);`
+  - Las imágenes de los items del carrito ahora se muestran usando:
+    - `item.image` (productos añadidos desde el detalle), o
+    - `item.imagen_url` (servicios, si aplica), con fallback a un placeholder.
+    - Se añadió `onError` para asegurar que cualquier URL rota en el carrito también caiga a la imagen por defecto.
+
+- Resultado:
+  - El detalle de producto muestra ahora la imagen principal real almacenada en `imagenes_productos` (cuando existe) y solo usa la imagen por defecto cuando no hay ninguna asociada.
+  - El carrito muestra correctamente la miniatura de cada producto/servicio y los totales se calculan sin errores, soportando tanto `price` (frontend) como `precio` (backend).
