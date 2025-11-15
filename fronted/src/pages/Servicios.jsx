@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import '../styles/Servicios.css';
-import { useCart } from '../utils/CartContext';
+import AgendarServicioModal from '../components/AgendarServicioModal';
 
 const API_BASE = 'http://localhost:8080';
 
@@ -11,19 +11,52 @@ const Servicios = () => {
     const [filtroActivo, setFiltroActivo] = useState('todos');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    const { addToCart } = useCart();
+    const [servicioSeleccionado, setServicioSeleccionado] = useState(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
     const navigate = useNavigate();
-
-    const handleAddToCart = (e, servicio) => {
-        e.preventDefault(); // Evita la navegación al hacer clic en el botón
-        e.stopPropagation(); // Detiene la propagación del evento
-        addToCart({ ...servicio, type: 'servicio' });
-        console.log('Servicio añadido al carrito:', servicio.nombre);
-        // Opcional: Mostrar una notificación de que se añadió al carrito
-    };
 
     const handleCardClick = (id) => {
         navigate(`/servicios/${id}`);
+    };
+
+    const handleOpenModalDesdeCard = (e, servicio) => {
+        e.stopPropagation(); // que no dispare la navegación al detalle
+        setServicioSeleccionado(servicio);
+        setIsModalOpen(true);
+    };
+
+    const handleCloseModal = () => {
+        setIsModalOpen(false);
+        setServicioSeleccionado(null);
+    };
+
+    const handleSubmitModal = async (formData) => {
+        if (!servicioSeleccionado) return;
+        try {
+            const response = await fetch(`${API_BASE}/api/citas-servicios`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    ...formData,
+                    servicio_id: servicioSeleccionado.id,
+                }),
+            });
+
+            const result = await response.json();
+
+            if (response.ok && result.success) {
+                alert('¡Cita agendada con éxito! Nos pondremos en contacto contigo pronto.');
+                setIsModalOpen(false);
+                setServicioSeleccionado(null);
+            } else {
+                throw new Error(result.message || 'No se pudo agendar la cita.');
+            }
+        } catch (error) {
+            console.error('Error al enviar el formulario:', error);
+            alert(`Error: ${error.message}`);
+        }
     };
 
     useEffect(() => {
@@ -164,11 +197,12 @@ const Servicios = () => {
                                     <p className="servicio-precio">
                                         ${Number(servicio.precio).toFixed(2)}
                                     </p>
-                                    <button className="servicio-add-btn" onClick={(e) => handleAddToCart(e, servicio)}>
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 3h2l.4 2M7 13h10l3-8H6.4M7 13L5.1 6M7 13l-2 7h13" />
-                                        </svg>
-                                        Añadir al carrito
+                                    <button
+                                        type="button"
+                                        className="servicio-contratar-btn"
+                                        onClick={(e) => handleOpenModalDesdeCard(e, servicio)}
+                                    >
+                                        Contratar servicio
                                     </button>
                                 </div>
                             </div>
@@ -176,6 +210,14 @@ const Servicios = () => {
                     ))}
                 </div>
             </div>
+
+            {isModalOpen && servicioSeleccionado && (
+                <AgendarServicioModal
+                    servicio={servicioSeleccionado}
+                    onClose={handleCloseModal}
+                    onSubmit={handleSubmitModal}
+                />
+            )}
         </div>
     );
 };
