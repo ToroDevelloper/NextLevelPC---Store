@@ -164,3 +164,12 @@ Este mismo formato de JSON es el que se usa cuando el formulario en la página d
 - Frontend: se unificó el manejo de imágenes por defecto en el módulo de productos y en los productos destacados de Home.
   - En `Productos.jsx` se usa una imagen placeholder cuando el producto no tiene imagen o la URL falla (onError), evitando íconos de imagen rota.
   - En `Home.jsx` (carrusel de productos destacados) se aplicó la misma lógica de placeholder y onError para `imagen_principal`.
+
+15-11-2025 (actualización Home y Productos)
+- Frontend: ajustes en productos destacados (Home) y detalle de productos.
+  - En `Home.jsx` se eliminaron los iconos de "ojo" y el texto/botón "Ver Detalles" dentro de cada tarjeta de producto destacado, dejando las cards como elementos visuales limpios.
+  - Ahora en `Home.jsx` cada tarjeta de producto destacado es clicable y redirige a `/productos/:id`, reutilizando la misma ruta de detalle que el módulo de productos.
+  - En `Productos.jsx` se separó la vista en dos modos:
+    - Modo lista (`/productos`): muestra el grid de productos y cada card es clicable para ir al detalle del producto.
+    - Modo detalle (`/productos/:id`): muestra solo la información del producto seleccionado (imagen, nombre, precio, stock) usando el endpoint `/api/productos/:id`.
+  - Se mantiene el uso de la imagen placeholder cuando falla la carga de la imagen real del producto.

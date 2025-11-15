@@ -1,12 +1,8 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import '../styles/Home.css';
 
 const API_BASE = 'http://localhost:8080';
-
-const IconEye = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-);
 
 const Home = () => {
    
@@ -21,6 +17,7 @@ const Home = () => {
     const [slideWidth, setSlideWidth] = useState(0);
     const [visibleItems, setVisibleItems] = useState(3);
     const totalItems = productosDestacados.length;
+    const navigate = useNavigate();
 
     useEffect(() => {
         const calculateMetrics = () => {
@@ -164,14 +161,12 @@ const Home = () => {
                         ref={trackRef}
                     >
                         {productosDestacados.map(product => (
-                            <div key={product.id} className="home-product-card">
-                                <Link
-                                    to={`/productos/${product.id}`}
-                                    className="product-quick-view"
-                                    aria-label={`Ver ${product.nombre}`}
-                                >
-                                    <IconEye />
-                                </Link>
+                            <div
+                                key={product.id}
+                                className="home-product-card"
+                                onClick={() => navigate(`/productos/${product.id}`)}
+                                style={{ cursor: 'pointer' }}
+                            >
 
                                 <div className="product-image-container">
                                     <img
@@ -193,14 +188,6 @@ const Home = () => {
                                     <p className="product-price">
                                         ${formatPrice(product.precio_actual)}
                                     </p>
-                                    <div className="product-actions">
-                                        <Link
-                                            to={`/productos/${product.id}`}
-                                            className="btn-view-details"
-                                        >
-                                            Ver Detalles
-                                        </Link>
-                                    </div>
                                 </div>
                             </div>
                         ))}

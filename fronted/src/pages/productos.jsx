@@ -169,6 +169,63 @@ const Productos = () => {
 
     }, [location.pathname, location.search, productId, isSearchRoute, isProductsRoute, searchQuery]);
 
+    const renderProductList = () => (
+        <div className="products-grid">
+            {products.map(product => (
+                <div
+                    key={product.id}
+                    className="product-card"
+                    onClick={() => navigate(`/productos/${product.id}`)}
+                    style={{ cursor: 'pointer' }}
+                >
+                    <img
+                        src={product.image || 'https://placehold.co/600x400/EEE/31343C?text=Producto'}
+                        alt={product.nombre || 'Producto'}
+                        className="product-image"
+                        onError={(e) => {
+                            e.target.onerror = null;
+                            e.target.src = 'https://placehold.co/600x400/EEE/31343C?text=Producto';
+                        }}
+                    />
+
+                    <div className="product-content">
+                        <h3 className="product-name">{product.nombre}</h3>
+                        <p className="product-price">${Number(product.price).toFixed(2)}</p>
+                        <p className="product-stock">Stock: {product.stock}</p>
+                    </div>
+                </div>
+            ))}
+        </div>
+    );
+
+    const renderProductDetail = () => {
+        const product = products[0];
+        if (!product) return null;
+
+        return (
+            <div className="product-detail">
+                <div className="product-detail-main">
+                    <div className="product-detail-image-wrapper">
+                        <img
+                            src={product.image || 'https://placehold.co/600x400/EEE/31343C?text=Producto'}
+                            alt={product.nombre || 'Producto'}
+                            className="product-detail-image"
+                            onError={(e) => {
+                                e.target.onerror = null;
+                                e.target.src = 'https://placehold.co/600x400/EEE/31343C?text=Producto';
+                            }}
+                        />
+                    </div>
+                    <div className="product-detail-info">
+                        <h1 className="product-detail-name">{product.nombre}</h1>
+                        <p className="product-detail-price">${Number(product.price).toFixed(2)}</p>
+                        <p className="product-detail-stock">Stock: {product.stock}</p>
+                    </div>
+                </div>
+            </div>
+        );
+    };
+
     return (
         <div className="productos-page">
             <h2 className="productos-title">{getTitle()}</h2>
@@ -188,42 +245,12 @@ const Productos = () => {
                     }
                 </div>
             )}
-            <div className="products-grid">
-                {products.map(product => (
-                    <div
-                        key={product.id}
-                        className="product-card"
-                    >
-                        <img
-                            src={product.image || 'https://placehold.co/600x400/EEE/31343C?text=Producto'}
-                            alt={product.nombre || 'Producto'}
-                            className="product-image"
-                            onError={(e) => { e.target.onerror = null; e.target.src = 'https://placehold.co/600x400/EEE/31343C?text=Producto'; }}
-                        />
 
-                        <div className="product-content">
-                            <h3 className="product-name">{product.nombre}</h3>
-                            <p className="product-price">${Number(product.price).toFixed(2)}</p>
-                            <p className="product-stock">Stock: {product.stock}</p>
-
-                            <div className="product-actions">
-                                <button
-                                    className="add-cart-button"
-                                    type="button"
-                                >
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ marginRight: 6 }}>
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M3 3h2l.4 2M7 13h10l3-8H6.4M7 13L5.1 6M7 13l-2 7h13" />
-                                    </svg>
-                                    Ver Detalles
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                ))}
-            </div>
+            {!loading && !error && products.length > 0 && (
+                productId ? renderProductDetail() : renderProductList()
+            )}
         </div>
     );
 };
 
 export default Productos;
-
