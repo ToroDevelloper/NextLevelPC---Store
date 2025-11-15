@@ -3,7 +3,7 @@ const router = express.Router();
 const CitaServicioService = require('../services/CitaServicioService');
 
 // DASHBOARD DE SERVICIOS (CITAS)
-router.get('/dashboard-servicios', async (req, res) => {
+router.get('/', async (req, res) => {
   try {
     const citas = await CitaServicioService.getAllCitas();
     res.render('dashboard/citas', { citas: Array.isArray(citas) ? citas : [] });
