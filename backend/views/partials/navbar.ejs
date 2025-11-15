@@ -8,7 +8,7 @@
             <p class="text-light small">Panel de Administración</p>
         </div>
         
-        <ul class="nav flex-column">
+        <ul class="nav flex-column mb-4">
             <li class="nav-item mb-2">
                 <a class="nav-link text-white d-flex align-items-center <%= currentPage === 'productos' ? 'active-nav' : '' %>" 
                    href="/productos">
@@ -24,22 +24,24 @@
                 </a>
             </li>
             <li class="nav-item mb-2">
-                <a class="nav-link text-white d-flex align-items-center <%= currentPage === 'clientes' ? 'active-nav' : '' %>" 
-                   href="#">
-                    <i class="fas fa-users me-3"></i>
-                    Clientes
-                </a>
-            </li>
-            <li class="nav-item mb-2">
-                <a class="nav-link text-white d-flex align-items-center <%= currentPage === 'reportes' ? 'active-nav' : '' %>" 
-                   href="#">
-                    <i class="fas fa-chart-bar me-3"></i>
-                    Reportes
+                <a class="nav-link text-white d-flex align-items-center <%= currentPage === 'dashboard' ? 'active-nav' : '' %>"
+                   href="/dashboard-servicios">
+                    <i class="fas fa-chart-line me-3"></i>
+                    Dashboard
                 </a>
             </li>
         </ul>
 
-        <div class="mt-5 px-3">
+        <ul class="nav flex-column mt-auto px-3">
+            <li class="nav-item mt-3">
+                <button class="btn btn-outline-light w-100 d-flex align-items-center justify-content-center" onclick="backendLogout()">
+                    <i class="fas fa-sign-out-alt me-2"></i>
+                    Cerrar sesión
+                </button>
+            </li>
+        </ul>
+
+        <div class="mt-4 px-3">
             <div class="card bg-dark border-light">
                 <div class="card-body text-center">
                     <small class="text-light">Sistema de Gestión</small>
@@ -50,6 +52,29 @@
         </div>
     </div>
 </nav>
+
+<script>
+    async function backendLogout() {
+        try {
+            await fetch('http://localhost:8080/api/usuarios/logout', {
+                method: 'POST',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+        } catch (e) {
+            console.error('Error al cerrar sesión desde vistas:', e);
+        } finally {
+            try {
+                localStorage.removeItem('accessToken');
+            } catch (err) {
+                console.warn('No se pudo limpiar accessToken de localStorage:', err);
+            }
+            window.location.href = 'http://localhost:5173/';
+        }
+    }
+</script>
 
 <style>
     .active-nav {

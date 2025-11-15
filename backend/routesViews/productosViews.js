@@ -1,6 +1,5 @@
 const express = require('express');
 const router = express.Router();
-
 const ProductosService = require('../services/ProductosService');
 const CategoriaService = require('../services/categoriaService');
 const ImagenProductoService = require('../services/ImagenProductoService');
@@ -18,6 +17,7 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
+// Lista de productos - vista HTML
 router.get('/', async (req, res) => {
     try {
         console.log("Accediendo a lista de productos");
@@ -38,6 +38,7 @@ router.get('/', async (req, res) => {
     }
 });
 
+// Formulario crear producto
 router.get('/create', async (req, res) => {
     try {
         console.log("Accediendo a formulario crear");
@@ -57,7 +58,6 @@ router.get('/create', async (req, res) => {
         `);
     }
 });
-
 
 router.post('/crear', upload.array('imagenes', 5), async (req, res) => {
     try {
@@ -135,6 +135,7 @@ router.post('/delete/:id', async (req, res) => {
     try {
         console.log("Eliminando producto ID:", req.params.id);
         
+        await ImagenProductoService.eliminarImagenesPorProducto(req.params.id);
         await ProductosService.eliminarProducto(req.params.id);
         res.redirect('/productos');
         
