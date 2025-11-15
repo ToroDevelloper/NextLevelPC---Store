@@ -54,3 +54,106 @@ lo que queda faltando es:
     - Creación de la tabla `citas_servicios` para guardar las solicitudes de servicio a domicilio.
     - Creación de la tabla `refresh_tokens` para manejar tokens de refresco en el sistema de autenticación.
 
+### Referencia técnica: SQL usado hoy
+
+Estos son los comandos SQL que agregan o modifican la base de datos relacionados con lo trabajado hoy. Todos están consolidados en `Documentación/nextlevel.sql`.
+
+1) Creación de la base de datos y uso
+
+```sql
+CREATE DATABASE IF NOT EXISTS `nextlevel` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci */;
+USE `nextlevel`;
+```
+
+2) Tabla `servicios` con columna `imagen_url`
+
+```sql
+CREATE TABLE IF NOT EXISTS `servicios` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `nombre` varchar(200) NOT NULL,
+  `precio` decimal(12,2) NOT NULL,
+  `descripcion` text DEFAULT NULL,
+  `imagen_url` varchar(255) DEFAULT NULL,
+  `activo` tinyint(1) DEFAULT 1,
+  `ordenes_id` int(11) DEFAULT NULL,
+  `tipo` enum('basico','avanzado') DEFAULT 'basico',
+  PRIMARY KEY (`id`),
+  KEY `ordenes_id` (`ordenes_id`),
+  CONSTRAINT `servicios_ibfk_1` FOREIGN KEY (`ordenes_id`) REFERENCES `ordenes` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+```
+
+> Nota: si ya existía la tabla `servicios` sin `imagen_url`, se podría añadir manualmente así (solo si llega a faltar):
+>
+> ```sql
+> ALTER TABLE `servicios`
+>   ADD COLUMN `imagen_url` varchar(255) DEFAULT NULL AFTER `descripcion`;
+> ```
+
+3) Tabla `citas_servicios` (solicitudes de servicio a domicilio)
+
+```sql
+CREATE TABLE IF NOT EXISTS `citas_servicios` (
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `servicio_id` INT(11) NOT NULL,
+  `nombre_cliente` VARCHAR(255) NOT NULL,
+  `email_cliente` VARCHAR(255) NOT NULL,
+  `telefono_cliente` VARCHAR(50) NOT NULL,
+  `direccion_cliente` TEXT NOT NULL,
+  `fecha_cita` DATETIME NOT NULL,
+  `descripcion_problema` TEXT DEFAULT NULL,
+  `estado` ENUM('pendiente', 'confirmada', 'cancelada', 'completada') NOT NULL DEFAULT 'pendiente',
+  `created_at` TIMESTAMP NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `servicio_id` (`servicio_id`),
+  CONSTRAINT `citas_servicios_ibfk_1` FOREIGN KEY (`servicio_id`) REFERENCES `servicios` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+```
+
+4) Tabla `refresh_tokens` (tokens de refresco para autenticación)
+
+```sql
+CREATE TABLE `refresh_tokens` (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    token VARCHAR(512) NOT NULL UNIQUE,
+    expires_at DATETIME NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES usuarios(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    INDEX idx_user_id (user_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+```
+
+> Nota: si la tabla ya existe, no es necesario volver a ejecutar este comando.
+
+---
+
+### Ejemplo de petición en Postman: crear una cita de servicio
+
+Endpoint backend:
+- Método: `POST`
+- URL: `http://localhost:3000/api/citas-servicios` (ajusta el puerto según tu backend)
+- Headers recomendados:
+  - `Content-Type: application/json`
+
+Body (JSON) de ejemplo:
+
+```json
+{
+  "nombre": "Angel",
+  "email": "cliente@example.com",
+  "telefono": "4498489498",
+  "direccion": "Calle Ejemplo 123, Colonia Centro",
+  "fecha": "2025-11-14T18:38",
+  "descripcion": "La computadora se apaga sola y va muy lenta.",
+  "servicio_id": 1
+}
+```
+
+Comportamiento esperado:
+- El backend debe:
+  - Validar los campos.
+  - Crear un registro en la tabla `citas_servicios` con estado inicial `pendiente`.
+  - Retornar `201 Created` o `200 OK` con la cita creada en el `body` de la respuesta.
+
+Este mismo formato de JSON es el que se usa cuando el formulario en la página de detalle de un servicio (SPA React) dispara la solicitud al endpoint `/api/citas-servicios`.
