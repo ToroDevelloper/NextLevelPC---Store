@@ -11,6 +11,7 @@ const ServicioDetail = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [activeTab, setActiveTab] = useState('descripcion');
 
     const handleOpenModal = () => {
         setIsModalOpen(true);
@@ -85,30 +86,120 @@ const ServicioDetail = () => {
         return <div className="not-found">Servicio no encontrado.</div>;
     }
 
+    // Descripción y especificaciones similares a detalle de producto
+    const descripcion = servicio.descripcion_detallada || servicio.descripcion || 'Sin descripción disponible.';
+
+    let specs = [];
+    if (servicio.especificaciones) {
+        try {
+            const parsed = JSON.parse(servicio.especificaciones);
+            if (Array.isArray(parsed)) {
+                specs = parsed;
+            }
+        } catch (e) {
+            console.warn('No se pudo parsear `especificaciones` de servicio como JSON, se usará layout por defecto.', e);
+        }
+    }
+
+    if (specs.length === 0) {
+        specs = [
+            { label: 'Tipo', value: servicio.tipo || 'No especificado' },
+            { label: 'Duración', value: servicio.duracion || 'Según requerimiento' },
+            { label: 'Estado', value: servicio.activo === 0 ? 'No disponible' : 'Disponible' },
+        ];
+    }
+
     return (
         <>
-            <div className="servicio-detail-page">
-                <div className="servicio-detail-card">
-                    {servicio.imagen_url && (
-                        <div className="servicio-detail-image-container">
-                            <img src={servicio.imagen_url} alt={servicio.nombre} className="servicio-detail-image" />
-                        </div>
-                    )}
-                    <div className="servicio-detail-content">
+            <div className="servicio-detail-page product-detail">
+                {/* Layout principal: imagen izquierda, info derecha */}
+                <div className="product-detail-main">
+                    <div className="product-detail-image-wrapper servicio-detail-image-container">
+                        <img
+                            src={servicio.imagen_url || 'https://placehold.co/600x400/EEE/31343C?text=Servicio'}
+                            alt={servicio.nombre}
+                            className="product-detail-image servicio-detail-image"
+                            onError={(e) => {
+                                e.target.onerror = null;
+                                e.target.src = 'https://placehold.co/600x400/EEE/31343C?text=Servicio';
+                            }}
+                        />
+                    </div>
+
+                    <div className="product-detail-info servicio-detail-content">
                         <div className="servicio-detail-header">
-                            <h1>{servicio.nombre}</h1>
-                            <p className="servicio-tipo">{servicio.tipo}</p>
+                            <h1 className="product-detail-name">{servicio.nombre}</h1>
+                            {servicio.tipo && <p className="servicio-tipo">{servicio.tipo}</p>}
                         </div>
-                        <div className="servicio-detail-body">
-                            <p className="servicio-descripcion">{servicio.descripcion}</p>
-                            <p className="servicio-precio">Precio: ${servicio.precio}</p>
+                        <div className="product-detail-price-box">
+                            <span className="product-detail-price">
+                                ${Number(servicio.precio || 0).toFixed(2)}
+                            </span>
                         </div>
-                        <div className="servicio-detail-footer">
-                            <button className="btn-contratar" onClick={handleOpenModal}>Contratar Servicio</button>
+
+                        <p className="product-detail-stock">
+                            Estado: {servicio.activo === 0 ? 'No disponible' : 'Disponible'}
+                        </p>
+
+                        {/* Acciones: botón de contratar similar a añadir al carrito */}
+                        <div className="product-detail-actions servicio-detail-footer">
+                            <button
+                                className="product-detail-buy-btn btn-contratar"
+                                type="button"
+                                onClick={handleOpenModal}
+                            >
+                                Contratar Servicio
+                            </button>
+                        </div>
+
+                        {/* Información extra: política / notas */}
+                        <div className="product-detail-extra">
+                            <p>Modalidad: {servicio.modalidad || 'Presencial / Remoto según disponibilidad.'}</p>
+                            <p>Garantía: {servicio.garantia || 'Garantía estándar sobre el trabajo realizado.'}</p>
+                        </div>
+
+                        {/* Descripción y especificaciones debajo de Modalidad/Garantía */}
+                        <div className="product-detail-tabs servicio-detail-tabs">
+                            <div className="product-detail-tab-headers">
+                                <button
+                                    className={`tab-header ${activeTab === 'descripcion' ? 'active' : ''}`}
+                                    type="button"
+                                    onClick={() => setActiveTab('descripcion')}
+                                >
+                                    Descripción
+                                </button>
+                                <button
+                                    className={`tab-header ${activeTab === 'especificaciones' ? 'active' : ''}`}
+                                    type="button"
+                                    onClick={() => setActiveTab('especificaciones')}
+                                >
+                                    Especificaciones
+                                </button>
+                            </div>
+                            <div className="product-detail-tab-body">
+                                <div className={`tab-panel ${activeTab === 'descripcion' ? 'active' : ''}`}>
+                                    <p className="product-detail-description servicio-descripcion">
+                                        {descripcion}
+                                    </p>
+                                </div>
+                                <div className={`tab-panel ${activeTab === 'especificaciones' ? 'active' : ''}`}>
+                                    <table className="product-specs-table">
+                                        <tbody>
+                                            {specs.map((spec) => (
+                                                <tr key={spec.label}>
+                                                    <th>{spec.label}</th>
+                                                    <td>{spec.value}</td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
+
             {isModalOpen && (
                 <AgendarServicioModal
                     servicio={servicio}
