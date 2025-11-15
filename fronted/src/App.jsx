@@ -4,15 +4,16 @@ import Home from './pages/Home';
 import Registro from './pages/Registro';
 import Productos from './pages/productos';
 import Servicios from './pages/Servicios';
-import ServicioDetail from './pages/ServicioDetail'; // Importar el nuevo componente
+import ServicioDetail from './pages/ServicioDetail';
 import { useAuth } from './utils/AuthContext';
 import Layout from './components/Layout';
-import TransicionBienvenida from './pages/TransicionBienvenida'; 
+import TransicionBienvenida from './pages/TransicionBienvenida';
+import Perfil from './pages/Perfil';
 import './styles/Global.css';
 import './styles/TransicionBienvenida.css';
 
 function App() {
-    const { isAuthenticated } = useAuth();
+    const { user } = useAuth();
     const location = useLocation();
 
     useEffect(() => {
@@ -28,40 +29,39 @@ function App() {
             });
     }, []);
 
-    const ProtectedRoute = ({ element: Element }) => {
-        if (!isAuthenticated) {
+    const ProtectedRoute = ({ element: Element, roles }) => {
+        if (!user) {
             return <Navigate to="/" replace />;
+        }
+        if (roles && !roles.includes(user.rol)) {
+            return <Navigate to="/unauthorized" replace />;
         }
         return Element;
     };
 
-    // Verificar si estamos en la ruta de registro para aplicar estilos especiales
     const isRegistroRoute = location.pathname === '/registro';
 
     return (
         <Fragment>
             <TransicionBienvenida />
-            
-            {/* Si estamos en registro, no mostrar el Layout normal */}
-            {isRegistroRoute ? (
-                <Registro />
-            ) : (
-                <Layout>
-                    <Routes>
-                        <Route path="/" element={<Home />} />
-                        <Route path="/home" element={<Home />} />
-                        <Route path="/registro" element={<Registro />} />
-                        <Route path="/productos" element={<Productos />} />
-                        <Route path="/productos/buscar" element={<Productos />} />
-                        <Route path="/productos/:id" element={<Productos />} />
-                        <Route path="/repuestos" element={<Productos />} />
-                        <Route path="/accesorios" element={<Productos />} />
-                        <Route path="/servicios" element={<Servicios />} />
-                        <Route path="/servicios/:id" element={<ServicioDetail />} />
-                        <Route path="*" element={<Navigate to="/" replace />} />
-                    </Routes>
-                </Layout>
-            )}
+
+            <Layout>
+                <Routes>
+                    <Route path="/" element={<Home />} />
+                    <Route path="/home" element={<Home />} />
+                    <Route path="/registro" element={<Registro />} />
+                    <Route path="/productos" element={<Productos />} />
+                    <Route path="/productos/buscar" element={<Productos />} />
+                    <Route path="/productos/:id" element={<Productos />} />
+                    <Route path="/servicios" element={<Servicios />} />
+                    <Route path="/servicios/:id" element={<ServicioDetail />} />
+
+                    <Route path="/perfil" element={<Perfil />} />
+
+                    <Route path="/unauthorized" element={<div>No tienes permiso para ver esta página.</div>} />
+                    <Route path="*" element={<Navigate to="/" replace />} />
+                </Routes>
+            </Layout>
         </Fragment>
     );
 }

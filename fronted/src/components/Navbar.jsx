@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import '../styles/Navbar.css';
-import { useCart } from '../utils/CartContext'; // Importar useCart
+import { useCart } from '../utils/CartContext';
+import { useAuth } from '../utils/AuthContext';
 
 // Íconos SVG
 const IconCart = () => (
@@ -24,8 +25,9 @@ const IconUser = () => (
   </svg>
 );
 
-const Navbar = ({ onLoginClick }) => { // Eliminar props del carrito
-  const { cartItems, removeFromCart, updateQuantity, clearCart } = useCart(); // Usar el contexto
+const Navbar = ({ onLoginClick }) => {
+  const { cartItems, removeFromCart, updateQuantity, clearCart } = useCart();
+  const { user } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
@@ -47,6 +49,14 @@ const Navbar = ({ onLoginClick }) => { // Eliminar props del carrito
     return location.pathname.startsWith(path);
   };
 
+  const handleUserClick = () => {
+    if (user) {
+      navigate('/perfil');
+    } else {
+      onLoginClick();
+    }
+  };
+
   const cartCount = cartItems.reduce((s, i) => s + i.quantity, 0);
   const cartTotal = cartItems.reduce((s, i) => s + i.quantity * i.precio, 0);
 
@@ -60,36 +70,57 @@ const Navbar = ({ onLoginClick }) => { // Eliminar props del carrito
 
         {/* Navegación */}
         <nav className="navbar-nav">
-          <Link 
-            to="/home" 
-            className={`navbar-nav-link ${isActive('/home') ? 'active' : ''}`}
-          >
-            Inicio
-          </Link>
-          <Link 
-            to="/productos" 
-            className={`navbar-nav-link ${isActive('/productos') ? 'active' : ''}`}
-          >
-            Productos
-          </Link>
-          <Link 
-            to="/repuestos" 
-            className={`navbar-nav-link ${isActive('/repuestos') ? 'active' : ''}`}
-          >
-            Repuestos
-          </Link>
-          <Link 
-            to="/accesorios" 
-            className={`navbar-nav-link ${isActive('/accesorios') ? 'active' : ''}`}
-          >
-            Accesorios
-          </Link>
-          <Link 
-            to="/servicios" 
-            className={`navbar-nav-link ${isActive('/servicios') ? 'active' : ''}`}
-          >
-            Servicios
-          </Link>
+          {/* Navegación de tienda solo para clientes o usuarios sin rol aún */}
+          {(!user || user.rol === 'cliente') && (
+            <>
+              <Link
+                to="/home"
+                className={`navbar-nav-link ${isActive('/home') ? 'active' : ''}`}
+              >
+                Inicio
+              </Link>
+              <Link
+                to="/productos"
+                className={`navbar-nav-link ${isActive('/productos') ? 'active' : ''}`}
+              >
+                Productos
+              </Link>
+              <Link
+                to="/servicios"
+                className={`navbar-nav-link ${isActive('/servicios') ? 'active' : ''}`}
+              >
+                Servicios
+              </Link>
+            </>
+          )}
+
+          {/* Navegación de vistas y dashboard solo para admin / empleado */}
+          {(user?.rol === 'admin' || user?.rol === 'empleado') && (
+            <>
+              <a
+                href="http://localhost:8080/productos"
+                className="navbar-nav-link"
+                target="_blank"
+                rel="noreferrer"
+              >
+                Vista Productos
+              </a>
+              <a
+                href="http://localhost:8080/ordenes"
+                className="navbar-nav-link"
+                target="_blank"
+                rel="noreferrer"
+              >
+                Vista Órdenes
+              </a>
+              <Link
+                to="/dashboard"
+                className={`navbar-nav-link ${isActive('/dashboard') ? 'active' : ''}`}
+              >
+                Dashboard
+              </Link>
+            </>
+          )}
         </nav>
 
         {/* Búsqueda */}
@@ -108,14 +139,17 @@ const Navbar = ({ onLoginClick }) => { // Eliminar props del carrito
 
         {/* Usuario y Carrito */}
         <div className="navbar-actions">
-          <button 
-            className="navbar-icon-btn" 
-            aria-label="Perfil de usuario"
-            onClick={onLoginClick}
-          >
-            <IconUser />
-          </button>
-          
+          {/* Contenedor del Perfil de Usuario */}
+          <div className="navbar-profile-container">
+            <button
+              className="navbar-icon-btn"
+              aria-label="Perfil de usuario"
+              onClick={handleUserClick}
+            >
+              <IconUser />
+            </button>
+          </div>
+
           <div className="navbar-cart-container">
             <button
               className="navbar-icon-btn cart-btn"

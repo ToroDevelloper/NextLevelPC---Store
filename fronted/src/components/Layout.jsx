@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import Navbar from './Navbar';
 import Footer from './Footer';
 import { useAuth } from '../utils/AuthContext';
-import { setAuthToken } from '../utils/authorizedFetch';
 import { Link } from 'react-router-dom';
+import { jwtDecode } from 'jwt-decode';
 
 const API_BASE = 'http://localhost:8080';
 
@@ -60,43 +60,45 @@ const Layout = ({ children }) => {
         }),
       });
 
-      const text = await res.text();
-      let data = {};
-      try { 
-        data = text ? JSON.parse(text) : {}; 
-      } catch (err) { 
-        console.warn('Respuesta no JSON:', text); 
-      }
+      const data = await res.json();
 
       if (!res.ok) {
-        setLoginError(data.mensaje || data.message || `Error ${res.status}`);
-        setLoginLoading(false);
-        return;
+        throw new Error(data.mensaje || 'Error en el inicio de sesión');
       }
 
-      const token = data.access_token || data.data?.token || data.token || data.accessToken;
+      const token = data.access_token;
 
       if (!token) {
-        setLoginError('No se recibió Access Token del servidor.');
-        setLoginLoading(false);
-        return;
+        throw new Error('No se recibió el token de autenticación del servidor.');
       }
 
-      setAuthToken(token);
-      login({
-        email: loginCorreo,
-        token: token
-      });
+      // Guardar usuario en contexto (decodificación principal)
+      login(token);
 
-      console.log('Login exitoso desde el modal.');
-      setLoginLoading(false);
+      // Decodificar localmente para decidir adónde llevar al usuario
+      let rol = null;
+      try {
+        const decoded = jwtDecode(token);
+        rol = decoded.rol;
+        console.log('Usuario logueado con rol:', rol);
+      } catch (err) {
+        console.warn('No se pudo decodificar el token en Layout:', err);
+      }
+
       setIsLoginModalOpen(false);
       setLoginCorreo('');
       setLoginPassword('');
 
+      // Si es admin o empleado, ir directamente a las vistas de backend
+      if (rol === 'admin' || rol === 'empleado') {
+        window.location.href = 'http://localhost:8080/ordenes';
+      }
+      // Si es cliente, se queda en la SPA (no redirigimos)
+
     } catch (err) {
       console.error('Error en login modal:', err);
-      setLoginError('No se pudo conectar con el servidor.');
+      setLoginError(err.message || 'No se pudo conectar con el servidor.');
+    } finally {
       setLoginLoading(false);
     }
   };
