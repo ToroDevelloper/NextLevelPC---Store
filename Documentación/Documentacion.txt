@@ -9,6 +9,14 @@ lo que queda faltando es:
 
 - Al logiarse como admin que haya una opcion de subir productos desde la interfaz para hacerlo de manera mas rapida.
 
+
+
+
+
+
+
+
+
 ### Funcionalidades Implementadas (Resumen)
 
 1.  **Detalle de Servicios:**
@@ -29,3 +37,20 @@ lo que queda faltando es:
     *   En la página de detalles del servicio, el botón "Contratar Servicio" abre un formulario modal.
     *   El formulario permite al cliente ingresar sus datos (nombre, email, teléfono, dirección), seleccionar una fecha y describir el problema.
     *   Se ha creado un nuevo endpoint en el backend (`POST /api/citas-servicios`) y una tabla `citas_servicios` en la base de datos para guardar estas solicitudes.
+
+- Roles y flujo de acceso:
+  - Se reforzó la idea de que el cliente (rol `cliente`) navega el SPA (Home, Servicios, Productos, Perfil simple) y puede agendar servicios desde ahí.
+  - Empleados y administradores (`empleado`, `admin`) están pensados para entrar directamente a las vistas EJS protegidas (dashboard y vistas de gestión), donde ven las solicitudes de servicio.
+  - Se ajustó y documentó el uso de middlewares de vistas (`viewAuth`, `roleMiddleware`) y el comportamiento esperado al iniciar sesión.
+
+- Perfil:
+  - Se dejó un perfil sencillo en el SPA (`Perfil.jsx`) que muestra información del usuario logueado.
+  - Se descartó mantener un perfil duplicado dentro de las vistas EJS para evitar confusión.
+
+- Base de datos (archivo `nextlevel.sql`):
+  - Se consolidó la estructura de la base de datos en `Documentación/nextlevel.sql`.
+  - Cambios clave utilizados hoy:
+    - Tabla `servicios` ahora incluye la columna `imagen_url` para mostrar imágenes de servicios.
+    - Creación de la tabla `citas_servicios` para guardar las solicitudes de servicio a domicilio.
+    - Creación de la tabla `refresh_tokens` para manejar tokens de refresco en el sistema de autenticación.
+
