@@ -180,24 +180,28 @@ const Productos = () => {
             {products.map(product => (
                 <div
                     key={product.id}
-                    className="product-card"
+                    className="home-product-card" // mismo estilo base que en Home
                     onClick={() => navigate(`/productos/${product.id}`)}
                     style={{ cursor: 'pointer' }}
                 >
-                    <img
-                        src={product.image || 'https://placehold.co/600x400/EEE/31343C?text=Producto'}
-                        alt={product.nombre || 'Producto'}
-                        className="product-image"
-                        onError={(e) => {
-                            e.target.onerror = null;
-                            e.target.src = 'https://placehold.co/600x400/EEE/31343C?text=Producto';
-                        }}
-                    />
+                    <div className="product-image-container">
+                        <img
+                            src={product.image || 'https://placehold.co/600x400/EEE/31343C?text=Producto'}
+                            alt={product.nombre || 'Producto'}
+                            className="home-product-image"
+                            onError={(e) => {
+                                e.target.onerror = null;
+                                e.target.src = 'https://placehold.co/600x400/EEE/31343C?text=Producto';
+                            }}
+                        />
+                    </div>
 
-                    <div className="product-content">
-                        <h3 className="product-name">{product.nombre}</h3>
+                    <div className="home-product-content">
+                        <h3>{product.nombre}</h3>
+                        <p className="product-stock">
+                            Stock: {product.stock} unidades
+                        </p>
                         <p className="product-price">${Number(product.price).toFixed(2)}</p>
-                        <p className="product-stock">Stock: {product.stock}</p>
                     </div>
                 </div>
             ))}
