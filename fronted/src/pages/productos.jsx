@@ -176,32 +176,53 @@ const Productos = () => {
     }, [location.pathname, location.search, productId, isSearchRoute, isProductsRoute, searchQuery]);
 
     const renderProductList = () => (
-        <div className="products-grid">
+        <div className="products-grid servicios-grid">
             {products.map(product => (
                 <div
                     key={product.id}
-                    className="home-product-card" // mismo estilo base que en Home
+                    className="servicio-card-link"
                     onClick={() => navigate(`/productos/${product.id}`)}
-                    style={{ cursor: 'pointer' }}
                 >
-                    <div className="product-image-container">
+                    <div className="servicio-card">
                         <img
                             src={product.image || 'https://placehold.co/600x400/EEE/31343C?text=Producto'}
                             alt={product.nombre || 'Producto'}
-                            className="home-product-image"
+                            className="servicio-card-image"
                             onError={(e) => {
                                 e.target.onerror = null;
                                 e.target.src = 'https://placehold.co/600x400/EEE/31343C?text=Producto';
                             }}
                         />
-                    </div>
-
-                    <div className="home-product-content">
-                        <h3>{product.nombre}</h3>
-                        <p className="product-stock">
-                            Stock: {product.stock} unidades
-                        </p>
-                        <p className="product-price">${Number(product.price).toFixed(2)}</p>
+                        <div className="servicio-info">
+                            <h3>{product.nombre}</h3>
+                            <p className="servicio-descripcion">
+                                {product.raw?.descripcion_corta || product.raw?.descripcion || 'Producto disponible en NextLevelPC.'}
+                            </p>
+                            <p className="servicio-precio">
+                                ${Number(product.price).toFixed(2)}
+                            </p>
+                            <button
+                                className="servicio-add-btn"
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    addToCart({
+                                        id: product.id,
+                                        nombre: product.nombre,
+                                        price: product.price,
+                                        stock: product.stock,
+                                        image: product.image,
+                                        type: 'producto',
+                                        quantity: 1,
+                                    });
+                                }}
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 3h2l.4 2M7 13h10l3-8H6.4M7 13L5.1 6M7 13l-2 7h13" />
+                                </svg>
+                                Añadir al carrito
+                            </button>
+                        </div>
                     </div>
                 </div>
             ))}
