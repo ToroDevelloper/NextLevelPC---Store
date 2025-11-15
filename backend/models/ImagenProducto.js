@@ -30,6 +30,11 @@ class ImagenProducto {
         const result = await executeQuery('DELETE FROM imagenes_productos WHERE id = ?', [id]);
         return result.affectedRows > 0;
     }
+    
+    static async obtenerPorId(id){
+     const result = await executeQuery('SELECT * FROM imagenes_productos WHERE id = ?', [id]);
+            return result.length > 0 ? result[0] : null;
+    }
 
     static async establecerPrincipal(producto_id, imagen_id) {
         // Quitar principal de todas

@@ -20,7 +20,8 @@ const citasServiciosRoutes = require('./routes/citasServicios'); // Importar nue
 
 // Importar rutas de VISTAS
 const productosViews = require('./routesViews/productosViews');
-const ordenesViews = require('./routesViews/ordenesViews'); 
+const ordenesViews = require('./routesViews/ordenesViews');
+const citasServiciosViews = require('./routesViews/citaServicioViews');
 
 // Importar conexión a DB
 const { testConnection } = require('./config/db');
@@ -58,7 +59,8 @@ app.use('/uploads', express.static('uploads'));
 
 // Rutas de VISTAS
 app.use('/productos', productosViews);
-app.use('/', ordenesViews); 
+app.use('/ordenes', ordenesViews);
+app.use('/citas-servicios',citasServiciosViews);
 
 // Rutas API
 app.use('/api/categorias', categoriasRoutes);

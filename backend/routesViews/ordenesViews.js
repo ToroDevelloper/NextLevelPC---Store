@@ -1,28 +1,117 @@
 const express = require('express');
 const router = express.Router();
-const OrdenController = require('../controllers/OrdenesController.js');
-const CitaServicioService = require('../services/CitaServicioService');
+const ordenesService = require('../services/OrdenesService.js');
+const UsuariosService = require('../services/UsuariosService.js');
+const ordenItemsService = require('../services/OrdenItemsService.js');
+const ProductosService = require('../services/ProductosService.js');
 
 //RUTAS PARA VISTAS DE ÓRDENES (HTML)
-router.get('/ordenes', OrdenController.mostrarListaVista);
-router.get('/ordenes/create', OrdenController.mostrarCrearVista);
-router.get('/ordenes/:id', OrdenController.mostrarDetalleVista);
-router.get('/ordenes/edit/:id', OrdenController.mostrarEditarVista);
-
-// DASHBOARD DE SERVICIOS (CITAS)
-router.get('/dashboard-servicios', async (req, res) => {
-  try {
-    const citas = await CitaServicioService.getAllCitas();
-    res.render('dashboard/citas', { citas: Array.isArray(citas) ? citas : [] });
-  } catch (error) {
-    console.error('Error cargando dashboard de servicios:', error.message);
-    res.status(500).send('<h1>Error cargando dashboard de servicios</h1>');
-  }
-});
+router.get('/', async (req, res) =>{
+        try {
+            const ordenes = await ordenesService.obtenerTodos();
+            res.render('ordenes/list', { 
+                ordenes: ordenes,
+                message: req.query.message,
+                error: req.query.error
+            });
+        } catch (error) {
+            res.render('ordenes/list', { 
+                ordenes: [],
+                error: error.message 
+            });
+        }
+    });
+router.get('/create', async (req, res) =>{
+        try {
+            // Obtener clientes para el dropdown
+            const clientes = await UsuariosService.obtenerTodos(); // Ajusta según tu servicio
+            res.render('ordenes/create', { 
+                clientes: clientes,
+                error: req.query.error
+            });
+        } catch (error) {
+            res.render('ordenes/create', { 
+                clientes: [],
+                error: error.message 
+            });
+        }
+    });
+router.get('/:id', async(req, res)=> {
+        try {
+            const ordenId = req.params.id;
+            const orden = await ordenesService.obtenerPorId(ordenId);
+            const items = await ordenItemsService.obtenerPorOrden(ordenId);
+            const productos = await ProductosService.obtenerTodos(); // Para dropdown
+            
+            res.render('ordenes/detail', { 
+                orden: orden,
+                items: items,
+                productos: productos,
+                message: req.query.message,
+                error: req.query.error
+            });
+        } catch (error) {
+            res.redirect('/ordenes?error=' + encodeURIComponent(error.message));
+        }
+    }
+);
+router.get('/edit/:id', async (req, res) => {
+        try {
+            const ordenId = req.params.id;
+            const orden = await ordenesService.obtenerPorId(ordenId);
+            const clientes = await UsuariosService.obtenerTodos(); // Ajusta según tu servicio
+            
+            res.render('ordenes/edit', { 
+                orden: orden,
+                clientes: clientes,
+                error: req.query.error
+            });
+        } catch (error) {
+            res.redirect('/ordenes?error=' + encodeURIComponent(error.message));
+        }
+    });
 
 
 //RUTAS PARA FORMULARIOS HTML
-router.post('/ordenes/crear', OrdenController.crearDesdeFormulario);
-router.post('/ordenes/update/:id', OrdenController.actualizarDesdeFormulario);
+router.post('/crear', async(req, res)=> {
+        try {
+            const ordenDTO = new OrdenCreateDTO(req.body);
+            const errors = ordenDTO.validate();
+            
+            if (errors.length > 0) {
+                return res.redirect('/ordenes/create?error=' + encodeURIComponent(errors.join(', ')));
+            }
+
+            const insertId = await ordenesService.crear(ordenDTO);
+            
+            // Redirigir a la vista de detalle de la nueva orden
+            res.redirect('/ordenes/' + insertId + '?message=Orden creada exitosamente');
+            
+        } catch (error) {
+            res.redirect('/ordenes/create?error=' + encodeURIComponent(error.message));
+        }
+    });
+router.post('/update/:id',async (req, res) =>{
+        try {
+            const id = req.params.id;
+            const ordenDTO = new OrdenUpdateDTO(req.body);
+            const errors = ordenDTO.validate();
+            
+            if (errors.length > 0) {
+                return res.redirect('/ordenes/edit/' + id + '?error=' + encodeURIComponent(errors.join(', ')));
+            }
+
+            const actualizado = await ordenesService.actualizar(id, ordenDTO);
+
+            if (!actualizado) {
+                return res.redirect('/ordenes/edit/' + id + '?error=Orden no encontrada');
+            }
+
+            res.redirect('/ordenes/' + id + '?message=Orden actualizada exitosamente');
+            
+        } catch (error) {
+            res.redirect('/ordenes/edit/' + id + '?error=' + encodeURIComponent(error.message));
+        }
+    });
 
 module.exports = router;

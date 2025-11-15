@@ -13,20 +13,14 @@ class OrdenItemsService {
             console.log('Item creado con ID:', insertId);
             
             // Obtener el item completo con created_at
-            const result = await executeQuery(`
-                SELECT oi.*,
-                       p.nombre as producto_nombre
-                FROM orden_items oi 
-                LEFT JOIN productos p ON oi.producto_id = p.id 
-                WHERE oi.id = ?
-            `, [insertId]);
-            
-            if (result.length === 0) {
+            const result = await OrdenItems.obtenerPorId(insertId);
+
+            if (!result) {
                 throw new Error('No se pudo obtener el item recién creado');
             }
             
-            console.log('Item obtenido:', result[0]);
-            return result[0];
+            console.log('Item obtenido:', result);
+            return result;
             
         } catch (error) {
             console.error('Error en servicio:', error);
@@ -109,19 +103,13 @@ class OrdenItemsService {
                 throw new Error('ID de item es requerido');
             }
 
-            const result = await executeQuery(`
-                SELECT oi.*,
-                       p.nombre as producto_nombre
-                FROM orden_items oi 
-                LEFT JOIN productos p ON oi.producto_id = p.id 
-                WHERE oi.id = ?
-            `, [id]);
+            const result = await OrdenItems.obtenerPorId(id);
             
-            if (result.length === 0) {
+            if (!result) {
                 throw new Error('Item no encontrado');
             }
 
-            return result[0];
+            return result;
         } catch (error) {
             throw new Error('Error al obtener item por ID: ' + error.message);
         }

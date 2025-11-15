@@ -130,7 +130,7 @@ class UsuariosController {
         try {
             const { id } = req.params;
 
-            if(req.usuario.rol_id !== 1 && req.usuario.id !== parseInt(id)){
+            if(!['admin','empleado'].includes(req.usuario.rol) && req.usuario.id !== parseInt(id)){
                 return res.status(401).json({message:'Solo puedes ver tu usuario'})
             }
 

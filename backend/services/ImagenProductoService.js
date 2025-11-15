@@ -79,11 +79,8 @@ class ImagenProductoService {
             if (!id) {
                 throw new Error('ID de imagen es requerido');
             }
+            return await ImagenProducto.obtenerPorId(id);
 
-            // Método temporal para evitar errores - similar a tu patrón en OrdenItemsService
-            const { executeQuery } = require('../config/db');
-            const result = await executeQuery('SELECT * FROM imagenes_productos WHERE id = ?', [id]);
-            return result.length > 0 ? result[0] : null;
         } catch (error) {
             throw new Error('Error al obtener imagen por ID: ' + error.message);
         }
