@@ -139,10 +139,6 @@
   position: relative;
 }
 
-.cart-btn {
-  position: relative;
-}
-
 .navbar-cart-badge {
   position: absolute;
   top: -6px;
@@ -174,6 +170,7 @@
   color: #1f2937;
   font-size: 1.2rem;
 }
+
 
 .navbar-cart-list {
   list-style: none;

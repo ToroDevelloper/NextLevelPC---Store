@@ -106,7 +106,7 @@ class UsuariosService {
         const payload = { 
             id: usuario.id, 
             correo: usuario.correo, 
-            rol_id: usuario.rol_id 
+            rol: usuario.rol_nombre // Incluir el nombre del rol
         };
         
         const accessToken = jwt.sign(payload, 
@@ -152,8 +152,8 @@ class UsuariosService {
             const newAccessToken = jwt.sign({ 
                 id: payload.id, 
                 correo: payload.correo, 
-                rol_id: payload.rol_id 
-            }, process.env.JWT_ACCESS_SECRET || 'fallback_access_key', { 
+                rol: payload.rol
+            }, process.env.JWT_ACCESS_SECRET || 'fallback_access_key', {
                 expiresIn: '15m' 
             });
 

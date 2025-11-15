@@ -10,7 +10,18 @@ class CitaServicioService {
 
         return await CitaServicio.create(citaData);
     }
+
+    async getAllCitas() {
+        return await CitaServicio.findAll();
+    }
+
+    async updateCitaStatus(id, estado) {
+        const estadosValidos = ['pendiente', 'confirmada', 'cancelada', 'completada'];
+        if (!estadosValidos.includes(estado)) {
+            throw new Error('Estado no válido.');
+        }
+        return await CitaServicio.updateStatus(id, estado);
+    }
 }
 
 module.exports = new CitaServicioService();
-

@@ -32,7 +32,28 @@ class CitaServicio {
         const result = await executeQuery(query, params);
         return { id: result.insertId, ...citaData };
     }
+
+    static async findAll() {
+        const query = `
+            SELECT cs.*, s.nombre as servicio_nombre 
+            FROM citas_servicios cs
+            JOIN servicios s ON cs.servicio_id = s.id
+            ORDER BY cs.created_at DESC
+        `;
+        return await executeQuery(query);
+    }
+
+    static async findById(id) {
+        const query = `SELECT * FROM citas_servicios WHERE id = ?`;
+        const result = await executeQuery(query, [id]);
+        return result.length > 0 ? result[0] : null;
+    }
+
+    static async updateStatus(id, estado) {
+        const query = `UPDATE citas_servicios SET estado = ? WHERE id = ?`;
+        await executeQuery(query, [estado, id]);
+        return this.findById(id);
+    }
 }
 
 module.exports = CitaServicio;
-

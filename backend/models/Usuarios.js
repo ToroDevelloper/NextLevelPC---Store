@@ -26,7 +26,13 @@ class Usuarios {
     }
 
     static async obtenerPorCorreo(correo) {
-        const result = await executeQuery('SELECT * FROM usuarios WHERE correo = ?', [correo]);
+        const query = `
+            SELECT u.*, r.nombre as rol_nombre 
+            FROM usuarios u 
+            LEFT JOIN roles r ON u.rol_id = r.id 
+            WHERE u.correo = ?
+        `;
+        const result = await executeQuery(query, [correo]);
         return result.length > 0 ? result[0] : null;
     }
 
