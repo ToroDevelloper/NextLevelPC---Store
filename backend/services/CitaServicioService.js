@@ -1,7 +1,7 @@
 const CitaServicio = require('../models/CitaServicio');
 
 class CitaServicioService {
-    async createCita(citaData) {
+   static async createCita(citaData) {
         // Aquí se podrían añadir validaciones de negocio
         if (!citaData.email) {
             throw new Error('El correo electrónico es obligatorio.');
@@ -11,11 +11,11 @@ class CitaServicioService {
         return await CitaServicio.create(citaData);
     }
 
-    async getAllCitas() {
+   static async getAllCitas() {
         return await CitaServicio.findAll();
     }
 
-    async updateCitaStatus(id, estado) {
+   static async updateCitaStatus(id, estado) {
         const estadosValidos = ['pendiente', 'confirmada', 'cancelada', 'completada'];
         if (!estadosValidos.includes(estado)) {
             throw new Error('Estado no válido.');
@@ -24,4 +24,4 @@ class CitaServicioService {
     }
 }
 
-module.exports = new CitaServicioService();
+module.exports = CitaServicioService;

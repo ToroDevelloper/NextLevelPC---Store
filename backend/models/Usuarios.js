@@ -4,12 +4,12 @@ const { executeQuery } = require('../config/db.js');
 class Usuarios {
 
     static async crear(dto) {
-        const { nombre, apellido, correo, hash_password} = dto;
+        const { nombre, apellido, correo, hash_password, rol_id} = dto;
         const hashPassword = await bcrypt.hash(hash_password, 10);
 
         const result = await executeQuery(
-            'INSERT INTO usuarios (nombre, apellido, correo, hash_password) VALUES (?, ?, ?, ?)',
-            [nombre, apellido, correo, hashPassword]
+            'INSERT INTO usuarios (nombre, apellido, correo, hash_password, rol_id) VALUES (?, ?, ?, ?, ?)',
+            [nombre, apellido, correo, hashPassword,rol_id]
         );
 
         return result.insertId;

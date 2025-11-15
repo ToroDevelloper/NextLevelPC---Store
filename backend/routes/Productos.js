@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const ProductosController = require('../controllers/ProductosController.js');
-const { verificarRol } = require('../middlewares/authMiddleware.js'); // Importar el nuevo middleware
+const viewAuth = require('../middlewares/viewAuth.js');
 
 
 // Rutas públicas
@@ -14,8 +14,8 @@ router.get('/categoria/:categoria_id', ProductosController.obtenerProductosPorCa
 router.get('/:id', ProductosController.obtenerProductoPorId);
 
 // Rutas protegidas
-router.post('/', verificarRol(['admin', 'empleado']), ProductosController.crearProducto);
-router.patch('/:id', verificarRol(['admin', 'empleado']), ProductosController.actualizarProducto);
-router.delete('/:id', verificarRol(['admin']), ProductosController.eliminarProducto);
+router.post('/', viewAuth(['admin', 'empleado']), ProductosController.crearProducto);
+router.patch('/:id', viewAuth(['admin', 'empleado']), ProductosController.actualizarProducto);
+router.delete('/:id', viewAuth(['admin']), ProductosController.eliminarProducto);
 
 module.exports = router;

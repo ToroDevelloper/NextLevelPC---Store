@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken');
 // Middleware para proteger vistas EJS según rol
 // Usa el token de acceso enviado en la cookie "accessToken" o en el header Authorization
 
-module.exports = function viewAuth(rolesPermitidos = []) {
+function viewAuth(rolesPermitidos = []) {
   return (req, res, next) => {
     try {
       const authHeader = req.headers['authorization'];
@@ -32,3 +32,5 @@ module.exports = function viewAuth(rolesPermitidos = []) {
     }
   };
 }
+
+module.exports = viewAuth;

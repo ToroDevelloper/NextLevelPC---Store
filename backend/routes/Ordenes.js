@@ -1,14 +1,14 @@
 const express = require('express');
 const OrdenesController = require('../controllers/OrdenesController.js');
-const { verificarRol } = require('../middlewares/authMiddleware.js');
+const viewAuth = require('../middlewares/viewAuth.js');
 
 const router = express.Router();
 
-router.get('/', verificarRol(['admin', 'empleado']), OrdenesController.obtenerTodos);
-router.post('/', verificarRol(['admin', 'empleado', 'cliente']), OrdenesController.crear);
-router.delete('/:id', verificarRol(['admin']), OrdenesController.eliminar);
-router.patch('/:id', verificarRol(['admin', 'empleado']), OrdenesController.actualizar);
-router.get('/:id', verificarRol(['admin', 'empleado', 'cliente']), OrdenesController.obtenerPorId);
-router.get('/cliente/:clienteId', verificarRol(['admin', 'empleado', 'cliente']), OrdenesController.obtenerPorCliente);
+router.get('/', viewAuth(['admin', 'empleado']), OrdenesController.obtenerTodos);
+router.post('/', viewAuth(['admin', 'empleado', 'cliente']), OrdenesController.crear);
+router.delete('/:id', viewAuth(['admin']), OrdenesController.eliminar);
+router.patch('/:id', viewAuth(['admin', 'empleado']), OrdenesController.actualizar);
+router.get('/:id', viewAuth(['admin', 'empleado', 'cliente']), OrdenesController.obtenerPorId);
+router.get('/cliente/:clienteId', viewAuth(['admin', 'empleado', 'cliente']), OrdenesController.obtenerPorCliente);
 
 module.exports = router;

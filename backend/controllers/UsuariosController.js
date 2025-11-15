@@ -152,6 +152,11 @@ class UsuariosController {
     static async actualizar(req, res) {
         try {
             const { id } = req.params;
+
+            if(!['admin','empleado'].includes(req.usuario.rol) && req.usuario.id !== parseInt(id)){
+                return res.status(401).json({message:'Solo puedes modificar tu usuario'})
+            }
+
             const datosActualizados = req.body;
             await UsuariosService.actualizar(id, datosActualizados);
             const usuario = await Usuarios.obtenerPorId(id);

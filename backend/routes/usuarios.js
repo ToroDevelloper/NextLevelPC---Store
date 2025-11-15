@@ -1,6 +1,7 @@
 const express = require('express');
 const UsuariosController = require('../controllers/UsuariosController.js');
-const { verificarRol } = require('../middlewares/authMiddleware.js');
+const viewAuth = require('../middlewares/viewAuth.js');
+const verificarToken = require('../middlewares/authMiddleware.js')
 
 const router = express.Router();
 
@@ -10,11 +11,11 @@ router.post('/registro', UsuariosController.crear);
 router.post('/login', UsuariosController.login);
 router.post('/refresh', UsuariosController.refresh);
 router.post('/logout', UsuariosController.logout);
+router.patch('/:id',verificarToken,UsuariosController.actualizar);
 
 // Rutas protegidas
-router.get('/', verificarRol(['admin']), UsuariosController.obtenerTodos);
-router.delete('/:id', verificarRol(['admin']), UsuariosController.eliminar);
-router.patch('/:id', verificarRol(['admin', 'empleado']), UsuariosController.actualizar);
-router.get('/:id', verificarRol(['admin', 'empleado']), UsuariosController.obtenerPorId);
+router.get('/', viewAuth(['admin']), UsuariosController.obtenerTodos);
+router.delete('/:id', viewAuth(['admin']), UsuariosController.eliminar);
+router.get('/:id', viewAuth(['admin', 'empleado']), UsuariosController.obtenerPorId);
 
 module.exports = router;

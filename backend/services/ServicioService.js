@@ -3,7 +3,7 @@ const Servicio = require('../models/Servicio');
 
 class ServicioService {
 
-    async getAllServicios() {
+   static async getAllServicios() {
         try {
             return await Servicio.findAll();
         } catch (error) {
@@ -12,7 +12,7 @@ class ServicioService {
     }
 
 
-    async getServiciosByTipo(tipo) {
+   static async getServiciosByTipo(tipo) {
         try {
 
             if (!['basico', 'avanzado'].includes(tipo)) {
@@ -25,7 +25,7 @@ class ServicioService {
     }
 
 
-    async getServicioById(id) {
+   static async getServicioById(id) {
         try {
             const servicio = await Servicio.findById(id);
             if (!servicio) {
@@ -63,7 +63,7 @@ class ServicioService {
     }
 
 
-    async updateServicio(id, servicioData) {
+   static async updateServicio(id, servicioData) {
         try {
 
             const servicioExistente = await Servicio.findById(id);
@@ -94,7 +94,7 @@ class ServicioService {
     }
 
 
-    async deleteServicio(id) {
+   static async deleteServicio(id) {
         try {
             const servicio = await Servicio.findById(id);
             if (!servicio) {
@@ -113,4 +113,4 @@ class ServicioService {
     }
 }
 
-module.exports = new ServicioService();
+module.exports = ServicioService;

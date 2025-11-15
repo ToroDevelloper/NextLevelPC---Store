@@ -1,7 +1,7 @@
 const citaServicioService = require('../services/CitaServicioService');
 
 class CitaServicioController {
-    async create(req, res) {
+    static async create(req, res) {
         try {
             const cita = await citaServicioService.createCita(req.body);
             res.status(201).json({
@@ -18,7 +18,7 @@ class CitaServicioController {
         }
     }
 
-    async getAll(req, res) {
+   static async getAll(req, res) {
         try {
             const citas = await citaServicioService.getAllCitas();
             res.status(200).json({
@@ -34,7 +34,7 @@ class CitaServicioController {
         }
     }
 
-    async updateStatus(req, res) {
+   static async updateStatus(req, res) {
         try {
             const { id } = req.params;
             const { estado } = req.body;
@@ -54,4 +54,4 @@ class CitaServicioController {
     }
 }
 
-module.exports = new CitaServicioController();
+module.exports = CitaServicioController;

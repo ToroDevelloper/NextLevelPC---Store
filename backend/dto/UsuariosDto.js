@@ -4,7 +4,7 @@ class UsuarioCreateDTO {
         this.apellido = typeof payload.apellido === 'string' ? payload.apellido.trim() : payload.apellido;
         this.correo = typeof payload.correo === 'string' ? payload.correo.trim() : payload.correo;
         this.hash_password = typeof payload.hash_password === 'string' ? payload.hash_password.trim() : payload.hash_password;
-        this.rol_id = payload.rol_id;
+        this.rol_id = typeof payload.rol_id === 'number' ? payload.rol_id : 2;
     }
 
     validate() {
@@ -35,7 +35,7 @@ class UsuarioUpdateDTO {
         this.apellido = payload.apellido === undefined ? undefined : (typeof payload.apellido === 'string' ? payload.apellido.trim() : payload.apellido);
         this.correo = payload.correo === undefined ? undefined : (typeof payload.correo === 'string' ? payload.correo.trim() : payload.correo);
         this.hash_password = payload.hash_password === undefined ? undefined : (typeof payload.hash_password === 'string' ? payload.hash_password.trim() : payload.hash_password);
-        this.rol_id = payload.rol_id;
+        this.rol_id = payload.rol_id === undefined ? undefined : (typeof payload.rol_id === 'number' ? payload.rol_id : undefined);
     }
 
     validate() {
