@@ -56,6 +56,7 @@
 <script>
     async function backendLogout() {
         try {
+            // Llamar al logout del backend para cerrar la sesión del panel (cookies/token servidor)
             await fetch('http://localhost:8080/api/usuarios/logout', {
                 method: 'POST',
                 credentials: 'include',
@@ -66,12 +67,16 @@
         } catch (e) {
             console.error('Error al cerrar sesión desde vistas:', e);
         } finally {
+            // Intentar limpiar también el token del SPA, por si comparten origen
             try {
                 localStorage.removeItem('accessToken');
             } catch (err) {
                 console.warn('No se pudo limpiar accessToken de localStorage:', err);
             }
-            window.location.href = 'http://localhost:5173/';
+
+            // Redirigir directamente al home público del SPA (sin login)
+            // IMPORTANTE: usa exactamente el mismo origen/puerto con el que abres el frontend
+            window.location.href = 'http://localhost:5173/home';
         }
     }
 </script>

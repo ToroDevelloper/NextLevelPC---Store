@@ -98,7 +98,7 @@ const Navbar = ({ onLoginClick }) => {
             </>
           )}
 
-          {/* Navegación de vistas y dashboard solo para admin / empleado */}
+          {/* Navegación de vistas sólo para admin / empleado */}
           {(user?.rol === 'admin' || user?.rol === 'empleado') && (
             <>
               <a
@@ -117,12 +117,7 @@ const Navbar = ({ onLoginClick }) => {
               >
                 Vista Órdenes
               </a>
-              <Link
-                to="/dashboard"
-                className={`navbar-nav-link ${isActive('/dashboard') ? 'active' : ''}`}
-              >
-                Dashboard
-              </Link>
+              {/* Eliminado el enlace al Dashboard SPA para evitar una SPA separada de admin/empleado */}
             </>
           )}
         </nav>

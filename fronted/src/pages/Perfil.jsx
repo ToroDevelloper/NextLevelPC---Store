@@ -14,6 +14,10 @@ const Perfil = () => {
     );
   }
 
+  const handleLogoutClick = () => {
+    logout(true); // cerrar sesión y redirigir al home sin login
+  };
+
   return (
     <div className="perfil-page">
       <div className="perfil-card">
@@ -30,7 +34,7 @@ const Perfil = () => {
           <span className="perfil-label">Rol:</span>
           <span>{user.rol}</span>
         </div>
-        <button className="perfil-logout-btn" onClick={logout}>
+        <button className="perfil-logout-btn" onClick={handleLogoutClick}>
           Cerrar sesión
         </button>
       </div>
@@ -39,4 +43,3 @@ const Perfil = () => {
 };
 
 export default Perfil;
-
