@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import '../styles/Home.css';
+import { useCart } from '../utils/CartContext';
 
 const API_BASE = 'http://localhost:8080';
 
@@ -18,6 +19,7 @@ const Home = () => {
     const [visibleItems, setVisibleItems] = useState(3);
     const totalItems = productosDestacados.length;
     const navigate = useNavigate();
+    const { addToCart } = useCart();
 
     useEffect(() => {
         const calculateMetrics = () => {
@@ -124,6 +126,19 @@ const Home = () => {
         return new Intl.NumberFormat('es-ES').format(number);
     };
 
+    const handleAddToCart = (e, product) => {
+        e.stopPropagation();
+        addToCart({
+            id: product.id,
+            nombre: product.nombre,
+            price: Number(product.precio_actual),
+            stock: product.stock,
+            image: product.imagen_principal,
+            type: 'producto',
+            quantity: 1,
+        });
+    };
+
     return (
         <div className="home-page">
             {/* Banner "Lo mas vendido" */}
@@ -188,6 +203,16 @@ const Home = () => {
                                     <p className="product-price">
                                         ${formatPrice(product.precio_actual)}
                                     </p>
+                                    <button
+                                        className="servicio-add-btn"
+                                        type="button"
+                                        onClick={(e) => handleAddToCart(e, product)}
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 3h2l.4 2M7 13h10l3-8H6.4M7 13L5.1 6M7 13l-2 7h13" />
+                                        </svg>
+                                        Añadir al carrito
+                                    </button>
                                 </div>
                             </div>
                         ))}
