@@ -118,15 +118,92 @@
     box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
 }
 
-/* Grid de servicios - MANTENIENDO ESTILO ORIGINAL PERO MEJORADO */
-.servicios-content {
-    max-width: 1200px;
-    margin: 0 auto;
+/* Grid y card para el listado de servicios */
+.servicios-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2rem;
 }
 
-/* NOTE: estilos de .servicios-grid, .servicio-card y .servicio-add-btn
-   se han centralizado en `Productos.css` para compartirlos con
-   las product cards de productos y productos destacados. */
+.servicio-card-link {
+    text-decoration: none;
+    color: inherit;
+}
+
+.servicio-card {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    overflow: hidden;
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.servicio-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+}
+
+.servicio-card-image {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+}
+
+.servicio-info {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.servicio-info h3 {
+    font-size: 1.25rem;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.servicio-descripcion {
+    font-size: 0.9rem;
+    color: #6b7280;
+    margin-bottom: 1rem;
+    flex-grow: 1;
+}
+
+.servicio-precio {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #1f2937;
+    margin-bottom: 1rem;
+}
+
+/* Botón específico para contratar servicio */
+.servicio-contratar-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    background-color: #3b82f6;
+    color: #fff;
+    border: none;
+    padding: 0.75rem 1.25rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 500;
+    transition: background-color 0.2s, transform 0.1s;
+    margin-top: auto;
+}
+
+.servicio-contratar-btn:hover {
+    background-color: #2563eb;
+}
+
+.servicio-contratar-btn:active {
+    transform: scale(0.97);
+}
 
 /* Estados de carga y error */
 .loading-message,
