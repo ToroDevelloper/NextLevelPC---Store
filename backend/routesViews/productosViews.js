@@ -17,24 +17,25 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
-// Lista de productos - vista HTML
-router.get('/', async (req, res) => {
+router.get('/', async (req, res) => { 
     try {
-        console.log("Accediendo a lista de productos");
+        const busqueda = (req.query.busqueda || '').toString().trim();
         
-        const productos = await ProductosService.obtenerProductosConImagenes();
-        console.log("Productos encontrados:", productos ? productos.length : 0);
+        const categoria_seleccionada = parseInt(req.query.categoria_id) || 0; 
+        
+        const categorias = await CategoriaService.getCategoriasProductos();
+        
+        const productos = await ProductosService.obtenerProductosConImagenes(busqueda, categoria_seleccionada);
         
         res.render('productos/index', { 
-            productos: Array.isArray(productos) ? productos : [] 
+            productos: Array.isArray(productos) ? productos : [],
+            categorias: Array.isArray(categorias) ? categorias : [],
+            busqueda: busqueda,
+            categoria_seleccionada: categoria_seleccionada 
         });
     } catch (error) {
-        console.error("Error cargando productos:", error.message);
-        res.status(500).send(`
-            <h1>Error cargando productos</h1>
-            <p><strong>Error:</strong> ${error.message}</p>
-            <a href="/" class="btn btn-primary">Volver al inicio</a>
-        `);
+        console.error("Error cargando productos:", error);
+        res.status(500).send("Ocurrió un error al cargar la gestión de productos.");
     }
 });
 

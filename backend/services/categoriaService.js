@@ -112,6 +112,19 @@ class CategoriaService {
             throw new Error('Error al eliminar categoría: ' + error.message);
         }
     }
+
+    static async getForName(){
+       try{ 
+        const categorias = await Categoria.getForName();
+        if(!categorias || categorias.length===0){
+            throw new Error('No hay categorias aún')
+        }
+        return categorias;
+    }catch(error){
+       throw new Error('Error al obtener categorias: ',error.message)
+    }
+    }
+
 }
 
 module.exports = CategoriaService;

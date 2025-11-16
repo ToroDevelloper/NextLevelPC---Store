@@ -108,6 +108,46 @@ static async buscarPorNombre(query) {
         LIMIT ?
     `, [limite]);
     }
+
+static async obtenerProductosFiltrados(busqueda, categoriaId) {
+    let query = `
+        SELECT 
+            p.id, 
+            p.nombre, 
+            p.precio_actual, 
+            p.stock,
+            p.activo, 
+            c.nombre AS categoria_nombre,
+            ip.url AS imagen_principal
+        FROM 
+            productos p
+        JOIN 
+            categorias c ON p.categoria_id = c.id
+        LEFT JOIN 
+            imagenes_productos ip ON p.id = ip.producto_id AND ip.es_principal = 1
+        WHERE 
+            1=1 
+    `;
+    
+    const params = [];
+
+    // 1. PRIMER PLACEHOLDER (?) -> BÚSQUEDA
+    if (busqueda && busqueda.trim() !== '') {
+        query += ` AND p.nombre LIKE ?`;
+        params.push(`%${busqueda}%`); 
+    }
+
+    // 2. SEGUNDO PLACEHOLDER (?) -> CATEGORÍA
+    if (categoriaId && categoriaId > 0) {
+        query += ` AND p.categoria_id = ?`;
+        params.push(categoriaId); 
+    }
+    
+    query += ` ORDER BY p.nombre`;
+
+    return await executeQuery(query, params);
+}
+
 }
 
 module.exports = Productos;

@@ -146,7 +146,8 @@ class ProductosController {
 
     static async obtenerProductosConImagenes(req, res) {
         try {
-            const productos = await ProductosService.obtenerProductosConImagenes();
+            const{busqueda,categoria_id}=req.body;
+            const productos = await ProductosService.obtenerProductosConImagenes(busqueda,categoria_id);
             res.status(200).json({
                 success: true,
                 data: productos

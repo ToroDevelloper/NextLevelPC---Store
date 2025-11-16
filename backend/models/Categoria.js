@@ -1,4 +1,4 @@
-const { db } = require('../config/db');
+const { db, executeQuery } = require('../config/db');
 
 class Categoria {
     static async findAll() {
@@ -114,6 +114,16 @@ class Categoria {
         } catch (error) {
             console.error('Error en Categoria.exists:', error.message);
             return false;
+        }
+    }
+
+    static async getForName(){
+        try {
+            let query = 'SELECT id, nombre FROM categorias ORDER BY nombre'
+            const result = executeQuery(query);
+            return result;
+        } catch (error) {
+            console.error('Error al obtener categorias: ',{message: error.message})
         }
     }
 }

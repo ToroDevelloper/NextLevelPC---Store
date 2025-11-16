@@ -122,15 +122,6 @@ class ProductosService {
         }
     }
 
-    static async obtenerProductosConImagenes() {
-        try {
-            return await Productos.obtenerTodosConImagenes();
-        } catch (error) {
-            throw new Error(`Error al obtener productos con imágenes: ${error.message}`);
-        }
-    }
-
-
     static async obtenerProductosDestacados(limite = 6) {
         try {
             return await Productos.obtenerDestacados(limite);
@@ -138,6 +129,17 @@ class ProductosService {
             throw new Error(`Error al obtener productos destacados: ${error.message}`);
         }
     }
+
+static async obtenerProductosConImagenes(busqueda, categoria_id){
+    try {
+        const catId = parseInt(categoria_id) || 0; 
+
+        return await Productos.obtenerProductosFiltrados(busqueda, catId);
+    } catch (error) {
+        throw new Error(`Error al obtener productos con filtros: ${error.message}`);
+    }
+}
+
 }
 
 module.exports = ProductosService;
