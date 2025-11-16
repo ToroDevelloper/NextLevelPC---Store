@@ -214,3 +214,15 @@ ALTER TABLE `productos`
 - Resultado:
   - El detalle de producto muestra ahora la imagen principal real almacenada en `imagenes_productos` (cuando existe) y solo usa la imagen por defecto cuando no hay ninguna asociada.
   - El carrito muestra correctamente la miniatura de cada producto/servicio y los totales se calculan sin errores, soportando tanto `price` (frontend) como `precio` (backend).
+  
+ Productos.jsx
+ 1. Mejoras en el Hook useEffect
+ 2. Custom Hooks para Separar Responsabilidades
+ 3. Componentes más Pequeños y Reutilizables
+ 4. Mejoras en el Manejo de Estados
+ 5. Optimización de Rendimiento
+ 6. Mejoras en la Normalización de Datos
+ 7. Manejo Mejorado de Errores
+ 8. Implementación Completa Mejorada
+ Ventajas obtenidas:Código más legible y mantenible, Mejor separación de responsabilidades, Mayor reutilización de componentes
+Mejor rendimiento con memoización, Manejo de errores más robusto, Más fácil de testear.
