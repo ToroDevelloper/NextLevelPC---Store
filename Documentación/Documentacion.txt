@@ -226,3 +226,11 @@ ALTER TABLE `productos`
  8. Implementación Completa Mejorada
  Ventajas obtenidas:Código más legible y mantenible, Mejor separación de responsabilidades, Mayor reutilización de componentes
 Mejor rendimiento con memoización, Manejo de errores más robusto, Más fácil de testear.
+
+16/11/2025 by Keiner Tez 
+Las implementaciones clave se centraron en corregir el filtrado y el estado visual de los productos. 
+Primero, se solucionó el fallo de los productos marcados como "Inactivos" al agregar la columna `p.activo` al `SELECT` en el modelo,
+asegurando que el estado llegara correctamente a la vista EJS. 
+Segundo, se corrigió el mal funcionamiento de los filtros (búsqueda y categoría) refactorizando el script de JavaScript en `index.ejs` y pasándolo como variable `scripts` al layout (`main.ejs`),
+eliminando conflictos y garantizando que los parámetros de consulta (`req.query`) se envíen y capturen correctamente.
+Finalmente, se mejoró la estética al eliminar la lógica de mostrar las iniciales cuando no hay imagen, forzando la visualización directa de la imagen de fallback "No Image".
