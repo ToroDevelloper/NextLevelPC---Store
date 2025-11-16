@@ -115,18 +115,18 @@ cd NextLevelPC---Store
 
 ### Backend (`backend/package.json`)
 
-- `npm run dev`  
+- `npm run dev`
   Inicia el servidor Express con **nodemon** usando `index.js`.
 
 ### Frontend (`fronted/package.json`)
 
-- `npm run dev`  
+- `npm run dev`
   Levanta el servidor de desarrollo de Vite.
-- `npm run build`  
+- `npm run build`
   Genera el build de producción del frontend.
-- `npm run preview`  
+- `npm run preview`
   Sirve el build de producción localmente para pruebas.
-- `npm run lint`  
+- `npm run lint`
   Ejecuta las reglas de ESLint configuradas para el proyecto React.
 
 ---
@@ -187,3 +187,4 @@ NextLevelPC---Store/
   - Variables de entorno (credenciales de BD, secretos JWT, URLs públicas).
   - Configuración de servidor (reverse proxy, HTTPS, balanceo de carga, etc.).
 - Cuando se realicen cambios importantes en el modelo de datos o en los flujos de negocio, se recomienda actualizar también la carpeta `Documentación/` para mantener la documentación alineada con el código.
+

@@ -137,14 +137,14 @@ const ProductImage = React.memo(({ product, className = "servicio-card-image" })
  * Componente para la información de la tarjeta.
  */
 const ProductInfo = React.memo(({ product, onAddToCart }) => {
-  
+
   // Detiene la propagación del evento click para que no navegue
   const handleAddToCartClick = (e) => {
     e.preventDefault();
     e.stopPropagation();
     onAddToCart(product);
   };
-  
+
   return (
     <div className="servicio-info">
       <h3>{product.nombre}</h3>
@@ -208,7 +208,7 @@ const ProductDetail = React.memo(({ product, onAddToCart }) => {
     const qtyInput = document.getElementById('product-detail-qty');
     const qty = Number(qtyInput?.value || 1);
     const safeQty = isNaN(qty) || qty <= 0 ? 1 : qty;
-    
+
     // Llama a la función onAddToCart con la cantidad
     onAddToCart(product, safeQty);
   };
@@ -325,11 +325,11 @@ const Productos = () => {
   const routeInfo = useMemo(() => {
     const searchParams = new URLSearchParams(location.search);
     const searchQuery = searchParams.get('q');
-    
+
     const isProductsRoute = location.pathname === '/productos';
     const isSearchRoute = location.pathname === '/productos/buscar';
     const isProductDetailRoute = /^\/productos\/[^/]+\/?$/.test(location.pathname) && !isSearchRoute;
-    
+
     let productId = null;
     if (isProductDetailRoute) {
       const match = location.pathname.match(/^\/productos\/([^/]+)\/?$/);
@@ -397,15 +397,15 @@ const Productos = () => {
            setLoading(false);
            return;
         }
-        
+
         const response = await fetch(endpoint);
-        
+
         if (!response.ok) {
           throw new Error(`Error ${response.status}: No se pudieron cargar los productos`);
         }
 
         const { data, success } = await response.json();
-        
+
         if (!success) {
           throw new Error('Respuesta inválida de la API');
         }
@@ -424,7 +424,7 @@ const Productos = () => {
     };
 
     fetchProducts();
-    
+
     // No se necesita AbortController aquí porque React >18
     // maneja la limpieza de `fetch` en `useEffect` automáticamente
     // en muchos casos (Strict Mode). Si se necesitara, se añadiría aquí.
@@ -464,11 +464,11 @@ const Productos = () => {
     if (loading) {
       return <p className="loading-message">Cargando productos...</p>;
     }
-    
+
     if (error) {
       return <div className="error-message">Error al cargar productos -- {error}</div>;
     }
-    
+
     if (products.length === 0) {
       return (
         <div className="error-message">
@@ -479,7 +479,7 @@ const Productos = () => {
         </div>
       );
     }
-    
+
     // Si hay ID, muestra detalle. Si no, muestra lista.
     return productId ? (
       <ProductDetail product={products[0]} onAddToCart={handleAddToCart} />

@@ -75,11 +75,11 @@
 }
 
 .filtro-card:hover .filtro-overlay {
-    background: linear-gradient(to top, rgba(59, 130, 246, 0.9) 0%, rgba(59, 130, 246, 0.3) 60%);
+    background: linear-gradient(to top, #3b6f7a 0%, rgba(59, 111, 122, 0.3) 60%);
 }
 
 .filtro-card.active .filtro-overlay {
-    background: linear-gradient(to top, rgba(59, 130, 246, 0.9) 0%, rgba(59, 130, 246, 0.3) 60%);
+    background: linear-gradient(to top, #3b6f7a 0%, rgba(59, 111, 122, 0.3) 60%);
 }
 
 .filtro-overlay h3 {
@@ -185,7 +185,7 @@
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    background-color: #3b82f6;
+    background-color: #000;
     color: #fff;
     border: none;
     padding: 0.75rem 1.25rem;
@@ -198,7 +198,7 @@
 }
 
 .servicio-contratar-btn:hover {
-    background-color: #2563eb;
+    background-color: #222;
 }
 
 .servicio-contratar-btn:active {

@@ -81,7 +81,7 @@
 }
 
 .servicio-detail-footer .btn-contratar {
-    background-color: #007bff;
+    background-color: #3b6f7a;
     color: #fff;
     border: none;
     padding: 0.8rem 1.5rem;
@@ -92,7 +92,7 @@
 }
 
 .servicio-detail-footer .btn-contratar:hover {
-    background-color: #0056b3;
+    background-color: #295058;
 }
 
 .loading, .error, .not-found {
