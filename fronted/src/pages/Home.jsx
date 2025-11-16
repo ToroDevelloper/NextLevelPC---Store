@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import '../styles/Home.css';
+import '../styles/Productos.css';
 import { useCart } from '../utils/CartContext';
 
 const API_BASE = 'http://localhost:8080';
@@ -204,7 +205,7 @@ const Home = () => {
                                         ${formatPrice(product.precio_actual)}
                                     </p>
                                     <button
-                                        className="servicio-add-btn"
+                                        className="producto-add-btn"
                                         type="button"
                                         onClick={(e) => handleAddToCart(e, product)}
                                     >

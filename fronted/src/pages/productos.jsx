@@ -176,33 +176,33 @@ const Productos = () => {
     }, [location.pathname, location.search, productId, isSearchRoute, isProductsRoute, searchQuery]);
 
     const renderProductList = () => (
-        <div className="products-grid servicios-grid">
+        <div className="products-grid productos-grid">
             {products.map(product => (
                 <div
                     key={product.id}
-                    className="servicio-card-link"
+                    className="producto-card-link"
                     onClick={() => navigate(`/productos/${product.id}`)}
                 >
-                    <div className="servicio-card">
+                    <div className="producto-card">
                         <img
                             src={product.image || 'https://placehold.co/600x400/EEE/31343C?text=Producto'}
                             alt={product.nombre || 'Producto'}
-                            className="servicio-card-image"
+                            className="producto-imagen"
                             onError={(e) => {
                                 e.target.onerror = null;
                                 e.target.src = 'https://placehold.co/600x400/EEE/31343C?text=Producto';
                             }}
                         />
-                        <div className="servicio-info">
-                            <h3>{product.nombre}</h3>
-                            <p className="servicio-descripcion">
+                        <div className="producto-info">
+                            <h3 className="producto-titulo">{product.nombre}</h3>
+                            <p className="producto-descripcion">
                                 {product.raw?.descripcion_corta || product.raw?.descripcion || 'Producto disponible en NextLevelPC.'}
                             </p>
-                            <p className="servicio-precio">
+                            <p className="producto-precio">
                                 ${Number(product.price).toFixed(2)}
                             </p>
                             <button
-                                className="servicio-add-btn"
+                                className="producto-add-btn"
                                 onClick={(e) => {
                                     e.preventDefault();
                                     e.stopPropagation();
