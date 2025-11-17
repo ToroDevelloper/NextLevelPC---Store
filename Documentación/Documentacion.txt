@@ -239,3 +239,38 @@ Finalmente, se mejoró la estética al eliminar la lógica de mostrar las inicia
 Tabla productos: modificar columna activo a estado
 ALTER TABLE productos DROP COLUMN activo;
 ALTER TABLE productos ADD COLUMN estado TINYINT(1) NOT NULL DEFAULT 1;
+
+
+Filtro por categorias.
+
+Nuevo estado para categorías
+Añadido const [categories, setCategories] = useState([]);
+
+2. Carga de categorías al montar el componente
+Nuevo useEffect que carga las categorías desde /api/categorias/producto
+
+3. Detección de parámetro de categoría en URL
+Modificado routeInfo para leer categoria_id de los query parameters
+
+Actualizadas las dependencias y extracción de variables
+
+4. Endpoint unificado para filtros
+Modificado buildEndpoint para usar parámetros busqueda y categoria_id
+
+Ahora siempre usa /api/productos/con-imagenes con los parámetros apropiados
+
+5. Lógica de fetch mejorada
+Actualizada la condición para evitar fetch innecesarios
+
+Manejo mejorado de respuestas de API no exitosas pero con datos
+
+6. Handler para cambio de categoría
+handleCategoryChange actualiza la URL manteniendo otros parámetros
+
+7. Barra de filtros en el render
+Añadida sección de filtros que solo se muestra cuando no está en vista de detalle
+
+Dropdown de categorías controlado por el estado de la URL
+
+8. Dependencias actualizadas
+Añadidas las dependencias necesarias en los useEffect y useCallback

@@ -1,8 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import '../styles/Navbar.css';
 import { useCart } from '../utils/CartContext';
 import { useAuth } from '../utils/AuthContext';
+
+// --- NUEVO: Constante para la API ---
+const API_BASE = 'http://localhost:8080';
 
 // Íconos SVG
 const IconCart = () => (
@@ -25,6 +28,13 @@ const IconUser = () => (
   </svg>
 );
 
+// --- NUEVO: Icono de Filtro para categorías ---
+const IconFilter = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-filter" viewBox="0 0 16 16">
+    <path d="M6 10.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5m-2-3a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5m-2-3a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5"/>
+  </svg>
+);
+
 const Navbar = ({ onLoginClick }) => {
   const { cartItems, removeFromCart, updateQuantity, clearCart } = useCart();
   const { user } = useAuth();
@@ -32,6 +42,53 @@ const Navbar = ({ onLoginClick }) => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [cartOpen, setCartOpen] = useState(false);
+
+  // --- NUEVO: Estado y Refs para el dropdown de categorías ---
+  const [categories, setCategories] = useState([]);
+  const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
+  const categoryButtonRef = useRef(null);
+  const categoryDropdownRef = useRef(null);
+
+  // --- NUEVO: useEffect para cargar categorías ---
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch(`${API_BASE}/api/categorias/producto`);
+        if (!response.ok) {
+          throw new Error('No se pudieron cargar las categorías');
+        }
+        const data = await response.json();
+        
+        if (Array.isArray(data)) {
+          setCategories(data);
+        } else if (data.data && Array.isArray(data.data)) {
+          setCategories(data.data);
+        }
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      }
+    };
+    fetchCategories();
+  }, []);
+
+  // --- NUEVO: Manejo del clic fuera para cerrar el dropdown de categorías ---
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        categoryDropdownRef.current &&
+        !categoryDropdownRef.current.contains(event.target) &&
+        categoryButtonRef.current &&
+        !categoryButtonRef.current.contains(event.target)
+      ) {
+        setIsCategoryDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
@@ -63,6 +120,20 @@ const Navbar = ({ onLoginClick }) => {
     const qty = Number(i.quantity ?? 0);
     return s + unitPrice * qty;
   }, 0);
+
+  // --- NUEVO: Handlers para el dropdown de categorías ---
+  const toggleCategoryDropdown = () => {
+    setIsCategoryDropdownOpen(prev => !prev);
+  };
+
+  const handleCategoryClick = (categoryId) => {
+    if (categoryId === '0') {
+      navigate('/productos');
+    } else {
+      navigate(`/productos?categoria_id=${categoryId}`);
+    }
+    setIsCategoryDropdownOpen(false);
+  };
 
   return (
     <header className="navbar">
@@ -117,7 +188,6 @@ const Navbar = ({ onLoginClick }) => {
               >
                 Vista Órdenes
               </a>
-              {/* Eliminado el enlace al Dashboard SPA para evitar una SPA separada de admin/empleado */}
             </>
           )}
         </nav>
@@ -135,6 +205,39 @@ const Navbar = ({ onLoginClick }) => {
             <IconSearch />
           </button>
         </form>
+
+        {/* --- NUEVO: Botón de Categorías --- */}
+        <div className="category-dropdown-container">
+          <button 
+            ref={categoryButtonRef}
+            className="navbar-category-btn"
+            onClick={toggleCategoryDropdown}
+            aria-label="Filtrar por categoría"
+          >
+            <IconFilter />
+          </button>
+          
+          {isCategoryDropdownOpen && (
+            <ul 
+              ref={categoryDropdownRef}
+              className="category-dropdown-menu"
+            >
+              <li onClick={() => handleCategoryClick('0')}>
+                Todas las categorías
+              </li>
+              {categories.length > 0 ? (
+                categories.map(cat => (
+                  <li key={cat.id} onClick={() => handleCategoryClick(cat.id)}>
+                    {cat.nombre}
+                  </li>
+                ))
+              ) : (
+                <li className="category-dropdown-loading">Cargando...</li>
+              )}
+            </ul>
+          )}
+        </div>
+        {/* --- Fin Botón de Categorías --- */}
 
         {/* Usuario y Carrito */}
         <div className="navbar-actions">
