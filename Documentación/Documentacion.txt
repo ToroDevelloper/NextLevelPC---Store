@@ -234,3 +234,8 @@ asegurando que el estado llegara correctamente a la vista EJS.
 Segundo, se corrigió el mal funcionamiento de los filtros (búsqueda y categoría) refactorizando el script de JavaScript en `index.ejs` y pasándolo como variable `scripts` al layout (`main.ejs`),
 eliminando conflictos y garantizando que los parámetros de consulta (`req.query`) se envíen y capturen correctamente.
 Finalmente, se mejoró la estética al eliminar la lógica de mostrar las iniciales cuando no hay imagen, forzando la visualización directa de la imagen de fallback "No Image".
+
+
+Tabla productos: modificar columna activo a estado
+ALTER TABLE productos DROP COLUMN activo;
+ALTER TABLE productos ADD COLUMN estado TINYINT(1) NOT NULL DEFAULT 1;
