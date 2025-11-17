@@ -414,29 +414,31 @@ body {
 .carousel-indicators {
     display: flex;
     justify-content: center;
-    gap: 8px;
+    gap: 6px;
     margin-top: 1.5rem;
 }
 
 .carousel-indicator {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
+    width: 2px;
+    height: 0.5px;
     background: var(--color-border);
-    border: none;
+    border-radius: 60px;
     cursor: pointer;
     transition: all 0.3s ease;
+    opacity: 0.4;
 }
 
 .carousel-indicator.active {
     background: var(--color-accent);
-    transform: scale(1.2);
+    opacity: 1;
+    height: 1px; /* un poquito más gruesa al estar activa */
 }
 
 .carousel-indicator:hover {
-    background: var(--color-text-light);
-    transform: scale(1.1);
+    opacity: 0.9;
+    transform: scale(1.05);
 }
+
 
 /* === BOTÓN VER TODOS === */
 .view-all-container {

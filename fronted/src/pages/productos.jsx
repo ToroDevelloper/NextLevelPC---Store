@@ -309,6 +309,10 @@ const Productos = () => {
     error: null
   });
   const { products, loading, error } = state;
+  
+  // --- NUEVO ---
+  // Estado para guardar las categorías para el dropdown
+  const [categories, setCategories] = useState([]);
 
   // Helpers para actualizar el estado
   const setProducts = (newProducts) => {
@@ -321,10 +325,40 @@ const Productos = () => {
     setState(prev => ({ ...prev, error: newError }));
   };
 
+  // --- NUEVO: useEffect para cargar categorías ---
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        // Usamos el endpoint que ya tenías para categorías de productos
+        const response = await fetch(`${API_BASE}/api/categorias/producto`);
+        if (!response.ok) {
+          throw new Error('No se pudieron cargar las categorías');
+        }
+        
+        // Asumiendo que la respuesta es un array de categorías
+        const data = await response.json(); 
+        
+        // Verificamos si la data vino en un objeto { data: [...] } o como array
+        if (Array.isArray(data)) {
+          setCategories(data);
+        } else if (data.data && Array.isArray(data.data)) {
+          setCategories(data.data);
+        }
+
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      }
+    };
+    fetchCategories();
+  }, []); // El array vacío asegura que solo se ejecute una vez
+
   // Detección de ruta memoizada
   const routeInfo = useMemo(() => {
     const searchParams = new URLSearchParams(location.search);
-    const searchQuery = searchParams.get('q');
+    const searchQuery = searchParams.get('q') || ''; // Sigue leyendo 'q'
+    
+    // --- NUEVO: Lee el 'categoria_id' de la URL ---
+    const categoriaId = searchParams.get('categoria_id') || '0'; 
 
     const isProductsRoute = location.pathname === '/productos';
     const isSearchRoute = location.pathname === '/productos/buscar';
@@ -338,6 +372,7 @@ const Productos = () => {
 
     return {
       searchQuery,
+      categoriaId, // --- NUEVO: Exponer el ID de categoría
       isProductsRoute,
       isSearchRoute,
       isProductDetailRoute,
@@ -345,28 +380,34 @@ const Productos = () => {
     };
   }, [location.pathname, location.search]);
 
-  const { productId, searchQuery, isProductsRoute, isSearchRoute } = routeInfo;
+  // --- MODIFICADO: Extrae 'categoriaId' ---
+  const { productId, searchQuery, categoriaId, isProductsRoute, isSearchRoute, isProductDetailRoute } = routeInfo;
 
   // --- Lógica de Fetch ---
 
-  // Helper memoizado para saber si debe hacer fetch
-  const shouldFetchProducts = useMemo(() => {
-    return !(isSearchRoute && !searchQuery);
-  }, [isSearchRoute, searchQuery]);
-
   // Helper memoizado para construir el endpoint
   const buildEndpoint = useCallback(() => {
+    // El detalle del producto sigue igual
     if (productId) {
       return `${API_BASE}/api/productos/${encodeURIComponent(productId)}`;
     }
-    if (isSearchRoute && searchQuery) {
-      return `${API_BASE}/api/productos/buscar?q=${encodeURIComponent(searchQuery)}`;
+
+    // --- MODIFICADO: Lógica unificada para filtros ---
+    // Usamos el endpoint '/con-imagenes' que acepta ambos filtros.
+    const params = new URLSearchParams();
+    
+    if (searchQuery) {
+      params.append('busqueda', searchQuery);
     }
-    if (isProductsRoute) {
-      return `${API_BASE}/api/productos/con-imagenes`;
+    
+    if (categoriaId && categoriaId !== '0') {
+      params.append('categoria_id', categoriaId);
     }
-    return ''; // No debe hacer fetch
-  }, [productId, isSearchRoute, searchQuery, isProductsRoute]);
+
+    // Siempre usamos este endpoint para listas y búsquedas
+    return `${API_BASE}/api/productos/con-imagenes?${params.toString()}`;
+
+  }, [productId, searchQuery, categoriaId]); // --- MODIFICADO: Añadir 'categoriaId'
 
   // Helper memoizado para normalizar la respuesta
   const normalizeData = useCallback((data) => {
@@ -377,15 +418,22 @@ const Productos = () => {
     return Array.isArray(data) ? data.map(normalizeProduct) : [];
   }, [productId]);
 
-
   // useEffect de Carga de Datos (reemplazado)
   useEffect(() => {
     const fetchProducts = async () => {
-      if (!shouldFetchProducts) {
-        setLoading(false);
-        setProducts([]);
-        setError(null);
-        return;
+      // --- MODIFICADO: Simplificado ---
+      // No debe hacer fetch si está en /productos/buscar sin 'q' Y sin 'categoria_id'
+      if (isSearchRoute && !searchQuery && (categoriaId === '0' || !categoriaId)) {
+         setLoading(false);
+         setProducts([]);
+         setError(null);
+         return;
+      }
+      
+      // No hacer fetch si estamos en detalle (buildEndpoint lo maneja)
+      if (isProductDetailRoute && !productId) {
+         setLoading(false);
+         return;
       }
 
       setLoading(true);
@@ -407,14 +455,17 @@ const Productos = () => {
         const { data, success } = await response.json();
 
         if (!success) {
-          throw new Error('Respuesta inválida de la API');
+          // Si 'success' es false o undefined pero hay 'data', intentamos usarla
+          if (data) {
+             console.warn('Respuesta de API marcada como no exitosa, pero se encontraron datos.');
+          } else {
+             throw new Error('Respuesta inválida de la API');
+          }
         }
-
-        const normalizedProducts = normalizeData(data);
+        
+        const normalizedProducts = normalizeData(data || []); // Usar 'data' o un array vacío
         setProducts(normalizedProducts);
       } catch (error) {
-        // 'AbortError' no se maneja aquí ya que no hay AbortController,
-        // pero podemos manejar un error con ese nombre si fetch() lo lanzara.
         if (error.name !== 'AbortError') {
           setError(error.message);
         }
@@ -425,12 +476,7 @@ const Productos = () => {
 
     fetchProducts();
 
-    // No se necesita AbortController aquí porque React >18
-    // maneja la limpieza de `fetch` en `useEffect` automáticamente
-    // en muchos casos (Strict Mode). Si se necesitara, se añadiría aquí.
-
-  }, [location.pathname, location.search, productId, searchQuery, shouldFetchProducts, buildEndpoint, normalizeData]); // Dependencias clave
-
+  }, [location.pathname, location.search, productId, isSearchRoute, searchQuery, categoriaId, buildEndpoint, normalizeData, isProductDetailRoute]); // --- MODIFICADO: Dependencias clave
 
   // --- Event Handlers (Memoizados) ---
 
@@ -449,6 +495,24 @@ const Productos = () => {
   const handleProductClick = useCallback((productId) => {
     navigate(`/productos/${productId}`);
   }, [navigate]);
+
+  // --- NUEVO: Handler para el cambio de categoría ---
+  const handleCategoryChange = (e) => {
+    const newCategoriaId = e.target.value;
+    
+    // Mantenemos los parámetros de búsqueda actuales (ej. 'q')
+    const searchParams = new URLSearchParams(location.search);
+
+    if (newCategoriaId === '0') {
+      searchParams.delete('categoria_id');
+    } else {
+      searchParams.set('categoria_id', newCategoriaId);
+    }
+
+    // Navegamos a la nueva URL, manteniendo la ruta actual
+    // (sea /productos o /productos/buscar)
+    navigate(`${location.pathname}?${searchParams.toString()}`);
+  };
 
   // --- Render ---
 
@@ -495,6 +559,34 @@ const Productos = () => {
   return (
     <div className="productos-page">
       <h2 className="productos-title">{getTitle()}</h2>
+
+      {/* --- NUEVO: Barra de Filtros --- */}
+      {/* Solo mostrar si NO estamos en la vista de detalle */}
+      {!productId && (
+        <div className="productos-filtros-bar">
+          
+          {/* Aquí iría tu componente de Búsqueda si lo mueves aquí */}
+          {/* <div className="filtro-item"> ... tu input de búsqueda ... </div> */}
+
+          <div className="filtro-item">
+            <label htmlFor="categoria-select">Filtrar por Categoría:</label>
+            <select 
+              id="categoria-select" 
+              value={categoriaId} // El valor es controlado por la URL
+              onChange={handleCategoryChange}
+            >
+              <option value="0">Todas las categorías</option>
+              {categories.map(cat => (
+                <option key={cat.id} value={cat.id}>
+                  {cat.nombre}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+      )}
+      {/* --- Fin de la Barra de Filtros --- */}
+
       {renderContent()}
     </div>
   );

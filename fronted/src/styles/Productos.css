@@ -48,6 +48,63 @@
   border-radius: 2px;
 }
 
+/* --- Barra de Filtros (Actualizada para combinar con el estilo antiguo) --- */
+.productos-filtros-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 25px;
+  margin-bottom: 2.5rem;
+  padding: 1.5rem;
+  background-color: var(--color-background-soft);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition-speed);
+}
+
+.productos-filtros-bar:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.filtro-item {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex-grow: 1;
+  min-width: 250px;
+}
+
+.filtro-item label {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: 0.25rem;
+}
+
+.filtro-item select {
+  padding: 0.85rem 1rem;
+  font-size: 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius);
+  background-color: var(--color-white);
+  cursor: pointer;
+  transition: all var(--transition-speed);
+  color: var(--color-text);
+  min-width: 200px;
+  box-shadow: var(--shadow-sm);
+}
+
+.filtro-item select:hover {
+  border-color: var(--color-accent);
+  box-shadow: 0 2px 8px rgba(59, 111, 122, 0.1);
+}
+
+.filtro-item select:focus {
+  outline: none;
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px rgba(59, 111, 122, 0.15);
+}
+
 /* Estados */
 .loading-message {
   text-align: center;
@@ -351,4 +408,36 @@
 
 .product-specs-table tr:hover {
   background-color: var(--color-background-soft);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .productos-filtros-bar {
+    flex-direction: column;
+    gap: 15px;
+    padding: 1rem;
+  }
+  
+  .filtro-item {
+    min-width: auto;
+  }
+  
+  .filtro-item select {
+    min-width: auto;
+    width: 100%;
+  }
+  
+  .product-detail-main {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    padding: 1.5rem;
+  }
+  
+  .product-detail-tab-headers {
+    padding: 0 1.5rem;
+  }
+  
+  .product-detail-tab-body {
+    padding: 1.5rem;
+  }
 }
