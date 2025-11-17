@@ -110,57 +110,52 @@ const ServicioDetail = () => {
     }
 
     return (
-        <>
-            <div className="servicio-detail-page product-detail">
-                {/* Layout principal: imagen izquierda, info derecha */}
-                <div className="product-detail-main">
-                    <div className="product-detail-image-wrapper servicio-detail-image-container">
-                        <img
-                            src={servicio.imagen_url || 'https://placehold.co/600x400/EEE/31343C?text=Servicio'}
-                            alt={servicio.nombre}
-                            className="product-detail-image servicio-detail-image"
-                            onError={(e) => {
-                                e.target.onerror = null;
-                                e.target.src = 'https://placehold.co/600x400/EEE/31343C?text=Servicio';
-                            }}
-                        />
-                    </div>
-
-                    <div className="product-detail-info servicio-detail-content">
-                        <div className="servicio-detail-header">
-                            <h1 className="product-detail-name">{servicio.nombre}</h1>
+        <div className="servicio-detail-page">
+            <div className="servicio-detail-main">
+                <div className="servicio-detail-image-wrapper servicio-detail-image-container">
+                    <img
+                        src={servicio.imagen_url || 'https://placehold.co/600x400/EEE/31343C?text=Servicio'}
+                        alt={servicio.nombre}
+                        className="servicio-detail-image"
+                        onError={(e) => {
+                            e.target.onerror = null;
+                            e.target.src = 'https://placehold.co/600x400/EEE/31343C?text=Servicio';
+                        }}
+                    />
+                </div>
+                <div className="servicio-detail-info servicio-detail-content">
+                    <section className="servicio-detail-top">
+                        <div>
+                            <h1 className="servicio-detail-name">{servicio.nombre}</h1>
                             {servicio.tipo && <p className="servicio-tipo">{servicio.tipo}</p>}
                         </div>
-                        <div className="product-detail-price-box">
-                            <span className="product-detail-price">
-                                ${Number(servicio.precio || 0).toFixed(2)}
+                        <div className="servicio-detail-summary">
+                            <div className="servicio-detail-price-box">
+                                <span className="servicio-detail-price">
+                                    ${Number(servicio.precio || 0).toFixed(2)}
+                                </span>
+                            </div>
+                            <span className="servicio-detail-stock">
+                                Estado: {servicio.activo === 0 ? 'No disponible' : 'Disponible'}
                             </span>
                         </div>
-
-                        <p className="product-detail-stock">
-                            Estado: {servicio.activo === 0 ? 'No disponible' : 'Disponible'}
-                        </p>
-
-                        {/* Acciones: botón de contratar similar a añadir al carrito */}
-                        <div className="product-detail-actions servicio-detail-footer">
+                        <div className="servicio-detail-actions servicio-detail-footer">
                             <button
-                                className="product-detail-buy-btn btn-contratar"
+                                className="servicio-detail-buy-btn btn-contratar"
                                 type="button"
                                 onClick={handleOpenModal}
                             >
                                 Contratar Servicio
                             </button>
                         </div>
-
-                        {/* Información extra: política / notas */}
-                        <div className="product-detail-extra">
-                            <p>Modalidad: {servicio.modalidad || 'Presencial / Remoto según disponibilidad.'}</p>
-                            <p>Garantía: {servicio.garantia || 'Garantía estándar sobre el trabajo realizado.'}</p>
+                    </section>
+                    <section className="servicio-detail-meta-grid">
+                        <div className="servicio-detail-extra">
+                            <p><strong>Modalidad:</strong> {servicio.modalidad || 'Presencial / Remoto según disponibilidad.'}</p>
+                            <p><strong>Garantía:</strong> {servicio.garantia || 'Garantía estándar sobre el trabajo realizado.'}</p>
                         </div>
-
-                        {/* Descripción y especificaciones debajo de Modalidad/Garantía */}
-                        <div className="product-detail-tabs servicio-detail-tabs">
-                            <div className="product-detail-tab-headers">
+                        <div className="servicio-detail-tabs">
+                            <div className="servicio-detail-tab-headers">
                                 <button
                                     className={`tab-header ${activeTab === 'descripcion' ? 'active' : ''}`}
                                     type="button"
@@ -176,14 +171,14 @@ const ServicioDetail = () => {
                                     Especificaciones
                                 </button>
                             </div>
-                            <div className="product-detail-tab-body">
+                            <div className="servicio-detail-tab-body">
                                 <div className={`tab-panel ${activeTab === 'descripcion' ? 'active' : ''}`}>
-                                    <p className="product-detail-description servicio-descripcion">
+                                    <p className="servicio-detail-description servicio-descripcion">
                                         {descripcion}
                                     </p>
                                 </div>
                                 <div className={`tab-panel ${activeTab === 'especificaciones' ? 'active' : ''}`}>
-                                    <table className="product-specs-table">
+                                    <table className="servicio-specs-table">
                                         <tbody>
                                             {specs.map((spec) => (
                                                 <tr key={spec.label}>
@@ -196,10 +191,9 @@ const ServicioDetail = () => {
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </section>
                 </div>
             </div>
-
             {isModalOpen && (
                 <AgendarServicioModal
                     servicio={servicio}
@@ -207,7 +201,7 @@ const ServicioDetail = () => {
                     onSubmit={handleSubmitModal}
                 />
             )}
-        </>
+        </div>
     );
 };
 

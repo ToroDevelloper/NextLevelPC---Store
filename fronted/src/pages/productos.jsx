@@ -121,7 +121,7 @@ const parseSpecs = (specsJSON, raw, stock) => {
 /**
  * Componente para imagen con manejo de error.
  */
-const ProductImage = React.memo(({ product, className = "servicio-card-image" }) => (
+const ProductImage = React.memo(({ product, className = "producto-card-image" }) => (
   <img
     src={product.image || DEFAULT_IMAGE}
     alt={product.nombre || 'Producto'}
@@ -146,16 +146,16 @@ const ProductInfo = React.memo(({ product, onAddToCart }) => {
   };
 
   return (
-    <div className="servicio-info">
+    <div className="producto-info">
       <h3>{product.nombre}</h3>
-      <p className="servicio-descripcion">
+      <p className="producto-descripcion">
         {product.raw?.descripcion_corta || product.description}
       </p>
-      <p className="servicio-precio">
+      <p className="producto-precio">
         ${Number(product.price).toFixed(2)}
       </p>
       <button
-        className="servicio-add-btn"
+        className="producto-add-btn"
         onClick={handleAddToCartClick}
       >
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -172,10 +172,10 @@ const ProductInfo = React.memo(({ product, onAddToCart }) => {
  */
 const ProductCard = React.memo(({ product, onProductClick, onAddToCart }) => (
   <div
-    className="servicio-card-link"
+    className="producto-card-link"
     onClick={() => onProductClick(product.id)}
   >
-    <div className="servicio-card">
+    <div className="producto-card">
       <ProductImage product={product} />
       <ProductInfo product={product} onAddToCart={onAddToCart} />
     </div>
@@ -186,7 +186,7 @@ const ProductCard = React.memo(({ product, onProductClick, onAddToCart }) => (
  * Componente para la lista de productos.
  */
 const ProductList = React.memo(({ products, onProductClick, onAddToCart }) => (
-  <div className="products-grid servicios-grid">
+  <div className="products-grid productos-grid">
     {products.map(product => (
       <ProductCard
         key={product.id}

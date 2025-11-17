@@ -1,102 +1,115 @@
 /* styles/ServicioDetail.css */
 .servicio-detail-page {
-    padding: 2rem;
-    background-color: #f9f9f9;
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    padding: 2rem 1rem 3rem;
+    background-color: #f6f7f9;
+    min-height: auto;
+    display: block;
 }
 
-.servicio-detail-card {
+.servicio-detail-main {
     background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    padding: 2rem;
-    max-width: 800px;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
+    border-radius: 12px;
+    box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
+    padding: 2.5rem;
+    width: min(1400px, 100%);
+    margin: 0 auto;
+    display: grid;
+    gap: 2rem;
 }
 
-@media (min-width: 768px) {
-    .servicio-detail-card {
-        flex-direction: row;
+@media (min-width: 992px) {
+    .servicio-detail-main {
+        grid-template-columns: 1fr 1.25fr;
     }
 }
 
-.servicio-detail-image-container {
-    flex: 1;
-    margin-right: 0;
-    margin-bottom: 1rem;
+.servicio-detail-image-wrapper {
+    flex: unset;
+    margin: 0;
 }
 
-@media (min-width: 768px) {
-    .servicio-detail-image-container {
-        margin-right: 2rem;
+@media (min-width: 992px) {
+    .servicio-detail-image-wrapper {
+        margin-right: 0;
         margin-bottom: 0;
     }
 }
 
-.servicio-detail-image {
-    width: 100%;
-    height: auto;
-    border-radius: 8px;
+.servicio-detail-info {
+    flex: unset;
 }
 
-.servicio-detail-content {
-    flex: 2;
-}
-
-.servicio-detail-header {
-    border-bottom: 1px solid #eee;
-    padding-bottom: 1rem;
+.servicio-detail-top {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
     margin-bottom: 1rem;
 }
 
-.servicio-detail-header h1 {
-    font-size: 2.5rem;
-    margin: 0;
-    color: #333;
+.servicio-detail-summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
 }
 
-.servicio-tipo {
-    font-size: 1rem;
-    color: #777;
-    text-transform: capitalize;
+.servicio-detail-tabs {
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    overflow: hidden;
 }
 
-.servicio-detail-body .servicio-descripcion {
-    font-size: 1.2rem;
-    line-height: 1.6;
-    color: #555;
-    margin-bottom: 1.5rem;
+.servicio-detail-tab-headers {
+    display: flex;
+    background-color: #fff;
+    border-bottom: 1px solid #e5e7eb;
 }
 
-.servicio-detail-body .servicio-precio {
-    font-size: 1.8rem;
-    font-weight: bold;
-    color: #007bff;
-    margin-bottom: 2rem;
+.tab-header {
+    flex: 1;
 }
 
-.servicio-detail-footer .btn-contratar {
-    background-color: #3b6f7a;
-    color: #fff;
-    border: none;
-    padding: 0.8rem 1.5rem;
-    font-size: 1.1rem;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
+.servicio-detail-tab-body {
+    padding: 1.5rem;
+    background-color: #fafbfc;
 }
 
-.servicio-detail-footer .btn-contratar:hover {
-    background-color: #295058;
+.servicio-detail-meta-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1rem;
 }
 
-.loading, .error, .not-found {
-    text-align: center;
-    font-size: 1.5rem;
-    padding: 2rem;
+.servicio-detail-extra {
+    background-color: #fff;
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    box-shadow: inset 0 0 0 1px #e5e7eb;
 }
+
+.servicio-detail-description {
+    margin-bottom: 0;
+}
+
+@media (max-width: 991px) {
+    .servicio-detail-main {
+        padding: 1.25rem;
+    }
+
+    .servicio-detail-tabs {
+        border-radius: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .servicio-detail-actions {
+        flex-direction: column;
+    }
+
+    .servicio-detail-summary {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
