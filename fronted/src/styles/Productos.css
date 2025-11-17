@@ -107,6 +107,17 @@
   padding: 1rem;
   transition: var(--transition-speed);
 }
+.producto-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.producto-info {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
 
 .producto-card-link:hover .producto-card-image {
   transform: scale(1.05);
