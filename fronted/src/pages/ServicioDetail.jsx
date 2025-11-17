@@ -2,11 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import '../styles/ServicioDetail.css';
 import AgendarServicioModal from '../components/AgendarServicioModal'; // Importar el modal
+import { useAuth } from '../utils/AuthContext';
 
 const API_BASE = 'http://localhost:8080';
 
 const ServicioDetail = () => {
     const { id } = useParams();
+    const { isAuthenticated } = useAuth();
     const [servicio, setServicio] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -22,6 +24,10 @@ const ServicioDetail = () => {
     };
 
     const handleSubmitModal = async (formData) => {
+        if (!isAuthenticated) {
+            alert('Debes iniciar sesión para agendar una cita de servicio.');
+            return;
+        }
         try {
             const response = await fetch(`${API_BASE}/api/citas-servicios`, {
                 method: 'POST',
