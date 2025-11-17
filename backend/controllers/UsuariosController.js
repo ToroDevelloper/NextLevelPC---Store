@@ -1,6 +1,4 @@
 const Usuarios = require('../models/Usuarios');
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
 const UsuariosService = require('../services/UsuariosService');
 
 class UsuariosController {

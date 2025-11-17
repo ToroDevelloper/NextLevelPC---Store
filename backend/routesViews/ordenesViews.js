@@ -4,6 +4,7 @@ const ordenesService = require('../services/OrdenesService.js');
 const UsuariosService = require('../services/UsuariosService.js');
 const ordenItemsService = require('../services/OrdenItemsService.js');
 const ProductosService = require('../services/ProductosService.js');
+const {OrdenCreateDTO,OrdenUpdateDTO} = require('../dto/OrdenesDTO.js')
 
 //RUTAS PARA VISTAS DE ÓRDENES (HTML)
 router.get('/', async (req, res) =>{
