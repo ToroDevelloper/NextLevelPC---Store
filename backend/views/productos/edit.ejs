@@ -107,9 +107,9 @@
                             <i class="fas fa-toggle-on me-1"></i>
                             Estado del Producto
                         </label>
-                        <select class="form-select" id="activo" name="activo">
-                            <option value="1" <%= producto.activo ? 'selected' : '' %>>Activo - Disponible para venta</option>
-                            <option value="0" <%= !producto.activo ? 'selected' : '' %>>Inactivo - No disponible</option>
+                        <select class="form-select" id="estado" name="estado">
+                            <option value="1" <%= producto.estado ? 'selected' : '' %>>Activo - Disponible para venta</option>
+                            <option value="0" <%= !producto.estado ? 'selected' : '' %>>Inactivo - No disponible</option>
                         </select>
                     </div>
 
@@ -146,7 +146,7 @@
                 <div class="mb-3">
                     <strong>Estado Actual:</strong>
                     <br>
-                    <% if (producto.activo) { %>
+                    <% if (producto.estado) { %>
                         <span class="badge bg-success">
                             <i class="fas fa-check me-1"></i>
                             Activo
