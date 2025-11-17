@@ -4,7 +4,7 @@ class CreateProductoDto {
         this.categoria_id = payload.categoria_id;
         this.precio_actual = payload.precio_actual;
         this.stock = payload.stock !== undefined ? payload.stock : 0;
-        this.activo = payload.activo !== undefined ? payload.activo : 1;
+        this.estado = payload.estado !== undefined ? payload.estado : 1;
         // nuevos campos opcionales
         this.descripcion_corta = payload.descripcion_corta ?? null;
         this.descripcion_detallada = payload.descripcion_detallada ?? null;
@@ -41,7 +41,7 @@ class CreateProductoDto {
             categoria_id: this.categoria_id,
             precio_actual: this.precio_actual,
             stock: this.stock,
-            activo: this.activo,
+            estado: this.estado,
             descripcion_corta: this.descripcion_corta,
             descripcion_detallada: this.descripcion_detallada,
             especificaciones: this.especificaciones
@@ -55,7 +55,7 @@ class UpdateProductoDto {
         this.categoria_id = payload.categoria_id;
         this.precio_actual = payload.precio_actual;
         this.stock = payload.stock;
-        this.activo = payload.activo;
+        this.estado = payload.estado;
         // nuevos campos opcionales
         this.descripcion_corta = payload.descripcion_corta;
         this.descripcion_detallada = payload.descripcion_detallada;
@@ -82,7 +82,7 @@ class UpdateProductoDto {
 
     toPatchObject() {
         const out = {};
-        ['nombre', 'categoria_id', 'precio_actual', 'stock', 'activo', 'descripcion_corta', 'descripcion_detallada', 'especificaciones'].forEach(k => {
+        ['nombre', 'categoria_id', 'precio_actual', 'stock', 'estado', 'descripcion_corta', 'descripcion_detallada', 'especificaciones'].forEach(k => {
             if (this[k] !== undefined)
                 out[k] = this[k];
         });

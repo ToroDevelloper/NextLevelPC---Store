@@ -2,11 +2,11 @@ const { executeQuery } = require('../config/db.js');
 
 class Productos {
     static async crear(data) {
-        const { nombre, categoria_id, precio_actual, stock, activo } = data;
+        const { nombre, categoria_id, precio_actual, stock, estado } = data;
 
         const result = await executeQuery(
-            'INSERT INTO productos (nombre, categoria_id, precio_actual, stock, activo) VALUES (?, ?, ?, ?, ?)',
-            [nombre, categoria_id, precio_actual, stock, activo || 1]
+            'INSERT INTO productos (nombre, categoria_id, precio_actual, stock, estado) VALUES (?, ?, ?, ?, ?)',
+            [nombre, categoria_id, precio_actual, stock, estado || 1]
         );
 
         return result.insertId;
@@ -31,7 +31,7 @@ static async buscarPorNombre(query) {
     }
 
     static async obtenerActivos() {
-        const productos = await executeQuery('SELECT * FROM productos WHERE activo = 1');
+        const productos = await executeQuery('SELECT * FROM productos WHERE estado = 1');
         return productos;
     }
 
@@ -116,7 +116,7 @@ static async obtenerProductosFiltrados(busqueda, categoriaId) {
             p.nombre, 
             p.precio_actual, 
             p.stock,
-            p.activo, 
+            p.estado, 
             c.nombre AS categoria_nombre,
             ip.url AS imagen_principal
         FROM 
