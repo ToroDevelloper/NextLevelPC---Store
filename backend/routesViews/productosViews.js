@@ -136,7 +136,6 @@ router.post('/delete/:id', async (req, res) => {
     try {
         console.log("Eliminando producto ID:", req.params.id);
         
-        await ImagenProductoService.eliminarImagenesPorProducto(req.params.id);
         await ProductosService.eliminarProducto(req.params.id);
         res.redirect('/productos');
         
