@@ -20,17 +20,17 @@ router.post(
                 process.env.STRIPE_WEBHOOK_SECRET
             );
         } catch (err) {
-            console.error("⚠ Error verificando webhook:", err.message);
+            console.error("Error verificando webhook:", err.message);
             return res.status(400).send(`Webhook error: ${err.message}`);
         }
 
-        // 👉 Cuando el pago es exitoso
+        //Cuando el pago es exitoso
         if (event.type === "payment_intent.succeeded") {
             const paymentIntent = event.data.object;
             const orderId = paymentIntent.metadata.orderId;
 
             try {
-                // Marcar orden como pagada
+                //Marcar orden como pagada
                 await db.query(
                     `UPDATE ordenes 
                      SET estado_pago = 'pagado', estado_orden = 'completada'
@@ -38,7 +38,7 @@ router.post(
                     [orderId]
                 );
 
-                // Insertar registro de pago
+                //Insertar registro de pago
                 await db.query(
                     `INSERT INTO pagos
                     (orden_id, stripe_payment_intent, monto, moneda, estado)
@@ -54,9 +54,9 @@ router.post(
                     ]
                 );
 
-                console.log("💰 Pago registrado en la BD con éxito.");
+                console.log("Pago registrado en la BD con éxito.");
             } catch (err) {
-                console.error("❌ Error guardando pago:", err);
+                console.error("Error guardando pago:", err);
             }
         }
 

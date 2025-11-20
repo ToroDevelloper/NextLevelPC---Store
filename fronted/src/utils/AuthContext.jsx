@@ -82,7 +82,7 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    console.log('🔄 AuthContext re-render - isAuthenticated:', isAuthenticated, 'user:', user);
+    console.log('AuthContext re-render - isAuthenticated:', isAuthenticated, 'user:', user);
 
     const value = {
         isAuthenticated,

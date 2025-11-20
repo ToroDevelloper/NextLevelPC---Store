@@ -52,7 +52,7 @@ const IconClose = () => (
 
 const Navbar = ({ onLoginClick }) => {
   const { cartItems, removeFromCart, updateQuantity, clearCart } = useCart();
-  const { user, isAuthenticated, logout } = useAuth(); // ✅ AÑADIDO: isAuthenticated y logout
+  const { user, isAuthenticated, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
@@ -125,7 +125,7 @@ const Navbar = ({ onLoginClick }) => {
       navigate(`/productos/buscar?q=${encodeURIComponent(query)}`);
       setSearchQuery('');
     }
-    setIsMobileMenuOpen(false); // ✅ AÑADIDO: Cierra menú móvil después de buscar
+    setIsMobileMenuOpen(false); 
   };
 
   const isActive = (path) => {
@@ -141,7 +141,7 @@ const Navbar = ({ onLoginClick }) => {
     } else {
       onLoginClick(null); 
     }
-    setIsMobileMenuOpen(false); // ✅ AÑADIDO: Cierra menú móvil
+    setIsMobileMenuOpen(false); 
   };
 
   // --- NUEVO: Handler para navegación móvil ---
@@ -172,20 +172,20 @@ const Navbar = ({ onLoginClick }) => {
       navigate(`/productos?categoria_id=${categoryId}`);
     }
     setIsCategoryDropdownOpen(false);
-    setIsMobileMenuOpen(false); // ✅ AÑADIDO: Cierra menú móvil
+    setIsMobileMenuOpen(false); 
   };
 
-  // --- NUEVO: Handler para checkout con autenticación ---
+  // Handler para checkout con autenticación ---
 const handleCheckout = () => {
-    console.log('🛒 Iniciando checkout...');
-    console.log('🔐 Usuario autenticado:', isAuthenticated);
+    console.log('Iniciando checkout...');
+    console.log('Usuario autenticado:', isAuthenticated);
     
     if (!isAuthenticated) {
-        console.log('🔓 Usuario no autenticado, abriendo modal...');
+        console.log('Usuario no autenticado, abriendo modal...');
         onLoginClick('/checkout');
         setCartOpen(false);
     } else {
-        console.log('✅ Usuario autenticado, redirigiendo a checkout...');
+        console.log('Usuario autenticado, redirigiendo a checkout...');
         setCartOpen(false);
         navigate('/checkout');
     }
@@ -376,7 +376,7 @@ const handleCheckout = () => {
                       <strong>{formatCurrency(cartTotal)}</strong>
                     </div>
                     <div className="navbar-cart-actions">
-                      {/* ✅ MODIFICADO: Ahora usa handleCheckout con autenticación */}
+                      {/* usa handleCheckout con autenticación */}
                       <button className="btn-checkout" onClick={handleCheckout}>
                         Proceder al Pago
                       </button>
@@ -390,7 +390,7 @@ const handleCheckout = () => {
             )}
           </div>
 
-          {/* ✅ NUEVO: Botón de Menú Móvil */}
+          {/*Botón de Menú Móvil */}
           <button 
             className="navbar-mobile-menu-btn"
             onClick={() => setIsMobileMenuOpen(o => !o)}
@@ -401,7 +401,7 @@ const handleCheckout = () => {
         </div>
       </div>
 
-      {/* ✅ NUEVO: Menú Móvil */}
+      {/* Menú Móvil */}
       <nav className={`navbar-mobile-menu ${isMobileMenuOpen ? 'mobile-menu-open' : ''}`}>
         <div className="mobile-nav-content">
           {/* Búsqueda Móvil */}

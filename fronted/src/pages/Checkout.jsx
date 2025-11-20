@@ -122,7 +122,7 @@ const Checkout = ({ cart }) => {
       }
 
       if (result.paymentIntent && result.paymentIntent.status === "succeeded") {
-        alert("✅ Pago completado con éxito");
+        alert("Pago completado con éxito");
         // aquí podrías limpiar carrito (desde contexto) o redirigir
       } else {
         console.log("PaymentIntent:", result.paymentIntent);

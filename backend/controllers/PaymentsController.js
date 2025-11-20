@@ -24,7 +24,6 @@ class PaymentsController {
       if (amount_cents !== undefined && amount_cents !== null) {
         amountInCents = Math.round(Number(amount_cents));
       } else {
-        // amount viene en unidades (ej. 123.45) -> convertir a centavos
         const num = Number(amount);
         if (Number.isNaN(num)) {
           return res.status(400).json({ success: false, mensaje: 'El campo amount debe ser numérico.' });
@@ -36,12 +35,10 @@ class PaymentsController {
         return res.status(400).json({ success: false, mensaje: 'El monto debe ser mayor a 0.' });
       }
 
-      // Verificar autenticación (req.usuario debería provenir de tu middleware)
       if (!req.usuario) {
         return res.status(401).json({ success: false, mensaje: 'Usuario no autenticado' });
       }
 
-      // EXTRA: obtener id seguro (id o idusuario)
       const clienteIdRaw = req.usuario.id ?? req.usuario.idusuario ?? null;
       const clienteId = clienteIdRaw ? String(clienteIdRaw) : '0';
       const clienteEmail = req.usuario.correo ?? req.usuario.email ?? 'no-email';
@@ -57,7 +54,7 @@ class PaymentsController {
           Object.keys(metadata).forEach(k => {
             const v = metadata[k];
             const s = typeof v === 'string' ? v : JSON.stringify(v);
-            safeMetadata[k] = s.slice(0, 4500); // stripe metadata value size limit
+            safeMetadata[k] = s.slice(0, 4500); 
           });
         }
       } catch (e) {
@@ -112,7 +109,6 @@ class PaymentsController {
       case 'payment_intent.succeeded': {
         const paymentIntent = event.data.object;
         console.log('Payment succeeded:', paymentIntent.id);
-        // Actualizaciones de BD...
         break;
       }
       case 'payment_intent.payment_failed':

@@ -53,7 +53,7 @@ export const CartProvider = ({ children }) => {
             );
         }
     };
-    console.log('🛒 CartContext re-render - items:', cartItems.length);
+    console.log('CartContext re-render - items:', cartItems.length);
 
     const clearCart = () => {
         setCartItems([]);
