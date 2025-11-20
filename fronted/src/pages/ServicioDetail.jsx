@@ -15,6 +15,8 @@ const ServicioDetail = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [activeTab, setActiveTab] = useState('descripcion');
     const [relatedServices, setRelatedServices] = useState([]);
+    const [selectedImage, setSelectedImage] = useState(0);
+    const [galleryImages, setGalleryImages] = useState([]);
 
     const handleOpenModal = () => {
         setIsModalOpen(true);
@@ -67,6 +69,17 @@ const ServicioDetail = () => {
                 const json = await res.json();
                 if (json.success) {
                     setServicio(json.data);
+
+                    // Process gallery images from servicio_imagenes table
+                    if (json.data.galeria_imagenes && Array.isArray(json.data.galeria_imagenes)) {
+                        const urls = json.data.galeria_imagenes.map(img => img.url);
+                        setGalleryImages(urls.length > 0 ? urls : ['https://placehold.co/600x400/EEE/31343C?text=Servicio']);
+                    } else if (json.data.imagen_url) {
+                        // Fallback to imagen_url if no gallery images
+                        setGalleryImages([json.data.imagen_url]);
+                    } else {
+                        setGalleryImages(['https://placehold.co/600x400/EEE/31343C?text=Servicio']);
+                    }
                 } else {
                     throw new Error(json.message || 'Error al cargar el servicio');
                 }
@@ -161,16 +174,41 @@ const ServicioDetail = () => {
             </nav>
 
             <div className="servicio-detail-main">
-                <div className="servicio-detail-image-wrapper servicio-detail-image-container">
-                    <img
-                        src={servicio.imagen_url || 'https://placehold.co/600x400/EEE/31343C?text=Servicio'}
-                        alt={servicio.nombre}
-                        className="servicio-detail-image"
-                        onError={(e) => {
-                            e.target.onerror = null;
-                            e.target.src = 'https://placehold.co/600x400/EEE/31343C?text=Servicio';
-                        }}
-                    />
+                {/* Image Gallery */}
+                <div className="servicio-detail-gallery">
+                    <div className="gallery-main-image">
+                        <img
+                            src={galleryImages[selectedImage]}
+                            alt={`${servicio.nombre} - Imagen ${selectedImage + 1}`}
+                            className="servicio-detail-image"
+                            onError={(e) => {
+                                e.target.onerror = null;
+                                e.target.src = 'https://placehold.co/600x400/EEE/31343C?text=Servicio';
+                            }}
+                        />
+                    </div>
+
+                    {galleryImages.length > 1 && (
+                        <div className="gallery-thumbnails">
+                            {galleryImages.map((img, index) => (
+                                <button
+                                    key={index}
+                                    className={`gallery-thumbnail ${selectedImage === index ? 'active' : ''}`}
+                                    onClick={() => setSelectedImage(index)}
+                                    type="button"
+                                >
+                                    <img
+                                        src={img}
+                                        alt={`${servicio.nombre} - Miniatura ${index + 1}`}
+                                        onError={(e) => {
+                                            e.target.onerror = null;
+                                            e.target.src = 'https://placehold.co/100x100/EEE/31343C?text=Img';
+                                        }}
+                                    />
+                                </button>
+                            ))}
+                        </div>
+                    )}
                 </div>
                 <div className="servicio-detail-info servicio-detail-content">
                     <section className="servicio-detail-top">

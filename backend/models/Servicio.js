@@ -25,13 +25,33 @@ class Servicio {
 
 
     static async findById(id) {
+        // Get service basic data
         const query = `
             SELECT * 
             FROM servicios 
             WHERE id = ? AND activo = 1
         `;
         const resultados = await executeQuery(query, [id]);
-        return resultados.length > 0 ? resultados[0] : null;
+
+        if (resultados.length === 0) {
+            return null;
+        }
+
+        const servicio = resultados[0];
+
+        // Get gallery images
+        const imagenesQuery = `
+            SELECT id, url, alt_text, orden, es_principal
+            FROM servicio_imagenes
+            WHERE servicio_id = ? AND activo = 1
+            ORDER BY orden ASC
+        `;
+        const imagenes = await executeQuery(imagenesQuery, [id]);
+
+        // Attach images to service object
+        servicio.galeria_imagenes = imagenes;
+
+        return servicio;
     }
 
 

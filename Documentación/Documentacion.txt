@@ -274,3 +274,408 @@ Dropdown de categorías controlado por el estado de la URL
 
 8. Dependencias actualizadas
 Añadidas las dependencias necesarias en los useEffect y useCallback
+
+
+---
+
+20/11/2025 - MEJORAS A LA PÁGINA DE DETALLE DE SERVICIOS Y GALERÍA DE IMÁGENES
+
+### Objetivo General
+Modernizar y profesionalizar la página de detalle de servicios con diseño inspirado en Mercado Libre,
+implementando un sistema robusto de galería de imágenes con tabla relacional.
+
+### 1. DISEÑO MODERNO DE LA PÁGINA DE DETALLE DE SERVICIOS
+
+Se rediseñó completamente `ServicioDetail.jsx` y `ServicioDetail.css` con las siguientes mejoras:
+
+#### A) Elementos visuales implementados:
+
+**1. Breadcrumbs de Navegación**
+- Ruta: Inicio > Servicios > [Nombre del Servicio]
+- Enlaces clicables para navegación rápida
+- Markup semántico con aria-label para accesibilidad
+- Estilos minimalistas con hover effects
+
+**2. Badges de Confianza (Trust Badges)**
+- 4 badges con iconos SVG:
+  * Servicio Verificado (checkmark)
+  * Respuesta en 24h (lightning)
+  * Garantía Incluida (shield)
+  * +500 Clientes (star)
+- Grid de 2 columnas (desktop), 1 columna (móvil)
+- Color de marca (#3B6F7A) para iconos
+
+**3. Botón de WhatsApp**
+- Botón secundario con icono oficial de WhatsApp
+- Mensaje pre-llenado: "Hola, me interesa el servicio: [nombre]"
+- Estilo outline verde (#25D366) que se rellena al hover
+- Abre WhatsApp Web/App en nueva pestaña
+
+**4. Microcopy en CTA**
+- Texto debajo del botón principal: "Sin compromiso • Respuesta inmediata"
+- Reduce fricción y genera confianza
+- Estilo sutil (13px, color secundario)
+
+**5. Servicios Relacionados**
+- Muestra hasta 3 servicios del mismo tipo
+- Cards con hover effect (elevación y sombra)
+- Grid responsive (3 columnas desktop, 1 en móvil)
+- Usa endpoint existente `/api/servicios/tipo/:tipo`
+- Excluye automáticamente el servicio actual
+
+#### B) Ajustes de diseño:
+
+**Relocalizaciones:**
+- "Modalidad" y "Garantía" movidas del bottom al Buy Box
+- Mejor jerarquía visual de información
+
+**Estilo Mercado Libre:**
+- Fondo gris suave (#ededed) para la página
+- Card blanca principal con sombras sutiles
+- Precio prominente (36px, peso ligero)
+- Botón CTA full-width con color de marca
+- Tabs minimalistas (sin fondo, solo underline)
+
+**Responsividad:**
+- Grid de 2 columnas en desktop (1.5fr imagen, 1fr info)
+- 1 columna en móvil
+- Elementos adaptables en todos los breakpoints
+
+
+### 2. SISTEMA DE GALERÍA DE IMÁGENES CON TABLA RELACIONAL
+
+Se implementó un sistema profesional de galería de imágenes para servicios usando una tabla separada.
+
+#### A) Cambios en Base de Datos:
+
+**Nueva tabla: `servicio_imagenes`**
+
+```sql
+CREATE TABLE IF NOT EXISTS servicio_imagenes (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    servicio_id INT NOT NULL,
+    url VARCHAR(500) NOT NULL COMMENT 'Image URL or path',
+    alt_text VARCHAR(255) NULL COMMENT 'Alt text for SEO and accessibility',
+    orden INT DEFAULT 0 COMMENT 'Display order (0 = first)',
+    es_principal BOOLEAN DEFAULT 0 COMMENT 'Is this the main/featured image?',
+    activo BOOLEAN DEFAULT 1 COMMENT 'Soft delete flag',
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (servicio_id) REFERENCES servicios(id) ON DELETE CASCADE,
+    
+    INDEX idx_servicio_activo (servicio_id, activo),
+    INDEX idx_servicio_orden (servicio_id, orden),
+    INDEX idx_principal (servicio_id, es_principal)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+COMMENT='Gallery images for services';
+```
+
+**Ventajas del diseño relacional:**
+- Normalización correcta de datos
+- Metadata por imagen (alt_text para SEO)
+- Control de orden de visualización
+- Marcado de imagen principal
+- Soft deletes (columna activo)
+- Preparado para escalabilidad
+- Auditoría con timestamps
+
+#### B) Cambios en Backend:
+
+**Archivo modificado: `backend/models/Servicio.js`**
+
+Método `findById` actualizado para incluir galería:
+
+```javascript
+static async findById(id) {
+    // Get service basic data
+    const query = `
+        SELECT * 
+        FROM servicios 
+        WHERE id = ? AND activo = 1
+    `;
+    const resultados = await executeQuery(query, [id]);
+    
+    if (resultados.length === 0) {
+        return null;
+    }
+    
+    const servicio = resultados[0];
+    
+    // Get gallery images
+    const imagenesQuery = `
+        SELECT id, url, alt_text, orden, es_principal
+        FROM servicio_imagenes
+        WHERE servicio_id = ? AND activo = 1
+        ORDER BY orden ASC
+    `;
+    const imagenes = await executeQuery(imagenesQuery, [id]);
+    
+    // Attach images to service object
+    servicio.galeria_imagenes = imagenes;
+    
+    return servicio;
+}
+```
+
+**Resultado del endpoint:**
+- `/api/servicios/:id` ahora retorna el servicio con campo `galeria_imagenes`
+- `galeria_imagenes` es un array de objetos: `[{id, url, alt_text, orden, es_principal}, ...]`
+
+#### C) Cambios en Frontend:
+
+**Archivo modificado: `fronted/src/pages/ServicioDetail.jsx`**
+
+**Estados agregados:**
+```javascript
+const [selectedImage, setSelectedImage] = useState(0);
+const [galleryImages, setGalleryImages] = useState([]);
+```
+
+**Procesamiento de galería:**
+```javascript
+// Process gallery images from servicio_imagenes table
+if (json.data.galeria_imagenes && Array.isArray(json.data.galeria_imagenes)) {
+    const urls = json.data.galeria_imagenes.map(img => img.url);
+    setGalleryImages(urls.length > 0 ? urls : ['placeholder']);
+} else if (json.data.imagen_url) {
+    // Fallback to imagen_url
+    setGalleryImages([json.data.imagen_url]);
+} else {
+    setGalleryImages(['placeholder']);
+}
+```
+
+**Componente de Galería:**
+```jsx
+<div className="servicio-detail-gallery">
+    {/* Main Image */}
+    <div className="gallery-main-image">
+        <img src={galleryImages[selectedImage]} 
+             alt={`${servicio.nombre} - Imagen ${selectedImage + 1}`} />
+    </div>
+    
+    {/* Thumbnails (solo si hay más de 1 imagen) */}
+    {galleryImages.length > 1 && (
+        <div className="gallery-thumbnails">
+            {galleryImages.map((img, index) => (
+                <button 
+                    className={`gallery-thumbnail ${selectedImage === index ? 'active' : ''}`}
+                    onClick={() => setSelectedImage(index)}>
+                    <img src={img} alt={`Miniatura ${index + 1}`} />
+                </button>
+            ))}
+        </div>
+    )}
+</div>
+```
+
+**Archivo modificado: `fronted/src/styles/ServicioDetail.css`**
+
+**Estilos de Galería:**
+```css
+.servicio-detail-gallery {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.gallery-main-image {
+    background-color: #f5f5f5;
+    min-height: 400px;
+    border-radius: 8px;
+}
+
+.gallery-thumbnails {
+    display: flex;
+    gap: 0.75rem;
+    overflow-x: auto;
+    scrollbar-width: thin;
+}
+
+.gallery-thumbnail {
+    width: 80px;
+    height: 80px;
+    border: 2px solid transparent;
+    border-radius: 6px;
+    transition: all 0.2s;
+}
+
+.gallery-thumbnail:hover {
+    border-color: var(--color-brand);
+    transform: scale(1.05);
+}
+
+.gallery-thumbnail.active {
+    border-color: var(--color-brand);
+    box-shadow: 0 0 0 2px rgba(59, 111, 122, 0.2);
+}
+```
+
+#### D) Migración de Datos:
+
+**Script de migración created: `populate_servicio_imagenes.sql`**
+
+Migra `imagen_url` existentes a la nueva tabla:
+
+```sql
+INSERT INTO servicio_imagenes (servicio_id, url, alt_text, orden, es_principal, activo)
+SELECT 
+    id, 
+    imagen_url,
+    CONCAT('Imagen principal de ', nombre) as alt_text,
+    0 as orden,
+    1 as es_principal,
+    1 as activo
+FROM servicios 
+WHERE imagen_url IS NOT NULL 
+  AND imagen_url != ''
+  AND NOT EXISTS (
+      SELECT 1 FROM servicio_imagenes WHERE servicio_id = servicios.id AND es_principal = 1
+  );
+```
+
+#### E) Datos de Ejemplo:
+
+**Script created: `reset_services_with_galleries_FIXED.sql`**
+
+Crea 6 servicios profesionales con galerías de 3-4 imágenes cada uno:
+
+1. **Reparación de Laptops** (Premium - $899)
+   - 4 imágenes reales de Unsplash
+   
+2. **Ensamblaje de PC Gaming** (Premium - $1499)
+   - 4 imágenes de componentes y setups
+   
+3. **Instalación de Software** (Básico - $299)
+   - 3 imágenes de configuración
+   
+4. **Mantenimiento Preventivo** (Básico - $449)
+   - 3 imágenes de limpieza
+   
+5. **Recuperación de Datos** (Premium - $1299)
+   - 3 imágenes de proceso de recuperación
+   
+6. **Soporte Técnico Mensual** (Premium - $599)
+   - 3 imágenes de soporte remoto
+
+Todas las imágenes son URLs reales de Unsplash optimizadas (w=800&q=80).
+
+
+### 3. ARCHIVOS MODIFICADOS/CREADOS
+
+**Frontend:**
+- `fronted/src/pages/ServicioDetail.jsx` - Galería interactiva y mejoras visuales
+- `fronted/src/styles/ServicioDetail.css` - Estilos modernos completos
+
+**Backend:**
+- `backend/models/Servicio.js` - JOIN con servicio_imagenes
+
+**Base de Datos:**
+- `Documentación/nextlevel.sql` - Actualizado con tabla servicio_imagenes
+
+**Scripts SQL creados:**
+- `create_servicio_imagenes_table.sql` - Creación de tabla
+- `populate_servicio_imagenes.sql` - Migración de datos
+- `reset_services_with_galleries_FIXED.sql` - Datos de ejemplo completos
+
+
+### 4. COMMITS REALIZADOS
+
+```
+feat: Agregar badges de confianza en detalle de servicio
+- Agregados 4 badges: Servicio Verificado, Respuesta 24h, Garantía, +500 Clientes
+- Uso de iconos SVG con color de marca (#3B6F7A)
+
+feat: Agregar botón de WhatsApp para contacto directo
+- Botón secundario con icono oficial de WhatsApp
+- Mensaje pre-llenado con nombre del servicio
+
+style: Agregar microcopy debajo del CTA principal
+- Texto "Sin compromiso • Respuesta inmediata"
+- Reduce fricción al momento de contratar
+
+feat: Agregar breadcrumbs de navegación en detalle servicio
+- Ruta: Inicio > Servicios > [Nombre del servicio]
+- Mejora la UX y orientación del usuario
+
+feat: Agregar sección de servicios relacionados
+- Muestra hasta 3 servicios del mismo tipo
+- Cards interactivos con hover effect
+
+feat: Implementar galería de imágenes con tabla separada
+- Nueva tabla servicio_imagenes (normalizada)
+- Galería interactiva con imagen principal + thumbnails
+- Backend actualizado para JOIN automático
+```
+
+
+### 5. VERIFICACIÓN Y TESTING
+
+**Consultas de verificación:**
+
+```sql
+-- Ver todos los servicios con conteo de imágenes
+SELECT 
+    s.id,
+    s.nombre,
+    s.tipo,
+    CONCAT('$', s.precio) as precio,
+    COUNT(si.id) as total_imagenes
+FROM servicios s
+LEFT JOIN servicio_imagenes si ON s.id = si.servicio_id
+GROUP BY s.id
+ORDER BY s.id;
+
+-- Ver todas las imágenes ordenadas
+SELECT 
+    s.nombre as servicio,
+    si.alt_text,
+    si.es_principal,
+    si.orden
+FROM servicio_imagenes si
+JOIN servicios s ON si.servicio_id = s.id
+ORDER BY si.servicio_id, si.orden;
+```
+
+**Features verificados:**
+✅ Galería muestra correctamente múltiples imágenes
+✅ Thumbnails cambian imagen principal al hacer click
+✅ Thumbnails destacan la imagen activa
+✅ Solo muestra thumbnails si hay más de 1 imagen
+✅ Breadcrumbs funcionan correctamente
+✅ Trust badges se muestran en grid responsive
+✅ Botón WhatsApp abre con mensaje correcto
+✅ Servicios relacionados se cargan dinámicamente
+✅ Diseño responsive en todos los breakpoints
+
+
+### 6. TECNOLOGÍAS Y PATRONES USADOS
+
+- **Base de Datos:** MySQL con diseño relacional normalizado
+- **Backend:** Node.js con modelo MVC
+- **Frontend:** React con hooks (useState, useEffect)
+- **CSS:** Variables CSS, Grid, Flexbox, Media Queries
+- **Imágenes:** Unsplash con parámetros de optimización
+- **SEO:** Alt text en todas las imágenes, breadcrumbs semánticos
+- **UX:** Hover effects, active states, micro-interactions
+
+
+### 7. PRÓXIMAS MEJORAS SUGERIDAS
+
+1. Galería con Lightbox (zoom en imagen)
+2. Sección de testimonios/reseñas
+3. FAQ específica del servicio
+4. Badge dinámico de disponibilidad
+5. Horarios de atención
+6. Compartir en redes sociales
+7. Comparador de servicios
+8. Chat en vivo
+9. Video demostrativo
+10. Calculadora de presupuesto
+```
+
+Tabla productos: modificar columna activo a estado
+ALTER TABLE productos DROP COLUMN activo;
+ALTER TABLE productos ADD COLUMN estado TINYINT(1) NOT NULL DEFAULT 1;
+```

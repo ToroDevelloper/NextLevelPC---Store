@@ -129,7 +129,7 @@ CREATE TABLE IF NOT EXISTS `servicios` (
   `imagen_url` varchar(255) DEFAULT NULL,
   `activo` tinyint(1) DEFAULT 1,
   `ordenes_id` int(11) DEFAULT NULL,
-  `tipo` enum('basico','avanzado') DEFAULT 'basico',
+  `tipo` enum('basico','premium') DEFAULT 'basico',
   PRIMARY KEY (`id`),
   KEY `ordenes_id` (`ordenes_id`),
   CONSTRAINT `servicios_ibfk_1` FOREIGN KEY (`ordenes_id`) REFERENCES `ordenes` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
@@ -181,6 +181,50 @@ CREATE TABLE IF NOT EXISTS `usuarios` (
   KEY `rol_id` (`rol_id`),
   CONSTRAINT `usuarios_ibfk_1` FOREIGN KEY (`rol_id`) REFERENCES `roles` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- Step 1: Create the new table for service images
+CREATE TABLE IF NOT EXISTS servicio_imagenes (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    servicio_id INT NOT NULL,
+    url VARCHAR(500) NOT NULL COMMENT 'Image URL or path',
+    alt_text VARCHAR(255) NULL COMMENT 'Alt text for SEO and accessibility',
+    orden INT DEFAULT 0 COMMENT 'Display order (0 = first)',
+    es_principal BOOLEAN DEFAULT 0 COMMENT 'Is this the main/featured image?',
+    activo BOOLEAN DEFAULT 1 COMMENT 'Soft delete flag',
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    
+    -- Foreign key constraint
+    FOREIGN KEY (servicio_id) REFERENCES servicios(id) ON DELETE CASCADE,
+    
+    -- Indexes for performance
+    INDEX idx_servicio_activo (servicio_id, activo),
+    INDEX idx_servicio_orden (servicio_id, orden),
+    INDEX idx_principal (servicio_id, es_principal)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+COMMENT='Gallery images for services';
+
+-- Data exporting was unselected.
+
+-- 20-11-2025: Tabla para galería de imágenes de servicios
+-- Dumping structure for table nextlevel.servicio_imagenes
+CREATE TABLE IF NOT EXISTS `servicio_imagenes` (
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `servicio_id` INT(11) NOT NULL,
+  `url` VARCHAR(500) NOT NULL COMMENT 'Image URL or path',
+  `alt_text` VARCHAR(255) NULL COMMENT 'Alt text for SEO and accessibility',
+  `orden` INT DEFAULT 0 COMMENT 'Display order (0 = first)',
+  `es_principal` TINYINT(1) DEFAULT 0 COMMENT 'Is this the main/featured image?',
+  `activo` TINYINT(1) DEFAULT 1 COMMENT 'Soft delete flag',
+  `fecha_creacion` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  `fecha_actualizacion` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `servicio_id` (`servicio_id`),
+  KEY `idx_servicio_activo` (`servicio_id`, `activo`),
+  KEY `idx_servicio_orden` (`servicio_id`, `orden`),
+  KEY `idx_principal` (`servicio_id`, `es_principal`),
+  CONSTRAINT `servicio_imagenes_ibfk_1` FOREIGN KEY (`servicio_id`) REFERENCES `servicios` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Gallery images for services';
 
 -- Data exporting was unselected.
 
