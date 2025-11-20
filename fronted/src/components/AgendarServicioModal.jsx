@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import './AgendarServicioModal.css';
+import '../styles/AgendarServicioModal.css';
 
 const AgendarServicioModal = ({ servicio, onClose, onSubmit }) => {
     const [formData, setFormData] = useState({

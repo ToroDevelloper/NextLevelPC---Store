@@ -5,7 +5,7 @@ const cookieParser = require('cookie-parser');
 const expressLayouts = require('express-ejs-layouts');
 
 // Cargar variables de entorno
-require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
+require('dotenv').config();
 
 // Importar rutas (usar nombres exactos de archivo para compatibilidad case-sensitive en contenedores)
 const categoriasRoutes = require('./routes/Categorias');
@@ -16,7 +16,11 @@ const usuariosRoutes = require('./routes/usuarios');
 const ordenesRoutes = require('./routes/Ordenes');        
 const ordenItemsRoutes = require('./routes/OrdenItems');
 const imagenProductoRoutes = require('./routes/imagenProductoRoutes');
-const citasServiciosRoutes = require('./routes/citasServicios'); // Importar nueva ruta
+const citasServiciosRoutes = require('./routes/citasServicios');
+
+//Importar rutas de pagos
+const paymentsRoutes = require('./routes/payments');
+const stripeWebhookRoutes = require('./routes/stripeWebhook');
 
 // Importar rutas de VISTAS
 const productosViews = require('./routesViews/productosViews');
@@ -71,7 +75,11 @@ app.use('/api/usuarios', usuariosRoutes);
 app.use('/api/ordenes', ordenesRoutes);         
 app.use('/api/ordenitems', ordenItemsRoutes);
 app.use('/api/imagenes-producto', imagenProductoRoutes);
-app.use('/api/citas-servicios', citasServiciosRoutes); // Registrar nueva ruta
+app.use('/api/citas-servicios', citasServiciosRoutes);
+
+//Ruta API de transacciones de pago
+app.use('/api/payments', paymentsRoutes);
+app.use('/api/stripe',stripeWebhookRoutes);
 
 // Ruta de salud
 app.get('/api/health', async (req, res) => {

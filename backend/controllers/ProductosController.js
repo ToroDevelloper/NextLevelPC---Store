@@ -168,8 +168,8 @@ static async obtenerProductosConImagenes(req, res) {
 
     static async obtenerProductosDestacados(req, res) {
         try {
-            const limite = req.query.limite || 6;
-            const productos = await ProductosService.obtenerProductosDestacados(parseInt(limite));
+            const limite = parseInt(req.query.limite) || 6;
+            const productos = await ProductosService.obtenerProductosDestacados(limite);
 
             res.status(200).json({
                 success: true,

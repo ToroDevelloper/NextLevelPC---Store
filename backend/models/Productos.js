@@ -96,8 +96,10 @@ static async buscarPorNombre(query) {
 
 
 
-    static async obtenerDestacados(limite = 6) {
-        return await executeQuery(`
+static async obtenerDestacados(limite) {
+    const lim = limite;
+
+    return await executeQuery(`
         SELECT p.*, 
                ip.url as imagen_principal,
                ip.es_principal
@@ -105,9 +107,9 @@ static async buscarPorNombre(query) {
         LEFT JOIN imagenes_productos ip ON p.id = ip.producto_id AND ip.es_principal = 1
         WHERE p.estado = 1 AND p.stock > 0
         ORDER BY p.stock DESC
-        LIMIT ?
-    `, [limite]);
-    }
+        LIMIT ${lim}
+    `);
+}
 
 static async obtenerProductosFiltrados(busqueda, categoriaId) {
     let query = `

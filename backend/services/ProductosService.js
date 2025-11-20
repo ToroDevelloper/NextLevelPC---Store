@@ -122,8 +122,11 @@ class ProductosService {
         }
     }
 
-    static async obtenerProductosDestacados(limite = 6) {
+    static async obtenerProductosDestacados(limite) {
         try {
+        const lim = parseInt(limite, 10);
+        if (isNaN(lim) || lim <= 0) throw new Error("Límite inválido");
+
             return await Productos.obtenerDestacados(limite);
         } catch (error) {
             throw new Error(`Error al obtener productos destacados: ${error.message}`);

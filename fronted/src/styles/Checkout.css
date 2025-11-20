@@ -1,0 +1,144 @@
+/* Paleta: Azul #007bff (Primario), Gris #f8f9fa (Fondo), Blanco #ffffff (Cajas) */
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background-color: #f8f9fa;
+}
+
+.checkout-container {
+    width: 100%;
+    max-width: 1000px;
+    margin: 40px auto;
+    padding: 20px;
+}
+
+.checkout-title {
+    text-align: center;
+    margin-bottom: 35px;
+    font-size: 2.2em;
+    color: #343a40;
+    font-weight: 600;
+}
+
+.checkout-box {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    gap: 30px;
+}
+
+.checkout-summary, .checkout-form {
+    background: #ffffff;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    height: fit-content;
+}
+
+.checkout-summary h3, .checkout-form h3 {
+    font-size: 1.5em;
+    margin-top: 0;
+    margin-bottom: 25px;
+    color: #495057;
+    border-bottom: 1px solid #e9ecef;
+    padding-bottom: 10px;
+}
+
+.summary-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    font-size: 1em;
+    color: #6c757d;
+}
+
+.summary-item span:first-child {
+    max-width: 70%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.total-box {
+    margin-top: 20px;
+    padding-top: 15px;
+    font-size: 1.3em;
+    border-top: 2px solid #e9ecef;
+    display: flex;
+    justify-content: space-between;
+    font-weight: 700;
+    color: #343a40;
+}
+
+.checkout-form label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #495057;
+    font-size: 0.95em;
+}
+
+.card-element-box {
+    padding: 15px;
+    border: 1px solid #ced4da;
+    border-radius: 8px;
+    background: #ffffff;
+    margin-bottom: 30px;
+    transition: border-color 0.3s ease;
+}
+
+.card-element-box:focus-within {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.checkout-btn {
+    width: 100%;
+    padding: 14px;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1.1em;
+    font-weight: 600;
+    transition: background-color 0.3s ease, transform 0.1s ease;
+}
+
+.checkout-btn:hover:not(:disabled) {
+    background: #0056b3;
+    transform: translateY(-1px);
+}
+
+.checkout-btn:disabled {
+    background: #adb5bd;
+    cursor: not-allowed;
+    opacity: 0.8;
+}
+
+.test-data {
+    grid-column: 1 / -1;
+    margin-top: 20px;
+    background: #e9ecef;
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px dashed #adb5bd;
+    color: #495057;
+    font-size: 0.9em;
+}
+
+.test-data h3 {
+    margin-top: 0;
+    color: #495057;
+    font-size: 1.2em;
+}
+
+@media (max-width: 768px) {
+    .checkout-box {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .checkout-summary, .checkout-form {
+        padding: 20px;
+    }
+}
