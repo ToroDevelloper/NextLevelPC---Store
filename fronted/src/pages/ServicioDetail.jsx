@@ -144,6 +144,10 @@ const ServicioDetail = () => {
                             <span className="servicio-detail-stock">
                                 Estado: {servicio.activo === 0 ? 'No disponible' : 'Disponible'}
                             </span>
+                            <div className="servicio-detail-extra-info">
+                                <p><strong>Modalidad:</strong> {servicio.modalidad || 'Presencial / Remoto'}</p>
+                                <p><strong>Garantía:</strong> {servicio.garantia || 'Garantía estándar'}</p>
+                            </div>
                         </div>
                         <div className="servicio-detail-actions servicio-detail-footer">
                             <button
@@ -156,10 +160,7 @@ const ServicioDetail = () => {
                         </div>
                     </section>
                     <section className="servicio-detail-meta-grid">
-                        <div className="servicio-detail-extra">
-                            <p><strong>Modalidad:</strong> {servicio.modalidad || 'Presencial / Remoto según disponibilidad.'}</p>
-                            <p><strong>Garantía:</strong> {servicio.garantia || 'Garantía estándar sobre el trabajo realizado.'}</p>
-                        </div>
+
                         <div className="servicio-detail-tabs">
                             <div className="servicio-detail-tab-headers">
                                 <button
