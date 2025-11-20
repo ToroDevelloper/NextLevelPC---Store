@@ -129,7 +129,7 @@ CREATE TABLE IF NOT EXISTS `servicios` (
   `imagen_url` varchar(255) DEFAULT NULL,
   `activo` tinyint(1) DEFAULT 1,
   `ordenes_id` int(11) DEFAULT NULL,
-  `tipo` enum('basico','premium') DEFAULT 'basico',
+  `tipo` enum('basico','avanzado') DEFAULT 'basico',
   PRIMARY KEY (`id`),
   KEY `ordenes_id` (`ordenes_id`),
   CONSTRAINT `servicios_ibfk_1` FOREIGN KEY (`ordenes_id`) REFERENCES `ordenes` (`id`) ON DELETE SET NULL ON UPDATE CASCADE

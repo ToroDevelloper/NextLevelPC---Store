@@ -114,15 +114,7 @@ CREATE TABLE IF NOT EXISTS `servicio_imagenes` (
   CONSTRAINT `servicio_imagenes_ibfk_1` FOREIGN KEY (`servicio_id`) REFERENCES `servicios` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Gallery images for services';
 
--- 2. Actualizar tipo de servicios
-ALTER TABLE `servicios` 
-MODIFY COLUMN `tipo` ENUM('basico','premium') DEFAULT 'basico';
-
-UPDATE `servicios` 
-SET `tipo` = 'premium' 
-WHERE `tipo` = 'avanzado';
-
--- 3. Migrar imagen_url a servicio_imagenes
+-- 2. Migrar imagen_url a servicio_imagenes
 INSERT INTO servicio_imagenes (servicio_id, url, alt_text, orden, es_principal, activo)
 SELECT 
     id, 
@@ -138,42 +130,70 @@ WHERE imagen_url IS NOT NULL
       SELECT 1 FROM servicio_imagenes WHERE servicio_id = servicios.id AND es_principal = 1
   );
 
--- 4. Reset completo con servicios de ejemplo
+-- 3. Reset completo con 12 servicios (6 básicos, 6 avanzados)
 DELETE FROM servicios;
 ALTER TABLE servicios AUTO_INCREMENT = 1;
 ALTER TABLE servicio_imagenes AUTO_INCREMENT = 1;
 
 INSERT INTO servicios (nombre, tipo, precio, descripcion, imagen_url, activo) VALUES
-('Reparación y Mantenimiento de Laptops', 'premium', 899.00, 
-'Servicio completo de reparación y mantenimiento para tu laptop. Incluye diagnóstico, limpieza profunda, reemplazo de componentes, actualización de software y garantía de 3 meses.',
-'https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=800&q=80', 1),
-
-('Ensamblaje de PC Gaming/Profesional', 'premium', 1499.00,
-'Armado y configuración de PC personalizado. Incluye selección de componentes, ensamblaje profesional, instalación de SO, drivers, pruebas de rendimiento y garantía de 6 meses.',
-'https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?w=800&q=80', 1),
-
-('Instalación y Configuración de Software', 'basico', 299.00,
-'Instalación profesional de programas: sistemas operativos, suite de oficina, antivirus, software de diseño. Incluye configuración óptima, activación legal y capacitación básica.',
+-- BÁSICOS
+('Instalación de Windows/Linux', 'basico', 299.00,
+'Instalación limpia de sistema operativo Windows o Linux. Incluye drivers básicos, actualizaciones de seguridad, antivirus gratuito y configuración inicial del sistema.',
 'https://images.unsplash.com/photo-1629654297299-c8506221ca97?w=800&q=80', 1),
 
-('Mantenimiento Preventivo de Equipos', 'basico', 449.00,
-'Limpieza profunda, renovación de pasta térmica, optimización de sistema, actualización de drivers, verificación de disco duro/SSD y reporte técnico detallado.',
+('Limpieza y Mantenimiento Básico', 'basico', 199.00,
+'Limpieza física de componentes, eliminación de archivos temporales, optimización de inicio de Windows y verificación de salud de disco duro.',
 'https://images.unsplash.com/photo-1587825140708-dfaf72ae4b04?w=800&q=80', 1),
 
-('Recuperación de Datos y Archivos', 'premium', 1299.00,
-'Recuperación profesional de información perdida de discos duros, SSD, USB, tarjetas SD. Evaluación gratuita, sin datos recuperados no hay cargo.',
+('Instalación de Office y Programas', 'basico', 249.00,
+'Instalación de suite Office (Word, Excel, PowerPoint), navegadores, reproductores multimedia, compresores de archivos y programas básicos.',
+'https://images.unsplash.com/photo-1551808525-51a94da548ce?w=800&q=80', 1),
+
+('Diagnóstico de Problemas', 'basico', 149.00,
+'Diagnóstico completo de hardware y software para identificar fallas. Incluye reporte detallado de problemas encontrados y cotización de reparación.',
+'https://images.unsplash.com/photo-1591405351990-4726e331f141?w=800&q=80', 1),
+
+('Configuración de Router WiFi', 'basico', 199.00,
+'Configuración de router inalámbrico, cambio de contraseñas, optimización de canales WiFi, configuración de seguridad WPA3 y pruebas de velocidad.',
+'https://images.unsplash.com/photo-1606904825846-647eb07f5be2?w=800&q=80', 1),
+
+('Respaldo de Datos (Backup)', 'basico', 299.00,
+'Respaldo completo de documentos, fotos, videos y archivos importantes a disco externo o nube. Incluye verificación de integridad de datos.',
+'https://images.unsplash.com/photo-1544654803-b69140b285a1?w=800&q=80', 1),
+
+-- AVANZADOS
+('Ensamblaje de PC Gaming/Workstation', 'avanzado', 1499.00,
+'Armado profesional de PC gaming o estación de trabajo. Incluye: selección optimizada de componentes, ensamblaje con cable management, instalación de SO y drivers, overclock seguro y garantía de 6 meses.',
+'https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?w=800&q=80', 1),
+
+('Reparación Avanzada de Laptops', 'avanzado', 899.00,
+'Reparación de nivel experto: reballing de GPU/CPU, cambio de bisagras, reemplazo de pantalla LED/OLED, upgrading a SSD NVMe, expansión de RAM y renovación de pasta térmica.',
+'https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=800&q=80', 1),
+
+('Recuperación de Datos Profesional', 'avanzado', 1299.00,
+'Recuperación avanzada de datos de discos duros dañados, SSD, RAID, tarjetas SD corruptas. Utilizamos software forense. Evaluación gratuita, pago solo si recuperamos tus datos.',
 'https://images.unsplash.com/photo-1633265486064-086b219458ec?w=800&q=80', 1),
 
-('Plan de Soporte Técnico Mensual', 'premium', 599.00,
-'Soporte técnico 24/7 vía WhatsApp/email, 2 visitas presenciales al mes, mantenimiento remoto semanal, actualizaciones, asesoría y respaldo en la nube.',
+('Instalación de Red Empresarial', 'avanzado', 2499.00,
+'Diseño e implementación de red empresarial completa. Incluye: cableado estructurado Cat6/Cat7, switches administrables, puntos de acceso WiFi 6, servidor de dominio y firewall.',
+'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=800&q=80', 1),
+
+('Configuración de Servidor (Windows Server/Linux)', 'avanzado', 1899.00,
+'Instalación y configuración completa de servidor empresarial: Active Directory, DNS, DHCP, File Server, controlador de dominio, políticas de grupo y respaldos automáticos.',
+'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=800&q=80', 1),
+
+('Plan de Soporte Técnico Empresarial', 'avanzado', 999.00,
+'Soporte técnico integral mensual: atención 24/7 vía WhatsApp/email/llamada, 3 visitas presenciales incluidas, mantenimiento preventivo mensual y monitoreo remoto.',
 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&q=80', 1);
 
--- Insertar imágenes de galería (ejemplo para ID 1)
+-- 4. Insertar galerías (ejemplo servicio ID 1)
 INSERT INTO servicio_imagenes (servicio_id, url, alt_text, orden, es_principal) VALUES
-(1, 'https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=800&q=80', 'Laptop siendo reparada por técnico profesional', 0, 1),
-(1, 'https://images.unsplash.com/photo-1593642532842-98d0fd5ebc1a?w=800&q=80', 'Herramientas de reparación profesionales', 1, 0),
-(1, 'https://images.unsplash.com/photo-1625948515291-69613efd103f?w=800&q=80', 'Mantenimiento interno de laptop', 2, 0),
-(1, 'https://images.unsplash.com/photo-1591405351990-4726e331f141?w=800&q=80', 'Diagnóstico de componentes electrónicos', 3, 0);
+(1, 'https://images.unsplash.com/photo-1629654297299-c8506221ca97?w=800&q=80', 'Instalación de sistema operativo', 0, 1),
+(1, 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80', 'Configuración de Windows', 1, 0),
+(1, 'https://images.unsplash.com/photo-1551808525-51a94da548ce?w=800&q=80', 'Escritorio configurado', 2, 0),
+(1, 'https://images.unsplash.com/photo-1538688423619-a81d3f23454b?w=800&q=80', 'Actualizaciones del sistema', 3, 0);
+
+-- (Repetir para los 11 servicios restantes - Ver script completo: reset_servicios_basico_avanzado.sql)
 
 =================================================================
 ARCHIVOS MODIFICADOS POR FECHA
@@ -209,6 +229,16 @@ SELECT
 FROM servicio_imagenes si
 JOIN servicios s ON si.servicio_id = s.id
 ORDER BY si.servicio_id, si.orden;
+
+-- Resumen por tipo
+SELECT 
+    tipo,
+    COUNT(*) as total,
+    CONCAT('$', MIN(precio)) as min,
+    CONCAT('$', MAX(precio)) as max
+FROM servicios
+WHERE activo = 1
+GROUP BY tipo;
 
 -- Verificar estructura de servicio_imagenes
 DESCRIBE servicio_imagenes;
