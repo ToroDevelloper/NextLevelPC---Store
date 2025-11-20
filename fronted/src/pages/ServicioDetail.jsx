@@ -117,6 +117,23 @@ const ServicioDetail = () => {
 
     return (
         <div className="servicio-detail-page">
+            {/* Breadcrumbs */}
+            <nav className="breadcrumbs" aria-label="Breadcrumb">
+                <ol className="breadcrumb-list">
+                    <li className="breadcrumb-item">
+                        <a href="/">Inicio</a>
+                    </li>
+                    <li className="breadcrumb-separator">/</li>
+                    <li className="breadcrumb-item">
+                        <a href="/servicios">Servicios</a>
+                    </li>
+                    <li className="breadcrumb-separator">/</li>
+                    <li className="breadcrumb-item active" aria-current="page">
+                        {servicio.nombre}
+                    </li>
+                </ol>
+            </nav>
+
             <div className="servicio-detail-main">
                 <div className="servicio-detail-image-wrapper servicio-detail-image-container">
                     <img
