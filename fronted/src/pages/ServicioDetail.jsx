@@ -14,6 +14,7 @@ const ServicioDetail = () => {
     const [error, setError] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [activeTab, setActiveTab] = useState('descripcion');
+    const [relatedServices, setRelatedServices] = useState([]);
 
     const handleOpenModal = () => {
         setIsModalOpen(true);
@@ -79,6 +80,31 @@ const ServicioDetail = () => {
 
         fetchServicio();
     }, [id]);
+
+    // Fetch related services
+    useEffect(() => {
+        const fetchRelatedServices = async () => {
+            if (!servicio?.tipo) return;
+
+            try {
+                const res = await fetch(`${API_BASE}/api/servicios/tipo/${encodeURIComponent(servicio.tipo)}`);
+                if (!res.ok) return;
+
+                const json = await res.json();
+                if (json.success && Array.isArray(json.data)) {
+                    // Filter out current service and limit to 3
+                    const filtered = json.data
+                        .filter(s => s.id !== servicio.id)
+                        .slice(0, 3);
+                    setRelatedServices(filtered);
+                }
+            } catch (err) {
+                console.error('Error fetching related services:', err);
+            }
+        };
+
+        fetchRelatedServices();
+    }, [servicio]);
 
     if (loading) {
         return <div className="loading">Cargando...</div>;
@@ -260,6 +286,39 @@ const ServicioDetail = () => {
                     </section>
                 </div>
             </div>
+
+            {/* Related Services */}
+            {relatedServices.length > 0 && (
+                <div className="related-services">
+                    <h2 className="related-services-title">También te puede interesar</h2>
+                    <div className="related-services-grid">
+                        {relatedServices.map(service => (
+                            <a
+                                key={service.id}
+                                href={`/servicios/${service.id}`}
+                                className="related-service-card"
+                            >
+                                <div className="related-service-image-wrapper">
+                                    <img
+                                        src={service.imagen_url || 'https://placehold.co/300x200/EEE/31343C?text=Servicio'}
+                                        alt={service.nombre}
+                                        className="related-service-image"
+                                        onError={(e) => {
+                                            e.target.onerror = null;
+                                            e.target.src = 'https://placehold.co/300x200/EEE/31343C?text=Servicio';
+                                        }}
+                                    />
+                                </div>
+                                <div className="related-service-info">
+                                    <h3 className="related-service-name">{service.nombre}</h3>
+                                    {service.tipo && <p className="related-service-type">{service.tipo}</p>}
+                                    <p className="related-service-price">${Number(service.precio || 0).toFixed(2)}</p>
+                                </div>
+                            </a>
+                        ))}
+                    </div>
+                </div>
+            )}
             {isModalOpen && (
                 <AgendarServicioModal
                     servicio={servicio}
@@ -270,5 +329,6 @@ const ServicioDetail = () => {
         </div>
     );
 };
+
 
 export default ServicioDetail;
