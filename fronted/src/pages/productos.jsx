@@ -252,20 +252,22 @@ const ProductDetail = React.memo(({ product, onAddToCart }) => {
             <p>Envío: {product.raw.envioDescripcion || 'Envío estándar disponible.'}</p>
             <p>Devolución: {product.raw.politicaDevolucion || 'Devoluciones dentro de 30 días.'}</p>
           </div>
+
+
         </div>
       </div>
 
       <div className="product-detail-tabs">
         <div className="product-detail-tab-headers">
           <button
-            className={`tab-header ${activeTab === 'descripcion' ? 'active' : ''}`}
+            className={`producto-tab-header ${activeTab === 'descripcion' ? 'active' : ''}`}
             type="button"
             onClick={() => setActiveTab('descripcion')}
           >
             Descripción
           </button>
           <button
-            className={`tab-header ${activeTab === 'especificaciones' ? 'active' : ''}`}
+            className={`producto-tab-header ${activeTab === 'especificaciones' ? 'active' : ''}`}
             type="button"
             onClick={() => setActiveTab('especificaciones')}
           >
@@ -273,10 +275,10 @@ const ProductDetail = React.memo(({ product, onAddToCart }) => {
           </button>
         </div>
         <div className="product-detail-tab-body">
-          <div className={`tab-panel ${activeTab === 'descripcion' ? 'active' : ''}`}>
+          <div className={`producto-tab-panel ${activeTab === 'descripcion' ? 'active' : ''}`}>
             <p className="product-detail-description">{description}</p>
           </div>
-          <div className={`tab-panel ${activeTab === 'especificaciones' ? 'active' : ''}`}>
+          <div className={`producto-tab-panel ${activeTab === 'especificaciones' ? 'active' : ''}`}>
             <table className="product-specs-table">
               <tbody>
                 {specs.map(spec => (
@@ -325,8 +327,8 @@ const Productos = () => {
   const routeInfo = useMemo(() => {
     const searchParams = new URLSearchParams(location.search);
     const searchQuery = searchParams.get('q') || '';
-    
-    const categoriaId = searchParams.get('categoria_id') || '0'; 
+
+    const categoriaId = searchParams.get('categoria_id') || '0';
 
     const isProductsRoute = location.pathname === '/productos';
     const isSearchRoute = location.pathname === '/productos/buscar';
@@ -362,11 +364,11 @@ const Productos = () => {
     // Lógica unificada para filtros
     // Sigue usando 'categoria_id' si viene en la URL
     const params = new URLSearchParams();
-    
+
     if (searchQuery) {
       params.append('busqueda', searchQuery);
     }
-    
+
     if (categoriaId && categoriaId !== '0') {
       params.append('categoria_id', categoriaId);
     }
@@ -390,15 +392,15 @@ const Productos = () => {
     const fetchProducts = async () => {
       // No debe hacer fetch si está en /productos/buscar sin 'q' Y sin 'categoria_id'
       if (isSearchRoute && !searchQuery && (categoriaId === '0' || !categoriaId)) {
-         setLoading(false);
-         setProducts([]);
-         setError(null);
-         return;
+        setLoading(false);
+        setProducts([]);
+        setError(null);
+        return;
       }
-      
+
       if (isProductDetailRoute && !productId) {
-         setLoading(false);
-         return;
+        setLoading(false);
+        return;
       }
 
       setLoading(true);
@@ -407,8 +409,8 @@ const Productos = () => {
       try {
         const endpoint = buildEndpoint();
         if (!endpoint) {
-           setLoading(false);
-           return;
+          setLoading(false);
+          return;
         }
 
         const response = await fetch(endpoint);
@@ -421,12 +423,12 @@ const Productos = () => {
 
         if (!success) {
           if (data) {
-             console.warn('Respuesta de API marcada como no exitosa, pero se encontraron datos.');
+            console.warn('Respuesta de API marcada como no exitosa, pero se encontraron datos.');
           } else {
-             throw new Error('Respuesta inválida de la API');
+            throw new Error('Respuesta inválida de la API');
           }
         }
-        
+
         const normalizedProducts = normalizeData(data || []);
         setProducts(normalizedProducts);
       } catch (error) {
@@ -463,11 +465,11 @@ const Productos = () => {
   // --- Render ---
 
   const getTitle = () => {
-      if (productId) return 'Detalle del Producto';
-      if (isSearchRoute) return `Resultados para: "${searchQuery}"`;
-      if (isProductsRoute) return 'Todos los Productos';
-      const pageName = location.pathname.replace('/', '');
-      return pageName.charAt(0).toUpperCase() + pageName.slice(1);
+    if (productId) return 'Detalle del Producto';
+    if (isSearchRoute) return `Resultados para: "${searchQuery}"`;
+    if (isProductsRoute) return 'Todos los Productos';
+    const pageName = location.pathname.replace('/', '');
+    return pageName.charAt(0).toUpperCase() + pageName.slice(1);
   };
 
   const renderContent = () => {
@@ -505,7 +507,7 @@ const Productos = () => {
   return (
     <div className="productos-page">
       <h2 className="productos-title">{getTitle()}</h2>
-      
+
       {renderContent()}
     </div>
   );

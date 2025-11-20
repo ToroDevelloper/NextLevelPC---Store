@@ -58,6 +58,7 @@
     border: 1px solid #e5e7eb;
     border-radius: 12px;
     overflow: hidden;
+    margin-top: 2rem;
 }
 
 .servicio-detail-tab-headers {
@@ -66,13 +67,41 @@
     border-bottom: 1px solid #e5e7eb;
 }
 
-.tab-header {
+/* Professional Button Styles */
+.servicio-tab-header {
     flex: 1;
+    padding: 1rem;
+    border: none;
+    background-color: #f8fafc;
+    color: #64748b;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+}
+
+.servicio-tab-header:hover {
+    background-color: #e2e8f0;
+    color: #0f172a;
+}
+
+.servicio-tab-header.active {
+    background-color: #0f172a;
+    color: #ffffff;
 }
 
 .servicio-detail-tab-body {
     padding: 1.5rem;
     background-color: #fafbfc;
+}
+
+.servicio-tab-panel {
+    display: none;
+}
+
+.servicio-tab-panel.active {
+    display: block;
+    animation: fadeIn 0.5s ease;
 }
 
 .servicio-detail-meta-grid {
@@ -113,3 +142,14 @@
     }
 }
 
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

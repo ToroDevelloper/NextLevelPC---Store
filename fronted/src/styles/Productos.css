@@ -9,7 +9,7 @@
   --color-border: #e9ecef;
   --color-white: #FFFFFF;
   --color-dark: var(--color-text);
-  
+
   --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.04);
   --shadow-md: 0 5px 15px rgba(0, 0, 0, 0.08);
   --shadow-lg: 0 8px 25px rgba(0, 0, 0, 0.12);
@@ -107,6 +107,7 @@
   padding: 1rem;
   transition: var(--transition-speed);
 }
+
 .producto-card {
   display: flex;
   flex-direction: column;
@@ -291,7 +292,7 @@
   padding: 0 3rem;
 }
 
-.tab-header {
+.producto-tab-header {
   padding: 1.25rem 2rem;
   font-weight: 600;
   color: var(--color-text-light);
@@ -300,11 +301,11 @@
   transition: var(--transition-speed);
 }
 
-.tab-header:hover {
+.producto-tab-header:hover {
   color: var(--color-accent);
 }
 
-.tab-header.active {
+.producto-tab-header.active {
   color: var(--color-accent);
   border-bottom-color: var(--color-accent);
 }
@@ -313,18 +314,25 @@
   padding: 3rem;
 }
 
-.tab-panel {
+.producto-tab-panel {
   display: none;
 }
 
-.tab-panel.active {
+.producto-tab-panel.active {
   display: block;
   animation: fadeIn 0.5s ease;
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* SPEC TABLE */
@@ -352,4 +360,3 @@
 .product-specs-table tr:hover {
   background-color: var(--color-background-soft);
 }
-

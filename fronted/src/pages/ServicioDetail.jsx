@@ -163,14 +163,14 @@ const ServicioDetail = () => {
                         <div className="servicio-detail-tabs">
                             <div className="servicio-detail-tab-headers">
                                 <button
-                                    className={`tab-header ${activeTab === 'descripcion' ? 'active' : ''}`}
+                                    className={`servicio-tab-header ${activeTab === 'descripcion' ? 'active' : ''}`}
                                     type="button"
                                     onClick={() => setActiveTab('descripcion')}
                                 >
                                     Descripción
                                 </button>
                                 <button
-                                    className={`tab-header ${activeTab === 'especificaciones' ? 'active' : ''}`}
+                                    className={`servicio-tab-header ${activeTab === 'especificaciones' ? 'active' : ''}`}
                                     type="button"
                                     onClick={() => setActiveTab('especificaciones')}
                                 >
@@ -178,12 +178,12 @@ const ServicioDetail = () => {
                                 </button>
                             </div>
                             <div className="servicio-detail-tab-body">
-                                <div className={`tab-panel ${activeTab === 'descripcion' ? 'active' : ''}`}>
+                                <div className={`servicio-tab-panel ${activeTab === 'descripcion' ? 'active' : ''}`}>
                                     <p className="servicio-detail-description servicio-descripcion">
                                         {descripcion}
                                     </p>
                                 </div>
-                                <div className={`tab-panel ${activeTab === 'especificaciones' ? 'active' : ''}`}>
+                                <div className={`servicio-tab-panel ${activeTab === 'especificaciones' ? 'active' : ''}`}>
                                     <table className="servicio-specs-table">
                                         <tbody>
                                             {specs.map((spec) => (
