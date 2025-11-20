@@ -247,5 +247,19 @@ DESCRIBE servicio_imagenes;
 DESCRIBE servicios;
 
 =================================================================
+STRIPE-PASARELA DE PAGO
+=================================================================
+
+nuevas rutas para la integración de Stripe, incluyendo:
+
+Ruta de checkout (/checkout) - Para finalizar compras
+
+Endpoint de pagos en el backend (/api/payments/create-payment-intent) - Para crear intenciones de pago
+
+Webhook de Stripe (/api/payments/webhook) - Para manejar notificaciones de pagos
+
+También se ha configurado la lógica de redirección al login cuando los usuarios intentan acceder al checkout sin estar autenticados.
+
+=================================================================
 FIN DE DOCUMENTACIÓN
 =================================================================
