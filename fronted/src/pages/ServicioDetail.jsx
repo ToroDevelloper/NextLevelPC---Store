@@ -186,6 +186,7 @@ const ServicioDetail = () => {
                             >
                                 Contratar Servicio
                             </button>
+                            <p className="cta-microcopy">Sin compromiso • Respuesta inmediata</p>
 
                             <a
                                 href={`https://wa.me/5215512345678?text=Hola,%20me%20interesa%20el%20servicio:%20${encodeURIComponent(servicio.nombre)}`}
