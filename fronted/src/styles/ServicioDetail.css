@@ -161,6 +161,35 @@
     background-color: var(--color-brand-hover);
 }
 
+/* WhatsApp Button */
+.servicio-whatsapp-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.85rem 1rem;
+    font-size: 15px;
+    font-weight: 600;
+    color: #25D366;
+    background-color: transparent;
+    border: 2px solid #25D366;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    width: 100%;
+    text-decoration: none;
+}
+
+.servicio-whatsapp-btn:hover {
+    background-color: #25D366;
+    color: #fff;
+}
+
+.whatsapp-icon {
+    width: 20px;
+    height: 20px;
+}
+
 /* --- Extra Info Grid (Now mostly Tabs) --- */
 .servicio-detail-meta-grid {
     margin-top: 2rem;
