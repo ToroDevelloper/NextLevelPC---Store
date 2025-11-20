@@ -41,7 +41,7 @@ const Layout = ({ children }) => {
      */
    // Debug effect
     useEffect(() => {
-        console.log('🔍 DEBUG - Estado modal:', isLoginModalOpen, 'Ref:', modalOpenRef.current);
+        console.log('DEBUG - Estado modal:', isLoginModalOpen, 'Ref:', modalOpenRef.current);
     }, [isLoginModalOpen]);
 
 const openLoginModal = (targetPath = null) => {
@@ -155,7 +155,7 @@ const closeLoginModal = () => {
             {/* ------------------------------------------- */}
 {isLoginModalOpen && (
     <>
-        {console.log('🎯 MODAL RENDERIZANDO - isLoginModalOpen:', isLoginModalOpen)}
+        {console.log('MODAL RENDERIZANDO - isLoginModalOpen:', isLoginModalOpen)}
         <div 
             onClick={closeLoginModal}
             style={{
