@@ -1,98 +1,36 @@
-lo que queda faltando es:
-- el login que no se logea correctamente, ósea inicia pero seria buen de que al logiarse se muestre el nombre del usuario que se logio o algo asi,y un apartado para el perfil
+=================================================================
+NEXTLEVEL PC - DOCUMENTACIÓN DE CAMBIOS Y MEJORAS
+=================================================================
 
--la organización de productos algo como mas dinamico de manera horizontal con Carruseles o algo asi y cosas asi…
+PENDIENTES:
+- Login: mostrar nombre del usuario al logiarse y apartado de perfil
+- Productos: organización más dinámica con carruseles horizontales
+- Footer: iconos reales de redes sociales (Facebook, Instagram)
+- Admin: interfaz para subir productos desde el dashboard
 
-- también falta poner iconos mas reales en la parte de abajo, como los logos de Facebook, Instagram, etc para que se vea mas profesional
+=================================================================
+IMPLEMENTACIONES COMPLETADAS
+=================================================================
 
-- falta la de ver destalle del producto y lo mismo con servicios (que solo permita ver si esta logiado, lo mismo cuando quiera añadirlo al carrito)
+-------------------------------------------------------------------
+NOVIEMBRE 14-15, 2025 - SISTEMA BASE
+-------------------------------------------------------------------
 
-- Al logiarse como admin que haya una opcion de subir productos desde la interfaz para hacerlo de manera mas rapida.
+✓ Detalle de Servicios con página individual
+✓ Campo imagen_url en tabla servicios
+✓ Carrito de compras con persistencia (localStorage)
+✓ Agendamiento de citas para servicios
+✓ Sistema de roles (cliente, empleado, admin)
+✓ Perfil básico en SPA
+✓ Tabla refresh_tokens para autenticación
 
+SCRIPTS SQL APLICADOS:
 
+-- Agregar imagen_url a servicios (si no existe)
+ALTER TABLE `servicios`
+  ADD COLUMN `imagen_url` varchar(255) DEFAULT NULL AFTER `descripcion`;
 
-
-
-
-
-
-
-### Funcionalidades Implementadas (Resumen)
-
-1.  **Detalle de Servicios:**
-    *   Se creó una página de detalles para cada servicio, accesible al hacer clic en una tarjeta de servicio.
-    *   La página muestra el nombre, descripción, precio e imagen del servicio.
-
-2.  **Imágenes en Servicios:**
-    *   Se añadió un campo `imagen_url` a la tabla `servicios` en la base de datos.
-    *   Las imágenes se muestran tanto en la lista de servicios como en la página de detalles.
-    *   Si un servicio no tiene imagen, se muestra una imagen por defecto.
-
-3.  **Carrito de Compras para Servicios:**
-    *   Se implementó un contexto de carrito (`CartContext`) que persiste en `localStorage`.
-    *   El botón "Añadir al carrito" en las tarjetas de servicio ahora agrega el servicio al carrito.
-    *   El `Navbar` se ha integrado con el `CartContext` para mostrar los artículos, la cantidad y el total.
-
-4.  **Agendamiento de Citas para Servicios a Domicilio:**
-    *   En la página de detalles del servicio, el botón "Contratar Servicio" abre un formulario modal.
-    *   El formulario permite al cliente ingresar sus datos (nombre, email, teléfono, dirección), seleccionar una fecha y describir el problema.
-    *   Se ha creado un nuevo endpoint en el backend (`POST /api/citas-servicios`) y una tabla `citas_servicios` en la base de datos para guardar estas solicitudes.
-
-- Roles y flujo de acceso:
-  - Se reforzó la idea de que el cliente (rol `cliente`) navega el SPA (Home, Servicios, Productos, Perfil simple) y puede agendar servicios desde ahí.
-  - Empleados y administradores (`empleado`, `admin`) están pensados para entrar directamente a las vistas EJS protegidas (dashboard y vistas de gestión), donde ven las solicitudes de servicio.
-  - Se ajustó y documentó el uso de middlewares de vistas (`viewAuth`, `roleMiddleware`) y el comportamiento esperado al iniciar sesión.
-
-- Perfil:
-  - Se dejó un perfil sencillo en el SPA (`Perfil.jsx`) que muestra información del usuario logueado.
-  - Se descartó mantener un perfil duplicado dentro de las vistas EJS para evitar confusión.
-
-- Base de datos (archivo `nextlevel.sql`):
-  - Se consolidó la estructura de la base de datos en `Documentación/nextlevel.sql`.
-  - Cambios clave utilizados hoy:
-    - Tabla `servicios` ahora incluye la columna `imagen_url` para mostrar imágenes de servicios.
-    - Creación de la tabla `citas_servicios` para guardar las solicitudes de servicio a domicilio.
-    - Creación de la tabla `refresh_tokens` para manejar tokens de refresco en el sistema de autenticación.
-
-### Referencia técnica: SQL usado hoy
-
-Estos son los comandos SQL que agregan o modifican la base de datos relacionados con lo trabajado hoy. Todos están consolidados en `Documentación/nextlevel.sql`.
-
-1) Creación de la base de datos y uso
-
-```sql
-CREATE DATABASE IF NOT EXISTS `nextlevel` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci */;
-USE `nextlevel`;
-```
-
-2) Tabla `servicios` con columna `imagen_url`
-
-```sql
-CREATE TABLE IF NOT EXISTS `servicios` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `nombre` varchar(200) NOT NULL,
-  `precio` decimal(12,2) NOT NULL,
-  `descripcion` text DEFAULT NULL,
-  `imagen_url` varchar(255) DEFAULT NULL,
-  `activo` tinyint(1) DEFAULT 1,
-  `ordenes_id` int(11) DEFAULT NULL,
-  `tipo` enum('basico','avanzado') DEFAULT 'basico',
-  PRIMARY KEY (`id`),
-  KEY `ordenes_id` (`ordenes_id`),
-  CONSTRAINT `servicios_ibfk_1` FOREIGN KEY (`ordenes_id`) REFERENCES `ordenes` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-```
-
-> Nota: si ya existía la tabla `servicios` sin `imagen_url`, se podría añadir manualmente así (solo si llega a faltar):
->
-> ```sql
-> ALTER TABLE `servicios`
->   ADD COLUMN `imagen_url` varchar(255) DEFAULT NULL AFTER `descripcion`;
-> ```
-
-3) Tabla `citas_servicios` (solicitudes de servicio a domicilio)
-
-```sql
+-- Tabla citas_servicios
 CREATE TABLE IF NOT EXISTS `citas_servicios` (
   `id` INT(11) NOT NULL AUTO_INCREMENT,
   `servicio_id` INT(11) NOT NULL,
@@ -106,419 +44,85 @@ CREATE TABLE IF NOT EXISTS `citas_servicios` (
   `created_at` TIMESTAMP NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`id`),
   KEY `servicio_id` (`servicio_id`),
-  CONSTRAINT `citas_servicios_ibfk_1` FOREIGN KEY (`servicio_id`) REFERENCES `servicios` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `citas_servicios_ibfk_1` FOREIGN KEY (`servicio_id`) REFERENCES `servicios` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-```
 
-4) Tabla `refresh_tokens` (tokens de refresco para autenticación)
-
-```sql
+-- Tabla refresh_tokens
 CREATE TABLE `refresh_tokens` (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
     token VARCHAR(512) NOT NULL UNIQUE,
     expires_at DATETIME NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES usuarios(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES usuarios(id) ON DELETE CASCADE,
     INDEX idx_user_id (user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-```
 
-> Nota: si la tabla ya existe, no es necesario volver a ejecutar este comando.
-
----
-
-### Ejemplo de petición en Postman: crear una cita de servicio
-
-Endpoint backend:
-- Método: `POST`
-- URL: `http://localhost:3000/api/citas-servicios` (ajusta el puerto según tu backend)
-- Headers recomendados:
-  - `Content-Type: application/json`
-
-Body (JSON) de ejemplo:
-
-```json
-{
-  "nombre": "Angel",
-  "email": "cliente@example.com",
-  "telefono": "4498489498",
-  "direccion": "Calle Ejemplo 123, Colonia Centro",
-  "fecha": "2025-11-14T18:38",
-  "descripcion": "La computadora se apaga sola y va muy lenta.",
-  "servicio_id": 1
-}
-```
-
-Comportamiento esperado:
-- El backend debe:
-  - Validar los campos.
-  - Crear un registro en la tabla `citas_servicios` con estado inicial `pendiente`.
-  - Retornar `201 Created` o `200 OK` con la cita creada en el `body` de la respuesta.
-
-Este mismo formato de JSON es el que se usa cuando el formulario en la página de detalle de un servicio (SPA React) dispara la solicitud al endpoint `/api/citas-servicios`.
-
----
-
-15-11-2025
-- Frontend: se unificó el manejo de imágenes por defecto en el módulo de productos y en los productos destacados de Home.
-  - En `Productos.jsx` se usa una imagen placeholder cuando el producto no tiene imagen o la URL falla (onError), evitando íconos de imagen rota.
-  - En `Home.jsx` (carrusel de productos destacados) se aplicó la misma lógica de placeholder y onError para `imagen_principal`.
-
-15-11-2025 (actualización Home y Productos)
-- Frontend: ajustes en productos destacados (Home) y detalle de productos.
-  - En `Home.jsx` se eliminaron los iconos de "ojo" y el texto/botón "Ver Detalles" dentro de cada tarjeta de producto destacado, dejando las cards como elementos visuales limpios.
-  - Ahora en `Home.jsx` cada tarjeta de producto destacado es clicable y redirige a `/productos/:id`, reutilizando la misma ruta de detalle que el módulo de productos.
-  - En `Productos.jsx` se separó la vista en dos modos:
-    - Modo lista (`/productos`): muestra el grid de productos y cada card es clicable para ir al detalle del producto.
-    - Modo detalle (`/productos/:id`): muestra solo la información del producto seleccionado (imagen, nombre, precio, stock) usando el endpoint `/api/productos/:id`.
-  - Se mantiene el uso de la imagen placeholder cuando falla la carga de la imagen real del producto.
-
-15-11-2025 (detalle de productos: nuevas columnas en `productos`)
-- Base de datos: se añadieron campos para soportar descripción detallada y especificaciones en productos.
-
-```sql
-USE `nextlevel`;
-
+-- Descripción detallada en productos
 ALTER TABLE `productos`
   ADD COLUMN `descripcion_corta` VARCHAR(300) NULL AFTER `nombre`,
   ADD COLUMN `descripcion_detallada` TEXT NULL AFTER `descripcion_corta`,
   ADD COLUMN `especificaciones` TEXT NULL AFTER `descripcion_detallada`;
-```
 
-15-11-2025 (detalle de productos: imagen principal y carrito)
-- Backend:
-  - En `backend/models/Productos.js` se actualizó el método `obtenerPorId(id)` para que, además de los campos de `productos`, haga un JOIN con `imagenes_productos` y devuelva la URL de la imagen principal como `imagen_principal`:
-    - `SELECT p.*, ip.url AS imagen_principal FROM productos p LEFT JOIN imagenes_productos ip ON p.id = ip.producto_id AND ip.es_principal = 1 WHERE p.id = ? LIMIT 1;`
-  - Esto unifica el comportamiento con los listados que ya usaban `imagen_principal` (`obtenerTodosConImagenes`, `obtenerDestacados`, búsqueda) y permite que el detalle de producto tenga acceso a la misma imagen principal.
+-------------------------------------------------------------------
+NOVIEMBRE 16, 2025 - MEJORAS PRODUCTOS Y FILTROS
+-------------------------------------------------------------------
 
-- Frontend (detalle de productos):
-  - En `fronted/src/pages/Productos.jsx` se reforzó la normalización de productos en `normalizeProduct` para construir la imagen principal (`image`) a partir de:
-    - `raw.imagen_principal` (prioritario, viene del JOIN con `imagenes_productos`).
-    - `raw.imagenes` (array o string con URLs), tomando la primera URL disponible.
-    - Compatibilidad adicional con campos `url_imagen` / `url` (cuando el JOIN entrega estos nombres).
-    - Si no hay ninguna imagen, se usa un placeholder estándar de `placehold.co`.
-  - En el render de detalle (`renderProductDetail`) se muestra esta imagen principal en grande en la columna izquierda:
-    - `<img src={image || 'https://placehold.co/600x400/EEE/31343C?text=Producto'} ... onError` para asegurar que nunca se vea un icono de imagen rota.
+✓ Filtrado por categorías en productos
+✓ Estado visual de productos (activo/inactivo)
+✓ Mejoras en normalización de imágenes
+✓ Optimización de rendimiento con memoización
+✓ Custom hooks para separación de responsabilidades
 
-- Frontend (carrito):
-  - En `fronted/src/utils/CartContext.jsx` se ajustó `addToCart` para aceptar `type` y `quantity` genéricos, y se usa `price` para productos (manteniendo compatibilidad con `precio` para otros casos).
-  - En `fronted/src/components/Navbar.jsx` se unificó el cálculo del total del carrito utilizando `price` o `precio` según el item:
-    - `const unitPrice = Number(i.price ?? i.precio ?? 0);`
-    - `const cartTotal = cartItems.reduce((s, i) => s + unitPrice * quantity, 0);`
-  - Las imágenes de los items del carrito ahora se muestran usando:
-    - `item.image` (productos añadidos desde el detalle), o
-    - `item.imagen_url` (servicios, si aplica), con fallback a un placeholder.
-    - Se añadió `onError` para asegurar que cualquier URL rota en el carrito también caiga a la imagen por defecto.
+SCRIPTS SQL APLICADOS:
 
-- Resultado:
-  - El detalle de producto muestra ahora la imagen principal real almacenada en `imagenes_productos` (cuando existe) y solo usa la imagen por defecto cuando no hay ninguna asociada.
-  - El carrito muestra correctamente la miniatura de cada producto/servicio y los totales se calculan sin errores, soportando tanto `price` (frontend) como `precio` (backend).
-  
- Productos.jsx
- 1. Mejoras en el Hook useEffect
- 2. Custom Hooks para Separar Responsabilidades
- 3. Componentes más Pequeños y Reutilizables
- 4. Mejoras en el Manejo de Estados
- 5. Optimización de Rendimiento
- 6. Mejoras en la Normalización de Datos
- 7. Manejo Mejorado de Errores
- 8. Implementación Completa Mejorada
- Ventajas obtenidas:Código más legible y mantenible, Mejor separación de responsabilidades, Mayor reutilización de componentes
-Mejor rendimiento con memoización, Manejo de errores más robusto, Más fácil de testear.
-
-16/11/2025 by Keiner Tez 
-Las implementaciones clave se centraron en corregir el filtrado y el estado visual de los productos. 
-Primero, se solucionó el fallo de los productos marcados como "Inactivos" al agregar la columna `p.activo` al `SELECT` en el modelo,
-asegurando que el estado llegara correctamente a la vista EJS. 
-Segundo, se corrigió el mal funcionamiento de los filtros (búsqueda y categoría) refactorizando el script de JavaScript en `index.ejs` y pasándolo como variable `scripts` al layout (`main.ejs`),
-eliminando conflictos y garantizando que los parámetros de consulta (`req.query`) se envíen y capturen correctamente.
-Finalmente, se mejoró la estética al eliminar la lógica de mostrar las iniciales cuando no hay imagen, forzando la visualización directa de la imagen de fallback "No Image".
-
-
-Tabla productos: modificar columna activo a estado
+-- Modificar columna activo a estado
 ALTER TABLE productos DROP COLUMN activo;
 ALTER TABLE productos ADD COLUMN estado TINYINT(1) NOT NULL DEFAULT 1;
 
+-------------------------------------------------------------------
+NOVIEMBRE 20, 2025 - GALERÍA DE IMÁGENES Y UX SERVICIOS
+-------------------------------------------------------------------
 
-Filtro por categorias.
+✓ Sistema de galería con tabla relacional (servicio_imagenes)
+✓ Redesign página detalle servicios (inspirado en Mercado Libre)
+✓ Breadcrumbs de navegación
+✓ Trust Badges (4 badges con iconos SVG)
+✓ Botón WhatsApp con mensaje pre-llenado
+✓ Microcopy en CTA principal
+✓ Sección de servicios relacionados
+✓ Layout responsive 2 columnas
 
-Nuevo estado para categorías
-Añadido const [categories, setCategories] = useState([]);
+SCRIPTS SQL APLICADOS:
 
-2. Carga de categorías al montar el componente
-Nuevo useEffect que carga las categorías desde /api/categorias/producto
+-- 1. Crear tabla servicio_imagenes
+CREATE TABLE IF NOT EXISTS `servicio_imagenes` (
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `servicio_id` INT(11) NOT NULL,
+  `url` VARCHAR(500) NOT NULL COMMENT 'Image URL or path',
+  `alt_text` VARCHAR(255) NULL COMMENT 'Alt text for SEO and accessibility',
+  `orden` INT DEFAULT 0 COMMENT 'Display order (0 = first)',
+  `es_principal` TINYINT(1) DEFAULT 0 COMMENT 'Is this the main/featured image?',
+  `activo` TINYINT(1) DEFAULT 1 COMMENT 'Soft delete flag',
+  `fecha_creacion` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  `fecha_actualizacion` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `servicio_id` (`servicio_id`),
+  KEY `idx_servicio_activo` (`servicio_id`, `activo`),
+  KEY `idx_servicio_orden` (`servicio_id`, `orden`),
+  KEY `idx_principal` (`servicio_id`, `es_principal`),
+  CONSTRAINT `servicio_imagenes_ibfk_1` FOREIGN KEY (`servicio_id`) REFERENCES `servicios` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Gallery images for services';
 
-3. Detección de parámetro de categoría en URL
-Modificado routeInfo para leer categoria_id de los query parameters
+-- 2. Actualizar tipo de servicios
+ALTER TABLE `servicios` 
+MODIFY COLUMN `tipo` ENUM('basico','premium') DEFAULT 'basico';
 
-Actualizadas las dependencias y extracción de variables
+UPDATE `servicios` 
+SET `tipo` = 'premium' 
+WHERE `tipo` = 'avanzado';
 
-4. Endpoint unificado para filtros
-Modificado buildEndpoint para usar parámetros busqueda y categoria_id
-
-Ahora siempre usa /api/productos/con-imagenes con los parámetros apropiados
-
-5. Lógica de fetch mejorada
-Actualizada la condición para evitar fetch innecesarios
-
-Manejo mejorado de respuestas de API no exitosas pero con datos
-
-6. Handler para cambio de categoría
-handleCategoryChange actualiza la URL manteniendo otros parámetros
-
-7. Barra de filtros en el render
-Añadida sección de filtros que solo se muestra cuando no está en vista de detalle
-
-Dropdown de categorías controlado por el estado de la URL
-
-8. Dependencias actualizadas
-Añadidas las dependencias necesarias en los useEffect y useCallback
-
-
----
-
-20/11/2025 - MEJORAS A LA PÁGINA DE DETALLE DE SERVICIOS Y GALERÍA DE IMÁGENES
-
-### Objetivo General
-Modernizar y profesionalizar la página de detalle de servicios con diseño inspirado en Mercado Libre,
-implementando un sistema robusto de galería de imágenes con tabla relacional.
-
-### 1. DISEÑO MODERNO DE LA PÁGINA DE DETALLE DE SERVICIOS
-
-Se rediseñó completamente `ServicioDetail.jsx` y `ServicioDetail.css` con las siguientes mejoras:
-
-#### A) Elementos visuales implementados:
-
-**1. Breadcrumbs de Navegación**
-- Ruta: Inicio > Servicios > [Nombre del Servicio]
-- Enlaces clicables para navegación rápida
-- Markup semántico con aria-label para accesibilidad
-- Estilos minimalistas con hover effects
-
-**2. Badges de Confianza (Trust Badges)**
-- 4 badges con iconos SVG:
-  * Servicio Verificado (checkmark)
-  * Respuesta en 24h (lightning)
-  * Garantía Incluida (shield)
-  * +500 Clientes (star)
-- Grid de 2 columnas (desktop), 1 columna (móvil)
-- Color de marca (#3B6F7A) para iconos
-
-**3. Botón de WhatsApp**
-- Botón secundario con icono oficial de WhatsApp
-- Mensaje pre-llenado: "Hola, me interesa el servicio: [nombre]"
-- Estilo outline verde (#25D366) que se rellena al hover
-- Abre WhatsApp Web/App en nueva pestaña
-
-**4. Microcopy en CTA**
-- Texto debajo del botón principal: "Sin compromiso • Respuesta inmediata"
-- Reduce fricción y genera confianza
-- Estilo sutil (13px, color secundario)
-
-**5. Servicios Relacionados**
-- Muestra hasta 3 servicios del mismo tipo
-- Cards con hover effect (elevación y sombra)
-- Grid responsive (3 columnas desktop, 1 en móvil)
-- Usa endpoint existente `/api/servicios/tipo/:tipo`
-- Excluye automáticamente el servicio actual
-
-#### B) Ajustes de diseño:
-
-**Relocalizaciones:**
-- "Modalidad" y "Garantía" movidas del bottom al Buy Box
-- Mejor jerarquía visual de información
-
-**Estilo Mercado Libre:**
-- Fondo gris suave (#ededed) para la página
-- Card blanca principal con sombras sutiles
-- Precio prominente (36px, peso ligero)
-- Botón CTA full-width con color de marca
-- Tabs minimalistas (sin fondo, solo underline)
-
-**Responsividad:**
-- Grid de 2 columnas en desktop (1.5fr imagen, 1fr info)
-- 1 columna en móvil
-- Elementos adaptables en todos los breakpoints
-
-
-### 2. SISTEMA DE GALERÍA DE IMÁGENES CON TABLA RELACIONAL
-
-Se implementó un sistema profesional de galería de imágenes para servicios usando una tabla separada.
-
-#### A) Cambios en Base de Datos:
-
-**Nueva tabla: `servicio_imagenes`**
-
-```sql
-CREATE TABLE IF NOT EXISTS servicio_imagenes (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    servicio_id INT NOT NULL,
-    url VARCHAR(500) NOT NULL COMMENT 'Image URL or path',
-    alt_text VARCHAR(255) NULL COMMENT 'Alt text for SEO and accessibility',
-    orden INT DEFAULT 0 COMMENT 'Display order (0 = first)',
-    es_principal BOOLEAN DEFAULT 0 COMMENT 'Is this the main/featured image?',
-    activo BOOLEAN DEFAULT 1 COMMENT 'Soft delete flag',
-    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    
-    FOREIGN KEY (servicio_id) REFERENCES servicios(id) ON DELETE CASCADE,
-    
-    INDEX idx_servicio_activo (servicio_id, activo),
-    INDEX idx_servicio_orden (servicio_id, orden),
-    INDEX idx_principal (servicio_id, es_principal)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-COMMENT='Gallery images for services';
-```
-
-**Ventajas del diseño relacional:**
-- Normalización correcta de datos
-- Metadata por imagen (alt_text para SEO)
-- Control de orden de visualización
-- Marcado de imagen principal
-- Soft deletes (columna activo)
-- Preparado para escalabilidad
-- Auditoría con timestamps
-
-#### B) Cambios en Backend:
-
-**Archivo modificado: `backend/models/Servicio.js`**
-
-Método `findById` actualizado para incluir galería:
-
-```javascript
-static async findById(id) {
-    // Get service basic data
-    const query = `
-        SELECT * 
-        FROM servicios 
-        WHERE id = ? AND activo = 1
-    `;
-    const resultados = await executeQuery(query, [id]);
-    
-    if (resultados.length === 0) {
-        return null;
-    }
-    
-    const servicio = resultados[0];
-    
-    // Get gallery images
-    const imagenesQuery = `
-        SELECT id, url, alt_text, orden, es_principal
-        FROM servicio_imagenes
-        WHERE servicio_id = ? AND activo = 1
-        ORDER BY orden ASC
-    `;
-    const imagenes = await executeQuery(imagenesQuery, [id]);
-    
-    // Attach images to service object
-    servicio.galeria_imagenes = imagenes;
-    
-    return servicio;
-}
-```
-
-**Resultado del endpoint:**
-- `/api/servicios/:id` ahora retorna el servicio con campo `galeria_imagenes`
-- `galeria_imagenes` es un array de objetos: `[{id, url, alt_text, orden, es_principal}, ...]`
-
-#### C) Cambios en Frontend:
-
-**Archivo modificado: `fronted/src/pages/ServicioDetail.jsx`**
-
-**Estados agregados:**
-```javascript
-const [selectedImage, setSelectedImage] = useState(0);
-const [galleryImages, setGalleryImages] = useState([]);
-```
-
-**Procesamiento de galería:**
-```javascript
-// Process gallery images from servicio_imagenes table
-if (json.data.galeria_imagenes && Array.isArray(json.data.galeria_imagenes)) {
-    const urls = json.data.galeria_imagenes.map(img => img.url);
-    setGalleryImages(urls.length > 0 ? urls : ['placeholder']);
-} else if (json.data.imagen_url) {
-    // Fallback to imagen_url
-    setGalleryImages([json.data.imagen_url]);
-} else {
-    setGalleryImages(['placeholder']);
-}
-```
-
-**Componente de Galería:**
-```jsx
-<div className="servicio-detail-gallery">
-    {/* Main Image */}
-    <div className="gallery-main-image">
-        <img src={galleryImages[selectedImage]} 
-             alt={`${servicio.nombre} - Imagen ${selectedImage + 1}`} />
-    </div>
-    
-    {/* Thumbnails (solo si hay más de 1 imagen) */}
-    {galleryImages.length > 1 && (
-        <div className="gallery-thumbnails">
-            {galleryImages.map((img, index) => (
-                <button 
-                    className={`gallery-thumbnail ${selectedImage === index ? 'active' : ''}`}
-                    onClick={() => setSelectedImage(index)}>
-                    <img src={img} alt={`Miniatura ${index + 1}`} />
-                </button>
-            ))}
-        </div>
-    )}
-</div>
-```
-
-**Archivo modificado: `fronted/src/styles/ServicioDetail.css`**
-
-**Estilos de Galería:**
-```css
-.servicio-detail-gallery {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-}
-
-.gallery-main-image {
-    background-color: #f5f5f5;
-    min-height: 400px;
-    border-radius: 8px;
-}
-
-.gallery-thumbnails {
-    display: flex;
-    gap: 0.75rem;
-    overflow-x: auto;
-    scrollbar-width: thin;
-}
-
-.gallery-thumbnail {
-    width: 80px;
-    height: 80px;
-    border: 2px solid transparent;
-    border-radius: 6px;
-    transition: all 0.2s;
-}
-
-.gallery-thumbnail:hover {
-    border-color: var(--color-brand);
-    transform: scale(1.05);
-}
-
-.gallery-thumbnail.active {
-    border-color: var(--color-brand);
-    box-shadow: 0 0 0 2px rgba(59, 111, 122, 0.2);
-}
-```
-
-#### D) Migración de Datos:
-
-**Script de migración created: `populate_servicio_imagenes.sql`**
-
-Migra `imagen_url` existentes a la nueva tabla:
-
-```sql
+-- 3. Migrar imagen_url a servicio_imagenes
 INSERT INTO servicio_imagenes (servicio_id, url, alt_text, orden, es_principal, activo)
 SELECT 
     id, 
@@ -533,94 +137,66 @@ WHERE imagen_url IS NOT NULL
   AND NOT EXISTS (
       SELECT 1 FROM servicio_imagenes WHERE servicio_id = servicios.id AND es_principal = 1
   );
-```
 
-#### E) Datos de Ejemplo:
+-- 4. Reset completo con servicios de ejemplo
+DELETE FROM servicios;
+ALTER TABLE servicios AUTO_INCREMENT = 1;
+ALTER TABLE servicio_imagenes AUTO_INCREMENT = 1;
 
-**Script created: `reset_services_with_galleries_FIXED.sql`**
+INSERT INTO servicios (nombre, tipo, precio, descripcion, imagen_url, activo) VALUES
+('Reparación y Mantenimiento de Laptops', 'premium', 899.00, 
+'Servicio completo de reparación y mantenimiento para tu laptop. Incluye diagnóstico, limpieza profunda, reemplazo de componentes, actualización de software y garantía de 3 meses.',
+'https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=800&q=80', 1),
 
-Crea 6 servicios profesionales con galerías de 3-4 imágenes cada uno:
+('Ensamblaje de PC Gaming/Profesional', 'premium', 1499.00,
+'Armado y configuración de PC personalizado. Incluye selección de componentes, ensamblaje profesional, instalación de SO, drivers, pruebas de rendimiento y garantía de 6 meses.',
+'https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?w=800&q=80', 1),
 
-1. **Reparación de Laptops** (Premium - $899)
-   - 4 imágenes reales de Unsplash
-   
-2. **Ensamblaje de PC Gaming** (Premium - $1499)
-   - 4 imágenes de componentes y setups
-   
-3. **Instalación de Software** (Básico - $299)
-   - 3 imágenes de configuración
-   
-4. **Mantenimiento Preventivo** (Básico - $449)
-   - 3 imágenes de limpieza
-   
-5. **Recuperación de Datos** (Premium - $1299)
-   - 3 imágenes de proceso de recuperación
-   
-6. **Soporte Técnico Mensual** (Premium - $599)
-   - 3 imágenes de soporte remoto
+('Instalación y Configuración de Software', 'basico', 299.00,
+'Instalación profesional de programas: sistemas operativos, suite de oficina, antivirus, software de diseño. Incluye configuración óptima, activación legal y capacitación básica.',
+'https://images.unsplash.com/photo-1629654297299-c8506221ca97?w=800&q=80', 1),
 
-Todas las imágenes son URLs reales de Unsplash optimizadas (w=800&q=80).
+('Mantenimiento Preventivo de Equipos', 'basico', 449.00,
+'Limpieza profunda, renovación de pasta térmica, optimización de sistema, actualización de drivers, verificación de disco duro/SSD y reporte técnico detallado.',
+'https://images.unsplash.com/photo-1587825140708-dfaf72ae4b04?w=800&q=80', 1),
 
+('Recuperación de Datos y Archivos', 'premium', 1299.00,
+'Recuperación profesional de información perdida de discos duros, SSD, USB, tarjetas SD. Evaluación gratuita, sin datos recuperados no hay cargo.',
+'https://images.unsplash.com/photo-1633265486064-086b219458ec?w=800&q=80', 1),
 
-### 3. ARCHIVOS MODIFICADOS/CREADOS
+('Plan de Soporte Técnico Mensual', 'premium', 599.00,
+'Soporte técnico 24/7 vía WhatsApp/email, 2 visitas presenciales al mes, mantenimiento remoto semanal, actualizaciones, asesoría y respaldo en la nube.',
+'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&q=80', 1);
 
-**Frontend:**
-- `fronted/src/pages/ServicioDetail.jsx` - Galería interactiva y mejoras visuales
-- `fronted/src/styles/ServicioDetail.css` - Estilos modernos completos
+-- Insertar imágenes de galería (ejemplo para ID 1)
+INSERT INTO servicio_imagenes (servicio_id, url, alt_text, orden, es_principal) VALUES
+(1, 'https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=800&q=80', 'Laptop siendo reparada por técnico profesional', 0, 1),
+(1, 'https://images.unsplash.com/photo-1593642532842-98d0fd5ebc1a?w=800&q=80', 'Herramientas de reparación profesionales', 1, 0),
+(1, 'https://images.unsplash.com/photo-1625948515291-69613efd103f?w=800&q=80', 'Mantenimiento interno de laptop', 2, 0),
+(1, 'https://images.unsplash.com/photo-1591405351990-4726e331f141?w=800&q=80', 'Diagnóstico de componentes electrónicos', 3, 0);
 
-**Backend:**
-- `backend/models/Servicio.js` - JOIN con servicio_imagenes
+=================================================================
+ARCHIVOS MODIFICADOS POR FECHA
+=================================================================
 
-**Base de Datos:**
-- `Documentación/nextlevel.sql` - Actualizado con tabla servicio_imagenes
+NOVIEMBRE 20, 2025:
+Backend:
+  - backend/models/Servicio.js (JOIN con servicio_imagenes)
 
-**Scripts SQL creados:**
-- `create_servicio_imagenes_table.sql` - Creación de tabla
-- `populate_servicio_imagenes.sql` - Migración de datos
-- `reset_services_with_galleries_FIXED.sql` - Datos de ejemplo completos
+Frontend:
+  - fronted/src/pages/ServicioDetail.jsx (galería + mejoras UX)
+  - fronted/src/styles/ServicioDetail.css (diseño moderno completo)
 
+Database:
+  - Documentación/nextlevel.sql (estructura actualizada)
 
-### 4. COMMITS REALIZADOS
+=================================================================
+CONSULTAS ÚTILES DE VERIFICACIÓN
+=================================================================
 
-```
-feat: Agregar badges de confianza en detalle de servicio
-- Agregados 4 badges: Servicio Verificado, Respuesta 24h, Garantía, +500 Clientes
-- Uso de iconos SVG con color de marca (#3B6F7A)
-
-feat: Agregar botón de WhatsApp para contacto directo
-- Botón secundario con icono oficial de WhatsApp
-- Mensaje pre-llenado con nombre del servicio
-
-style: Agregar microcopy debajo del CTA principal
-- Texto "Sin compromiso • Respuesta inmediata"
-- Reduce fricción al momento de contratar
-
-feat: Agregar breadcrumbs de navegación en detalle servicio
-- Ruta: Inicio > Servicios > [Nombre del servicio]
-- Mejora la UX y orientación del usuario
-
-feat: Agregar sección de servicios relacionados
-- Muestra hasta 3 servicios del mismo tipo
-- Cards interactivos con hover effect
-
-feat: Implementar galería de imágenes con tabla separada
-- Nueva tabla servicio_imagenes (normalizada)
-- Galería interactiva con imagen principal + thumbnails
-- Backend actualizado para JOIN automático
-```
-
-
-### 5. VERIFICACIÓN Y TESTING
-
-**Consultas de verificación:**
-
-```sql
--- Ver todos los servicios con conteo de imágenes
+-- Ver servicios con conteo de imágenes
 SELECT 
-    s.id,
-    s.nombre,
-    s.tipo,
-    CONCAT('$', s.precio) as precio,
+    s.id, s.nombre, s.tipo, CONCAT('$', s.precio) as precio,
     COUNT(si.id) as total_imagenes
 FROM servicios s
 LEFT JOIN servicio_imagenes si ON s.id = si.servicio_id
@@ -629,53 +205,17 @@ ORDER BY s.id;
 
 -- Ver todas las imágenes ordenadas
 SELECT 
-    s.nombre as servicio,
-    si.alt_text,
-    si.es_principal,
-    si.orden
+    s.nombre as servicio, si.alt_text, si.es_principal, si.orden
 FROM servicio_imagenes si
 JOIN servicios s ON si.servicio_id = s.id
 ORDER BY si.servicio_id, si.orden;
-```
 
-**Features verificados:**
-✅ Galería muestra correctamente múltiples imágenes
-✅ Thumbnails cambian imagen principal al hacer click
-✅ Thumbnails destacan la imagen activa
-✅ Solo muestra thumbnails si hay más de 1 imagen
-✅ Breadcrumbs funcionan correctamente
-✅ Trust badges se muestran en grid responsive
-✅ Botón WhatsApp abre con mensaje correcto
-✅ Servicios relacionados se cargan dinámicamente
-✅ Diseño responsive en todos los breakpoints
+-- Verificar estructura de servicio_imagenes
+DESCRIBE servicio_imagenes;
 
+-- Verificar estructura de servicios
+DESCRIBE servicios;
 
-### 6. TECNOLOGÍAS Y PATRONES USADOS
-
-- **Base de Datos:** MySQL con diseño relacional normalizado
-- **Backend:** Node.js con modelo MVC
-- **Frontend:** React con hooks (useState, useEffect)
-- **CSS:** Variables CSS, Grid, Flexbox, Media Queries
-- **Imágenes:** Unsplash con parámetros de optimización
-- **SEO:** Alt text en todas las imágenes, breadcrumbs semánticos
-- **UX:** Hover effects, active states, micro-interactions
-
-
-### 7. PRÓXIMAS MEJORAS SUGERIDAS
-
-1. Galería con Lightbox (zoom en imagen)
-2. Sección de testimonios/reseñas
-3. FAQ específica del servicio
-4. Badge dinámico de disponibilidad
-5. Horarios de atención
-6. Compartir en redes sociales
-7. Comparador de servicios
-8. Chat en vivo
-9. Video demostrativo
-10. Calculadora de presupuesto
-```
-
-Tabla productos: modificar columna activo a estado
-ALTER TABLE productos DROP COLUMN activo;
-ALTER TABLE productos ADD COLUMN estado TINYINT(1) NOT NULL DEFAULT 1;
-```
+=================================================================
+FIN DE DOCUMENTACIÓN
+=================================================================
