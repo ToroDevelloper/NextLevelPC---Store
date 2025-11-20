@@ -111,6 +111,32 @@
     margin: 0.25rem 0;
 }
 
+/* --- Trust Badges --- */
+.trust-badges {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+    padding: 1rem 0;
+    border-top: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.trust-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 13px;
+    color: var(--color-text-secondary);
+}
+
+.trust-badge-icon {
+    width: 18px;
+    height: 18px;
+    color: var(--color-brand);
+    flex-shrink: 0;
+}
+
 /* --- Actions --- */
 .servicio-detail-actions {
     display: flex;
@@ -142,14 +168,9 @@
     padding-top: 2rem;
     grid-column: 1 / -1;
     display: block;
-    /* Changed from grid to block since extra info is moved */
 }
 
 /* --- Tabs --- */
-.servicio-detail-tabs {
-    /* Clean container */
-}
-
 .servicio-detail-tab-headers {
     display: flex;
     gap: 2rem;
@@ -233,6 +254,11 @@
 
     .servicio-detail-price {
         font-size: 28px;
+    }
+
+    .trust-badges {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
     }
 }
 
