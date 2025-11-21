@@ -270,6 +270,23 @@ CREATE INDEX idx_cita_estado_pago ON citas_servicios(estado_pago);
 CREATE INDEX idx_cita_orden_id ON citas_servicios(orden_id);
 CREATE INDEX idx_orden_cita_id ON ordenes(cita_servicio_id);
 
+-- --------------------------------------------------------
+-- NOVIEMBRE 21, 2025 - STRIPE PAYMENTS & FACTURACIÓN
+-- --------------------------------------------------------
+
+-- Agregar campos Stripe a tabla ordenes
+ALTER TABLE `ordenes`
+ADD COLUMN `stripe_payment_intent_id` VARCHAR(255) DEFAULT NULL AFTER `estado_pago`,
+ADD COLUMN `fecha_pago` TIMESTAMP NULL DEFAULT NULL AFTER `stripe_payment_intent_id`;
+
+-- Agregar índice para búsqueda por payment intent
+ALTER TABLE `ordenes`
+ADD INDEX `idx_stripe_payment_intent` (`stripe_payment_intent_id`);
+
+-- Actualizar ordenes existentes con estado correcto
+UPDATE `ordenes` SET `estado_pago` = 'pagado' 
+WHERE `stripe_payment_intent_id` IS NOT NULL;
+
 /*!40103 SET TIME_ZONE=IFNULL(@OLD_TIME_ZONE, 'system') */;
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
 /*!40014 SET FOREIGN_KEY_CHECKS=IFNULL(@OLD_FOREIGN_KEY_CHECKS, 1) */;
