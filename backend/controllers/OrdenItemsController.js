@@ -1,38 +1,16 @@
 const ordenItemsService = require('../services/OrdenItemsService.js');
 const ordenesService = require('../services/OrdenesService.js');
-const { OrdenItemCreateDTO, OrdenItemUpdateDTO, OrdenItemResponseDTO } = require('../dto/OrdenItemsDTO');
+
 
 class OrdenItemsController {
     static async crear(req, res) {
-        try {
-            console.log('=== CREANDO ITEM DE ORDEN ===');
-            
-            const itemDTO = new OrdenItemCreateDTO(req.body);
-            const errors = itemDTO.validate();
-            
-            if (errors.length > 0) {
-                return res.status(400).json({ 
-                    success: false,
-                    message: 'Errores de validación', 
-                    errors: errors 
-                });
-            }
-
-            console.log('DTO válido, creando item...');
-            const nuevoItem = await ordenItemsService.crear(itemDTO);
-            
-            // ACTUALIZAR EL TOTAL DE LA ORDEN
-            await ordenesService.actualizarTotal(itemDTO.orden_id);
-            
-            const itemResponse = new OrdenItemResponseDTO(nuevoItem);
-
-            console.log('ITEM CREADO EXITOSAMENTE');
-            console.log('Item:', itemResponse);
+        try {            
+            const nuevoItem = await ordenItemsService.crear(req.body);
 
             res.status(201).json({
                 success: true,
                 message: 'Item creado exitosamente',
-                data: itemResponse
+                data: nuevoItem
             });
         } catch (error) {
             console.error("Error en crear:", error);
@@ -46,15 +24,11 @@ class OrdenItemsController {
     static async obtenerTodos(req, res) {
         try {
             const items = await ordenItemsService.obtenerTodos();
-            
-            const itemsResponse = items.map(item => 
-                new OrdenItemResponseDTO(item)
-            );
 
             res.status(200).json({
                 success: true,
-                data: itemsResponse,
-                count: itemsResponse.length
+                data: items,
+                count: items.length
             });
         } catch (error) {
             console.error("Error en obtenerTodos:", error);
@@ -69,15 +43,11 @@ class OrdenItemsController {
         try {
             const ordenId = req.params.ordenId;
             const items = await ordenItemsService.obtenerPorOrden(ordenId);
-            
-            const itemsResponse = items.map(item => 
-                new OrdenItemResponseDTO(item)
-            );
 
             res.status(200).json({
                 success: true,
-                data: itemsResponse,
-                count: itemsResponse.length
+                data: items,
+                count: items.length
             });
         } catch (error) {
             console.error("Error en obtenerPorOrden:", error);
@@ -91,27 +61,7 @@ class OrdenItemsController {
     static async actualizar(req, res) {
         try {
             const id = req.params.id;
-            const itemDTO = new OrdenItemUpdateDTO(req.body);
-            const errors = itemDTO.validate();
-            
-            if (errors.length > 0) {
-                return res.status(400).json({ 
-                    success: false,
-                    message: 'Errores de validación', 
-                    errors: errors 
-                });
-            }
-
-            // Verificar que el item existe
-            const itemExistente = await ordenItemsService.obtenerPorId(id);
-            if (!itemExistente) {
-                return res.status(404).json({ 
-                    success: false,
-                    message: 'Item no encontrado' 
-                });
-            }
-
-            const actualizado = await ordenItemsService.actualizar(id, itemDTO);
+            const actualizado = await ordenItemsService.actualizar(id, req.body);
 
             if (!actualizado) {
                 return res.status(404).json({ 
@@ -121,7 +71,7 @@ class OrdenItemsController {
             }
 
             // ACTUALIZAR EL TOTAL DE LA ORDEN
-            await ordenesService.actualizarTotal(itemExistente.orden_id);
+            await ordenesService.actualizarTotal(actualizado.orden_id);
 
             res.status(200).json({ 
                 success: true,

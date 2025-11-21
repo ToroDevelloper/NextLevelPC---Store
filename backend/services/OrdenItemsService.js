@@ -1,12 +1,18 @@
 const OrdenItems = require('../models/OrdenItems');
-const { executeQuery } = require('../config/db');
+const { OrdenItemCreateDTO, OrdenItemUpdateDTO, OrdenItemResponseDTO } = require('../dto/OrdenItemsDTO');
+const OrdenesService = require('./OrdenesService')
 
 class OrdenItemsService {
-    static async crear(itemDTO) {
+    static async crear(item) {
         try {
-            console.log('OrdenItemsService.crear - DTO recibido:', itemDTO);
-            
-            const itemData = itemDTO.toModel ? itemDTO.toModel() : itemDTO;
+            const itemDTO = new OrdenItemCreateDTO(item);
+            const errors = itemDTO.validate();
+            if(!errors.length>0){
+                throw new Error('Errores al crear orden-item: ',errors)
+            }
+            // ACTUALIZAR EL TOTAL DE LA ORDEN
+            await OrdenesService.actualizarTotal(itemDTO.orden_id);
+            const itemData = itemDTO.toModel();
             console.log('Datos para BD:', itemData);
             
             const insertId = await OrdenItems.crear(itemData);
@@ -20,7 +26,9 @@ class OrdenItemsService {
             }
             
             console.log('Item obtenido:', result);
-            return result;
+
+            const itemResponse = new OrdenItemResponseDTO(result);
+            return itemResponse;
             
         } catch (error) {
             console.error('Error en servicio:', error);
@@ -30,7 +38,10 @@ class OrdenItemsService {
 
     static async obtenerTodos() {
         try {
-            return await OrdenItems.obtenerTodos();
+        const items = await OrdenItems.obtenerTodos();
+        const itemsResponse = items.map(item => 
+        new OrdenItemResponseDTO(item));
+        return itemsResponse;
         } catch (error) {
             throw new Error('Error al obtener items: ' + error.message);
         }
@@ -42,7 +53,11 @@ class OrdenItemsService {
                 throw new Error('ID de orden es requerido');
             }
 
-            return await OrdenItems.obtenerPorOrden(ordenId);
+        const items= await OrdenItems.obtenerPorOrden(ordenId);
+        const itemsResponse = items.map(item => 
+        new OrdenItemResponseDTO(item)
+        );
+        return itemsResponse;
         } catch (error) {
             throw new Error('Error al obtener items de la orden: ' + error.message);
         }
@@ -55,12 +70,18 @@ class OrdenItemsService {
             }
 
             // Verificar que el item existe
-            const itemExistente = await this.obtenerPorId(id);
+            const itemExistente = await OrdenItemsService.obtenerPorId(id);
             if (!itemExistente) {
                 throw new Error('Item no encontrado');
             }
+            
+            const item = new OrdenItemUpdateDTO(itemDTO);
+            const errors = item.validate();
+            if(!errors.length>0){
+                throw new Error('Errores al actualizar el item: ',errors)
+            }
 
-            const itemData = itemDTO.toPatchObject ? itemDTO.toPatchObject() : itemDTO;
+            const itemData = item.toPatchObject();
             return await OrdenItems.actualizar(id, itemData);
         } catch (error) {
             throw new Error('Error al actualizar item: ' + error.message);
@@ -74,7 +95,7 @@ class OrdenItemsService {
             }
 
             // Verificar que el item existe
-            const itemExistente = await this.obtenerPorId(id);
+            const itemExistente = await OrdenItemsService.obtenerPorId(id);
             if (!itemExistente) {
                 throw new Error('Item no encontrado');
             }
