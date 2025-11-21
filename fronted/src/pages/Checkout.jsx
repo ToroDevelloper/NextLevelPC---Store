@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import { useStripeContext } from "../utils/StripeContext";
+import { useCart } from "../utils/CartContext";
 import "../styles/Checkout.css";
 
 const Checkout = ({ cart, onSuccess, onError }) => {
   const stripe = useStripe();
   const elements = useElements();
   const { createPaymentIntent } = useStripeContext();
+  const { clearCart } = useCart();
 
   // Estados
   const [clientSecret, setClientSecret] = useState(null);
@@ -145,6 +147,7 @@ const Checkout = ({ cart, onSuccess, onError }) => {
         console.log("Pago exitoso:", result.paymentIntent);
 
         setPaymentSuccess(true);
+        clearCart(); // Vaciar el carrito
 
         // Extraer información del pago
         const numeroOrden = result.paymentIntent.metadata?.numero_orden || ordenCreada?.numero;
