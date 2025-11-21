@@ -1,25 +1,23 @@
-// controllers/PaymentsController.js
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+const OrdenesService = require('../services/OrdenesService');
+const OrdenItemsService = require('../services/OrdenItemsService');
+const { OrdenCreateDTO } = require('../dto/OrdenesDTO');
 
 class PaymentsController {
+
   static async createPaymentIntent(req, res) {
     try {
-      // logging para depuración
       console.log('--- createPaymentIntent - request body ---');
-      console.log(JSON.stringify(req.body).slice(0, 2000)); // limita tamaño en logs
-      console.log('--- createPaymentIntent - req.usuario ---');
-      console.log(req.usuario);
+      console.log(JSON.stringify(req.body).slice(0, 2000));
 
-      // Extraer amount: soportamos amount (moneda normal) o amount_cents (enteros)
-      // Preferimos amount_cents si llega.
       let { amount, amount_cents, currency = 'cop', metadata = {} } = req.body;
 
-      // Validación básica
+      // Validación básica del monto
       if ((amount === undefined || amount === null) && (amount_cents === undefined || amount_cents === null)) {
-        return res.status(400).json({ success: false, mensaje: 'El monto (amount o amount_cents) es requerido.' });
+        return res.status(400).json({ success: false, mensaje: 'El monto es requerido.' });
       }
 
-      // Normalizar monto a centavos enteros
+      // Normalizar monto a centavos
       let amountInCents;
       if (amount_cents !== undefined && amount_cents !== null) {
         amountInCents = Math.round(Number(amount_cents));
@@ -35,40 +33,102 @@ class PaymentsController {
         return res.status(400).json({ success: false, mensaje: 'El monto debe ser mayor a 0.' });
       }
 
+      // Verificar usuario autenticado
       if (!req.usuario) {
         return res.status(401).json({ success: false, mensaje: 'Usuario no autenticado' });
       }
 
-      const clienteIdRaw = req.usuario.id ?? req.usuario.idusuario ?? null;
-      const clienteId = clienteIdRaw ? String(clienteIdRaw) : '0';
+      const clienteId = req.usuario.id ?? req.usuario.idusuario;
       const clienteEmail = req.usuario.correo ?? req.usuario.email ?? 'no-email';
 
-      // Limitar metadata para evitar rechazos por tamaño
-      let safeMetadata = {};
-      try {
-        // Si metadata es objeto, lo convertimos a strings; si es string lo usamos.
-        if (typeof metadata === 'string') {
-          safeMetadata.raw = metadata.slice(0, 4500);
-        } else if (typeof metadata === 'object' && metadata !== null) {
-          // clonamos y convertimos values largos a strings truncados
-          Object.keys(metadata).forEach(k => {
-            const v = metadata[k];
-            const s = typeof v === 'string' ? v : JSON.stringify(v);
-            safeMetadata[k] = s.slice(0, 4500); 
-          });
+      // **CREAR LA ORDEN USANDO TU SERVICIO**
+      let productos = [];
+      let tipo = 'producto'; // default
+      
+      // Parsear productos del metadata
+      if (metadata.productos) {
+        try {
+          productos = typeof metadata.productos === 'string' 
+            ? JSON.parse(metadata.productos) 
+            : metadata.productos;
+          
+          // Determinar tipo basado en el primer producto
+          if (productos.length > 0 && productos[0].type === 'servicio') {
+            tipo = 'servicio';
+          }
+        } catch (e) {
+          console.error('Error parseando productos:', e);
         }
-      } catch (e) {
-        safeMetadata.info = 'metadata-truncation-error';
       }
 
-      // Añadir datos del cliente en metadata
-      safeMetadata = {
-        ...safeMetadata,
+      // Crear orden usando tu DTO y servicio
+      const ordenDTO = new OrdenCreateDTO({
         cliente_id: clienteId,
+        tipo: tipo,
+        total: amountInCents / 100 // Convertir centavos a pesos
+      });
+
+      const errors = ordenDTO.validate();
+      if (errors.length > 0) {
+        return res.status(400).json({
+          success: false,
+          mensaje: 'Errores de validación de la orden',
+          errors: errors
+        });
+      }
+
+      console.log('Creando orden en BD...');
+      const ordenId = await OrdenesService.crear(ordenDTO);
+      const ordenCreada = await OrdenesService.obtenerPorId(ordenId);
+      
+      console.log('Orden creada:', ordenCreada.numero_orden);
+
+      // Insertar items de la orden si hay productos
+      if (productos.length > 0) {
+        console.log(`Insertando ${productos.length} items...`);
+        
+        for (const prod of productos) {
+          try {
+            await OrdenItemsService.crear({
+              orden_id: ordenId,
+              producto_id: prod.id || null,
+              tipo: prod.type || tipo,
+              descripcion: prod.nombre || 'Sin descripción',
+              cantidad: prod.cantidad || 1,
+              precio_unitario: prod.precio || 0,
+              subtotal: (prod.precio || 0) * (prod.cantidad || 1)
+            });
+          } catch (itemError) {
+            console.error('Error insertando item:', itemError);
+          }
+        }
+
+        // Recalcular total de la orden
+        await OrdenesService.actualizarTotal(ordenId);
+        console.log('Total de orden actualizado');
+      }
+
+      // Preparar metadata segura para Stripe
+      const safeMetadata = {
+        orden_id: ordenId.toString(),
+        numero_orden: ordenCreada.numero_orden,
+        cliente_id: clienteId.toString(),
         cliente_email: clienteEmail,
+        tipo: tipo
       };
 
-      // Crear PaymentIntent
+      // Agregar info compacta de productos
+      if (productos.length > 0) {
+        const productosCompactos = productos.map(p => ({
+          id: p.id,
+          nombre: p.nombre?.slice(0, 50) || 'Producto',
+          cant: p.cantidad || 1
+        }));
+        safeMetadata.productos_info = JSON.stringify(productosCompactos).slice(0, 400);
+      }
+
+      // Crear PaymentIntent en Stripe
+      console.log('Creando PaymentIntent en Stripe...');
       const paymentIntent = await stripe.paymentIntents.create({
         amount: amountInCents,
         currency,
@@ -76,20 +136,25 @@ class PaymentsController {
         automatic_payment_methods: { enabled: true },
       });
 
+      console.log('PaymentIntent creado:', paymentIntent.id);
+
       return res.status(200).json({
         success: true,
         clientSecret: paymentIntent.client_secret,
-        paymentIntentId: paymentIntent.id
+        paymentIntentId: paymentIntent.id,
+        ordenId: ordenId,
+        numeroOrden: ordenCreada.numero_orden
       });
 
     } catch (error) {
-      // Logueo extendido para debugging
       console.error('Error creating payment intent:', error);
-      if (error && error.raw) {
+      
+      // Logging detallado del error
+      if (error.raw) {
         console.error('Stripe raw error:', error.raw);
       }
-      // En desarrollo puede interesarte enviar el mensaje de stripe al frontend
-      const mensaje = (error && error.message) ? error.message : 'Error al crear la sesión de pago';
+
+      const mensaje = error.message || 'Error al crear la sesión de pago';
       return res.status(500).json({ success: false, mensaje });
     }
   }
@@ -99,23 +164,96 @@ class PaymentsController {
     let event;
 
     try {
-      event = stripe.webhooks.constructEvent(req.body, sig, process.env.STRIPE_WEBHOOK_SECRET);
+      event = stripe.webhooks.constructEvent(
+        req.body, 
+        sig, 
+        process.env.STRIPE_WEBHOOK_SECRET
+      );
     } catch (err) {
-      console.error('Webhook signature verification failed.', err.message);
+      console.error('Webhook signature verification failed:', err.message);
       return res.status(400).send(`Webhook Error: ${err.message}`);
     }
 
-    switch (event.type) {
-      case 'payment_intent.succeeded': {
-        const paymentIntent = event.data.object;
-        console.log('Payment succeeded:', paymentIntent.id);
-        break;
+    try {
+      switch (event.type) {
+        case 'payment_intent.succeeded': {
+          const paymentIntent = event.data.object;
+          const ordenId = paymentIntent.metadata.orden_id;
+          const numeroOrden = paymentIntent.metadata.numero_orden;
+
+          console.log('--------------------------------');
+          console.log('PAGO EXITOSO');
+          console.log('PaymentIntent:', paymentIntent.id);
+          console.log('Monto:', paymentIntent.amount / 100, paymentIntent.currency.toUpperCase());
+          console.log('Orden ID:', ordenId);
+          console.log('Número Orden:', numeroOrden);
+          console.log('--------------------------------');
+
+          if (ordenId) {
+            // Usar tu servicio para actualizar la orden
+            const actualizado = await OrdenesService.actualizar(ordenId, {
+              estado_pago: 'pagado',
+              estado_orden: 'completada'
+            });
+
+            if (actualizado) {
+              console.log('Orden actualizada exitosamente en BD');
+              
+              // Opcional: Enviar notificación, email, etc.
+              // await NotificacionService.enviarConfirmacionPago(ordenId);
+            } else {
+              console.error('No se pudo actualizar la orden:', ordenId);
+            }
+          } else {
+            console.error('No se encontró orden_id en metadata');
+          }
+
+          break;
+        }
+
+        case 'payment_intent.payment_failed': {
+          const paymentIntent = event.data.object;
+          const ordenId = paymentIntent.metadata.orden_id;
+          const error = paymentIntent.last_payment_error;
+
+          console.log('----------------------------------------');
+          console.log('PAGO FALLIDO');
+          console.log('PaymentIntent:', paymentIntent.id);
+          console.log('Orden ID:', ordenId);
+          console.log('Error:', error?.message || 'Desconocido');
+          console.log('----------------------------------------');
+
+          if (ordenId) {
+            await OrdenesService.actualizar(ordenId, {
+              estado_orden: 'cancelada'
+            });
+            console.log('Orden marcada como cancelada');
+          }
+
+          break;
+        }
+
+        case 'payment_intent.canceled': {
+          const paymentIntent = event.data.object;
+          const ordenId = paymentIntent.metadata.orden_id;
+
+          console.log('Pago cancelado - Orden:', ordenId);
+
+          if (ordenId) {
+            await OrdenesService.actualizar(ordenId, {
+              estado_orden: 'cancelada'
+            });
+          }
+
+          break;
+        }
+
+        default:
+          console.log(`Evento no manejado: ${event.type}`);
       }
-      case 'payment_intent.payment_failed':
-        console.log('Payment failed:', event.data.object.id);
-        break;
-      default:
-        console.log(`Unhandled event type: ${event.type}`);
+    } catch (dbError) {
+      console.error('Error procesando webhook en BD:', dbError);
+      // Aún así devolvemos 200 a Stripe para evitar reintentos
     }
 
     res.json({ received: true });

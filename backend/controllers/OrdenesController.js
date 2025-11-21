@@ -187,6 +187,51 @@ class OrdenController {
             });
         }
     }
+
+static async obtenerPorNumeroOrden(req, res) {
+  try {
+    const { numeroOrden } = req.params;
+    
+    // Buscar la orden por número
+    const ordenes = await ordenesService.obtenerTodos();
+    const orden = ordenes.find(o => o.numero_orden === numeroOrden);
+    
+    if (!orden) {
+      return res.status(404).json({
+        success: false,
+        message: 'Orden no encontrada'
+      });
+    }
+
+    // Verificar permisos
+    if (!['admin','empleado'].includes(req.usuario.rol) && 
+        req.usuario.id !== parseInt(orden.cliente_id)) {
+      return res.status(403).json({
+        success: false,
+        mensaje: 'No tienes permiso para ver esta orden'
+      });
+    }
+
+    // Obtener items de la orden
+    const items = await ordenItemsService.obtenerPorOrden(orden.id);
+    
+    const ordenResponse = new OrdenResponseDTO(orden);
+    
+    res.status(200).json({
+      success: true,
+      data: {
+        ...ordenResponse.toDetail(),
+        items: items
+      }
+    });
+  } catch (error) {
+    console.error("Error en obtenerPorNumeroOrden:", error);
+    res.status(500).json({
+      success: false,
+      message: 'Error al obtener la orden: ' + error.message
+    });
+  }
+}
 }
 
 module.exports = OrdenController;

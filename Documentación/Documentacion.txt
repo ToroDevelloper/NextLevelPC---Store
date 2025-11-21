@@ -250,15 +250,16 @@ DESCRIBE servicios;
 STRIPE-PASARELA DE PAGO
 =================================================================
 
-nuevas rutas para la integración de Stripe, incluyendo:
-
-Ruta de checkout (/checkout) - Para finalizar compras
-
-Endpoint de pagos en el backend (/api/payments/create-payment-intent) - Para crear intenciones de pago
-
-Webhook de Stripe (/api/payments/webhook) - Para manejar notificaciones de pagos
-
-También se ha configurado la lógica de redirección al login cuando los usuarios intentan acceder al checkout sin estar autenticados.
+Se ha implementado un sistema completo de procesamiento de pagos con Stripe integrado a la plataforma NextLevelPC,
+que incluye la configuración del frontend con React utilizando @stripe/react-stripe-js para renderizar el componente Checkout con CardElement,
+un StripeContext que centraliza la comunicación con la API de Stripe para crear PaymentIntents,
+un backend en Node.js/Express con PaymentsController que crea órdenes en la base de datos MySQL antes de iniciar el proceso de pago (utilizando la arquitectura existente de Services, DTOs y Models),
+inserta automáticamente los items de cada orden con sus cantidades y precios, genera metadatos que se envían a Stripe,
+configura webhooks que escuchan eventos de Stripe (especialmente payment_intent.succeeded)
+para actualizar automáticamente el estado de las órdenes de "pendiente" a "pagado" y el estado de la orden de "pendiente" a "completada" en la base de datos,
+maneja correctamente el raw body en Express para verificar las firmas criptográficas de los webhooks, integra Stripe CLI para desarrollo local,
+y proporciona feedback visual completo al usuario durante todo el flujo de pago (estados de carga, errores, confirmación de pago exitoso con número de orden),
+todo funcionando de forma sincronizada entre el frontend, backend, Stripe y la base de datos.
 
 =================================================================
 FIN DE DOCUMENTACIÓN

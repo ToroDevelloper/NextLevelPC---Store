@@ -4,10 +4,9 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const expressLayouts = require('express-ejs-layouts');
 
-// Cargar variables de entorno
 require('dotenv').config();
 
-// Importar rutas (usar nombres exactos de archivo para compatibilidad case-sensitive en contenedores)
+// Importar rutas
 const categoriasRoutes = require('./routes/Categorias');
 const serviciosRoutes = require('./routes/servicios');
 const productosRoutes = require('./routes/Productos');
@@ -17,21 +16,21 @@ const ordenesRoutes = require('./routes/Ordenes');
 const ordenItemsRoutes = require('./routes/OrdenItems');
 const imagenProductoRoutes = require('./routes/imagenProductoRoutes');
 const citasServiciosRoutes = require('./routes/citasServicios');
-
-//Importar rutas de pagos
 const paymentsRoutes = require('./routes/payments');
-const stripeWebhookRoutes = require('./routes/stripeWebhook');
 
-// Importar rutas de VISTAS
+// Vistas
 const productosViews = require('./routesViews/productosViews');
 const ordenesViews = require('./routesViews/ordenesViews');
 const citasServiciosViews = require('./routesViews/citaServicioViews');
 
-// Importar conexión a DB
 const { testConnection } = require('./config/db');
 
-
 const app = express();
+
+//WEBHOOK PRIMERO - ANTES DE express.json()
+app.use('/api/payments/webhook', 
+  express.raw({ type: 'application/json' })
+);
 
 // Middlewares
 app.use(cors({
@@ -48,7 +47,6 @@ app.set('layout', 'layouts/main');
 app.set('layout extractScripts', true);
 app.set('layout extractStyles', true);
 
-
 // Logging middleware
 app.use((req, res, next) => {
     console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
@@ -64,7 +62,7 @@ app.use('/uploads', express.static('uploads'));
 // Rutas de VISTAS
 app.use('/productos', productosViews);
 app.use('/ordenes', ordenesViews);
-app.use('/citas-servicios',citasServiciosViews);
+app.use('/citas-servicios', citasServiciosViews);
 
 // Rutas API
 app.use('/api/categorias', categoriasRoutes);
@@ -76,10 +74,7 @@ app.use('/api/ordenes', ordenesRoutes);
 app.use('/api/ordenitems', ordenItemsRoutes);
 app.use('/api/imagenes-producto', imagenProductoRoutes);
 app.use('/api/citas-servicios', citasServiciosRoutes);
-
-//Ruta API de transacciones de pago
 app.use('/api/payments', paymentsRoutes);
-app.use('/api/stripe',stripeWebhookRoutes);
 
 // Ruta de salud
 app.get('/api/health', async (req, res) => {
@@ -173,4 +168,3 @@ const startServer = async () => {
 };
 
 startServer();
-

@@ -10,5 +10,6 @@ router.delete('/:id', viewAuth(['admin']), OrdenesController.eliminar);
 router.patch('/:id', viewAuth(['admin', 'empleado']), OrdenesController.actualizar);
 router.get('/:id', viewAuth(['admin', 'empleado', 'cliente']), OrdenesController.obtenerPorId);
 router.get('/cliente/:clienteId', viewAuth(['admin', 'empleado', 'cliente']), OrdenesController.obtenerPorCliente);
+router.get('/numero/:numeroOrden', viewAuth(['admin', 'empleado', 'cliente']), OrdenesController.obtenerPorNumeroOrden);
 
 module.exports = router;
