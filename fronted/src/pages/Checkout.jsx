@@ -21,8 +21,8 @@ const Checkout = ({ cart, onSuccess, onError }) => {
   const productos = Array.isArray(cart)
     ? cart
     : Array.isArray(cart?.items)
-    ? cart.items
-    : [];
+      ? cart.items
+      : [];
 
   const normalizedProductos = productos.map((it) => ({
     id: it.id,
@@ -31,6 +31,7 @@ const Checkout = ({ cart, onSuccess, onError }) => {
     cantidad: Number(it.cantidad ?? it.quantity ?? 1) || 1,
     imagen: it.imagen_url ?? it.image ?? it.imageUrl ?? null,
     type: it.type ?? "producto",
+    citaData: it.citaData || null, // Preservar citaData
   }));
 
   // Calcular total
@@ -66,6 +67,12 @@ const Checkout = ({ cart, onSuccess, onError }) => {
         ),
       };
 
+      // Buscar si hay datos de cita en algún producto
+      const itemConCita = normalizedProductos.find(p => p.citaData);
+      if (itemConCita) {
+        metadata.citaData = JSON.stringify(itemConCita.citaData);
+      }
+
       console.log("Creando PaymentIntent...");
       const response = await createPaymentIntent(total, metadata);
 
@@ -76,7 +83,7 @@ const Checkout = ({ cart, onSuccess, onError }) => {
       console.log("PaymentIntent creado:", response);
 
       setClientSecret(response);
-      
+
       // Si el servidor devuelve info de la orden, guardarla
       if (response.ordenId || response.numeroOrden) {
         setOrdenCreada({
@@ -131,9 +138,9 @@ const Checkout = ({ cart, onSuccess, onError }) => {
 
       if (result.paymentIntent && result.paymentIntent.status === "succeeded") {
         console.log("Pago exitoso:", result.paymentIntent);
-        
+
         setPaymentSuccess(true);
-        
+
         // Extraer información del pago
         const numeroOrden = result.paymentIntent.metadata?.numero_orden || ordenCreada?.numero;
         const ordenId = result.paymentIntent.metadata?.orden_id || ordenCreada?.id;
@@ -166,7 +173,7 @@ const Checkout = ({ cart, onSuccess, onError }) => {
     } catch (err) {
       console.error("Error confirmando pago:", err);
       setError(err.message || "Error al procesar el pago.");
-      
+
       // Callback de error si existe
       if (onError) {
         onError(err);
@@ -244,9 +251,9 @@ const Checkout = ({ cart, onSuccess, onError }) => {
             <div key={`${item.type}-${item.id}-${index}`} className="summary-item">
               <div className="item-info">
                 {item.imagen && (
-                  <img 
-                    src={item.imagen} 
-                    alt={item.nombre} 
+                  <img
+                    src={item.imagen}
+                    alt={item.nombre}
                     className="item-image"
                   />
                 )}
@@ -288,7 +295,7 @@ const Checkout = ({ cart, onSuccess, onError }) => {
                 Información de la Tarjeta
               </label>
               <div className="card-element-box">
-                <CardElement 
+                <CardElement
                   id="card-element"
                   options={cardElementOptions}
                 />
@@ -303,9 +310,9 @@ const Checkout = ({ cart, onSuccess, onError }) => {
               <p>Pago seguro procesado por Stripe</p>
             </div>
 
-            <button 
-              type="submit" 
-              className="checkout-btn" 
+            <button
+              type="submit"
+              className="checkout-btn"
               disabled={!stripe || loading || processingPayment}
             >
               {loading ? (
@@ -332,7 +339,7 @@ const Checkout = ({ cart, onSuccess, onError }) => {
                 Número de orden: <strong>{ordenCreada.numero}</strong>
               </p>
             )}
-            <button 
+            <button
               className="btn-continue"
               onClick={() => window.location.href = '/mis-ordenes'}
             >

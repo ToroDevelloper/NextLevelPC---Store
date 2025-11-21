@@ -9,14 +9,18 @@ class CitaServicio {
             telefono,
             direccion,
             fecha,
-            descripcion
+            descripcion,
+            estado = 'pendiente',        // Nuevo: por defecto 'pendiente'
+            estado_pago = 'pendiente',   // Nuevo: por defecto 'pendiente'
+            orden_id = null              // Nuevo: vinculación con orden
         } = citaData;
 
         const query = `
             INSERT INTO citas_servicios (
                 servicio_id, nombre_cliente, email_cliente, telefono_cliente, 
-                direccion_cliente, fecha_cita, descripcion_problema
-            ) VALUES (?, ?, ?, ?, ?, ?, ?)
+                direccion_cliente, fecha_cita, descripcion_problema,
+                estado, estado_pago, orden_id
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `;
 
         const params = [
@@ -26,7 +30,10 @@ class CitaServicio {
             telefono,
             direccion,
             fecha,
-            descripcion
+            descripcion,
+            estado,
+            estado_pago,
+            orden_id
         ];
 
         const result = await executeQuery(query, params);

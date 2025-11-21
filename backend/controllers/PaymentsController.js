@@ -1,6 +1,7 @@
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const OrdenesService = require('../services/OrdenesService');
 const OrdenItemsService = require('../services/OrdenItemsService');
+const CitaServicioService = require('../services/CitaServicioService');
 const { OrdenCreateDTO } = require('../dto/OrdenesDTO');
 
 class PaymentsController {
@@ -17,7 +18,7 @@ class PaymentsController {
         return res.status(400).json({ success: false, mensaje: 'El monto es requerido.' });
       }
 
-      /// Normalizar monto a centavos
+      // Normalizar monto a centavos
       let amountInCents;
       if (amount_cents !== undefined && amount_cents !== null) {
         amountInCents = Math.round(Number(amount_cents));
@@ -27,7 +28,7 @@ class PaymentsController {
         if (Number.isNaN(num)) {
           return res.status(400).json({ success: false, mensaje: 'El campo amount debe ser numérico.' });
         }
-        amountInCents = Math.round(num); // ← CAMBIO: remover * 100
+        amountInCents = Math.round(num);
       }
 
       if (!Number.isFinite(amountInCents) || amountInCents <= 0) {
@@ -118,6 +119,26 @@ class PaymentsController {
         tipo: tipo
       };
 
+      // NUEVO: Agregar datos de cita si el pago es para un servicio
+      if (metadata.citaData) {
+        const citaData = typeof metadata.citaData === 'string'
+          ? JSON.parse(metadata.citaData)
+          : metadata.citaData;
+
+        // Agregar servicio_id si viene en el primer producto
+        if (productos.length > 0 && productos[0].id) {
+          safeMetadata.servicio_id = productos[0].id.toString();
+        }
+
+        // Limitar cada campo a 500 caracteres (límite de Stripe para metadata)
+        safeMetadata.cita_nombre = (citaData.nombre_cliente || citaData.nombre || '').slice(0, 500);
+        safeMetadata.cita_email = (citaData.email_cliente || citaData.email || '').slice(0, 500);
+        safeMetadata.cita_telefono = (citaData.telefono_cliente || citaData.telefono || '').slice(0, 500);
+        safeMetadata.cita_direccion = (citaData.direccion_cliente || citaData.direccion || '').slice(0, 500);
+        safeMetadata.cita_fecha = (citaData.fecha_cita || citaData.fecha || '').slice(0, 500);
+        safeMetadata.cita_descripcion = (citaData.descripcion_problema || citaData.descripcion || '').slice(0, 500);
+      }
+
       // Agregar info compacta de productos
       if (productos.length > 0) {
         const productosCompactos = productos.map(p => ({
@@ -200,8 +221,36 @@ class PaymentsController {
             if (actualizado) {
               console.log('Orden actualizada exitosamente en BD');
 
-              // Opcional: Enviar notificación, email, etc.
-              // await NotificacionService.enviarConfirmacionPago(ordenId);
+              // NUEVO: Si hay datos de cita en metadata, crearla AHORA
+              const metadata = paymentIntent.metadata;
+              if (metadata.cita_nombre && metadata.servicio_id) {
+                try {
+                  console.log('Creando cita automática desde webhook...');
+                  const citaData = {
+                    servicio_id: metadata.servicio_id,
+                    nombre: metadata.cita_nombre,
+                    email: metadata.cita_email,
+                    telefono: metadata.cita_telefono,
+                    direccion: metadata.cita_direccion,
+                    fecha: metadata.cita_fecha,
+                    descripcion: metadata.cita_descripcion,
+                    estado: 'confirmada',
+                    estado_pago: 'pagado',
+                    orden_id: ordenId
+                  };
+
+                  const nuevaCita = await CitaServicioService.crear(citaData);
+
+                  // Vincular cita con orden (actualización inversa)
+                  await OrdenesService.actualizar(ordenId, {
+                    cita_servicio_id: nuevaCita.id
+                  });
+
+                  console.log('Cita creada y pagada exitosamente:', nuevaCita.id);
+                } catch (citaError) {
+                  console.error('Error creando cita automática:', citaError);
+                }
+              }
             } else {
               console.error('No se pudo actualizar la orden:', ordenId);
             }

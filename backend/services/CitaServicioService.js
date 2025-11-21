@@ -11,6 +11,11 @@ class CitaServicioService {
         return await CitaServicio.create(citaData);
     }
 
+    // Alias para mantener consistencia con otros servicios
+    static async crear(citaData) {
+        return await this.createCita(citaData);
+    }
+
     static async getAllCitas() {
         return await CitaServicio.findAll();
     }
