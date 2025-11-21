@@ -63,15 +63,14 @@ class OrdenResponseDTO {
         this.estado_orden = orden.estado_orden || 'pendiente';
         this.estado_pago = orden.estado_pago || 'pendiente';
         this.fecha_creacion = orden.created_at;
-        
         this.cliente = orden.cliente_nombre ? {
             nombre: orden.cliente_nombre,
             apellido: orden.cliente_apellido,
             correo: orden.cliente_correo
         } : null;
-        
         this.esta_pagada = this.estado_pago === 'pagado';
         this.esta_completada = this.estado_orden === 'completada';
+        this.items = orden.items || [];
     }
 
     toSummary() {
@@ -91,7 +90,8 @@ class OrdenResponseDTO {
         return {
             ...this.toSummary(),
             cliente: this.cliente,
-            tipo: this.tipo
+            tipo: this.tipo,
+            items: this.items
         };
     }
 }

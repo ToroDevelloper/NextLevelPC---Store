@@ -35,7 +35,7 @@ export const StripeProvider = ({ children }) => {
                 throw new Error(data.mensaje || "Error creando PaymentIntent");
             }
 
-            return data.clientSecret;
+            return data;
 
         } catch (err) {
             console.error("Error Stripe:", err);
@@ -61,7 +61,7 @@ export const StripeProvider = ({ children }) => {
     return (
         <StripeContext.Provider
             value={{
-                stripePromise, 
+                stripePromise,
                 createPaymentIntent,
                 pagarConStripe,
                 loading,

@@ -8,6 +8,7 @@ import Servicios from './pages/Servicios';
 import ServicioDetail from './pages/ServicioDetail';
 import Perfil from './pages/Perfil';
 import Checkout from './pages/Checkout';
+import Factura from './pages/Factura';
 
 import Layout from './components/Layout';
 import TransicionBienvenida from './pages/TransicionBienvenida';
@@ -75,6 +76,8 @@ function App() {
                                 </Elements>
                             }
                         />
+
+                        <Route path="/factura/:id" element={<Factura />} />
 
                         <Route path="/unauthorized" element={<div>No tienes permiso</div>} />
                         <Route path="*" element={<Navigate to="/" replace />} />

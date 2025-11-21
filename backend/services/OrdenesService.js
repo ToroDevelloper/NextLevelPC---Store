@@ -30,6 +30,10 @@ class OrdenesService {
                 throw new Error('Orden no encontrada');
             }
 
+            // Obtener los items pagados de la orden
+            const items = await OrdenItems.obtenerPorOrden(id);
+            orden.items = items;
+
             return orden;
         } catch (error) {
             throw new Error('Error al obtener orden: ' + error.message);

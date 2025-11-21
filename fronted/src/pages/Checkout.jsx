@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import { useStripeContext } from "../utils/StripeContext";
 import { useCart } from "../utils/CartContext";
 import "../styles/Checkout.css";
 
 const Checkout = ({ cart, onSuccess, onError }) => {
+  const navigate = useNavigate();
   const stripe = useStripe();
   const elements = useElements();
   const { createPaymentIntent } = useStripeContext();
@@ -89,7 +91,12 @@ const Checkout = ({ cart, onSuccess, onError }) => {
 
       console.log("PaymentIntent creado:", response);
 
-      setClientSecret(response);
+      // Extraer clientSecret del response (response es {clientSecret, ordenId, numeroOrden})
+      const secret = response.clientSecret || response;
+      setClientSecret(secret);
+
+      console.log("ClientSecret:", secret);
+      console.log("OrdenId recibido:", response.ordenId);
 
       // Si el servidor devuelve info de la orden, guardarla
       if (response.ordenId || response.numeroOrden) {
@@ -97,6 +104,7 @@ const Checkout = ({ cart, onSuccess, onError }) => {
           id: response.ordenId,
           numero: response.numeroOrden,
         });
+        console.log("Orden guardada:", { id: response.ordenId, numero: response.numeroOrden });
       }
     } catch (err) {
       console.error("Error creando intent:", err);
@@ -163,16 +171,15 @@ const Checkout = ({ cart, onSuccess, onError }) => {
           });
         }
 
-        // Mostrar mensaje de éxito
-        setTimeout(() => {
-          alert(
-            `¡Pago completado con éxito!\n\n` +
-            `${numeroOrden ? `Número de orden: ${numeroOrden}\n` : ''}` +
-            `Monto: ${new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP' }).format(result.paymentIntent.amount / 100)}\n\n` +
-            `Recibirás un correo de confirmación.`
-          );
+        // Redirigir directamente a la factura sin alert
+        console.log('Pago completado. Redirigiendo a factura...');
+        console.log('ordenId:', ordenId, 'ordenCreada:', ordenCreada);
 
-        }, 500);
+        if (ordenId) {
+          navigate(`/factura/${ordenId}`);
+        } else {
+          console.error('No hay ordenId. No se puede redirigir.');
+        }
 
       } else {
         console.log("Estado del pago:", result.paymentIntent?.status);
