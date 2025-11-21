@@ -45,6 +45,13 @@ const Checkout = ({ cart, onSuccess, onError }) => {
       0
     );
     setTotal(t);
+
+    // Validar monto mínimo
+    if (t > 0 && t < 20) { // 20,000 COP = $20.00
+      setError(`El monto mínimo de compra es $20,000 COP. Tu total actual es ${formatCurrency(t)}.`);
+    } else {
+      setError(null);
+    }
   }, [cart]);
 
   // Crear PaymentIntent cuando hay total
@@ -58,6 +65,11 @@ const Checkout = ({ cart, onSuccess, onError }) => {
     try {
       setLoading(true);
       setError(null);
+
+      // Validar monto mínimo antes de proceder
+      if (total < 20) { // 20,000 COP
+        throw new Error(`El monto mínimo de compra es $20,000 COP. Tu total actual es ${formatCurrency(total)}.`);
+      }
 
       const metadata = {
         productos: JSON.stringify(
@@ -328,7 +340,7 @@ const Checkout = ({ cart, onSuccess, onError }) => {
             <button
               type="submit"
               className="checkout-btn"
-              disabled={!stripe || loading || processingPayment}
+              disabled={!stripe || loading || processingPayment || total < 20}
             >
               {loading ? (
                 "Preparando..."
@@ -340,6 +352,12 @@ const Checkout = ({ cart, onSuccess, onError }) => {
                 `Pagar ${formatCurrency(total)}`
               )}
             </button>
+
+            {total < 20 && (
+              <div className="minimum-amount-warning">
+                <p>Monto mínimo requerido: $20,000 COP</p>
+              </div>
+            )}
           </form>
         )}
 

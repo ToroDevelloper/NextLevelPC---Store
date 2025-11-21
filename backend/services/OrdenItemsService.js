@@ -7,8 +7,8 @@ class OrdenItemsService {
         try {
             const itemDTO = new OrdenItemCreateDTO(item);
             const errors = itemDTO.validate();
-            if(!errors.length>0){
-                throw new Error('Errores al crear orden-item: ',errors)
+            if(errors.length>0){
+                throw new Error('Errores al crear orden-item: '+ JSON.stringify(errors))
             }
             // ACTUALIZAR EL TOTAL DE LA ORDEN
             await OrdenesService.actualizarTotal(itemDTO.orden_id);
@@ -77,8 +77,9 @@ class OrdenItemsService {
             
             const item = new OrdenItemUpdateDTO(itemDTO);
             const errors = item.validate();
-            if(!errors.length>0){
-                throw new Error('Errores al actualizar el item: ',errors)
+
+            if(errors.length > 0){
+            throw new Error('Errores al actualizar el item: ' + JSON.stringify(errors))
             }
 
             const itemData = item.toPatchObject();

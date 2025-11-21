@@ -39,6 +39,19 @@ class PaymentsController {
         return res.status(400).json({ success: false, mensaje: 'El monto debe ser mayor a 0.' });
       }
 
+      // **NUEVO: Validar monto mínimo para COP**
+      if (currency.toLowerCase() === 'cop') {
+        // Stripe requiere mínimo ~$2,000 COP (equivalente a ~$0.50 USD)
+        const MINIMUM_AMOUNT_COP = 2000; // 2,000 COP = ~$0.50 USD
+        
+        if (amountInCents < MINIMUM_AMOUNT_COP) {
+          return res.status(400).json({
+            success: false,
+            mensaje: `El monto mínimo de pago es ${(MINIMUM_AMOUNT_COP / 100).toLocaleString('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 })}.`
+          });
+        }
+      }
+
       // Verificar usuario autenticado
       if (!req.usuario) {
         return res.status(401).json({ success: false, mensaje: 'Usuario no autenticado' });
@@ -98,15 +111,16 @@ class PaymentsController {
             // Para servicios, producto_id debe ser NULL para evitar error de FK con tabla productos
             const isService = (prod.type || tipo) === 'servicio';
 
-            await OrdenItemsService.crear({
-              orden_id: ordenId,
-              producto_id: isService ? null : (prod.id || null),
-              tipo: prod.type || tipo,
-              descripcion: prod.nombre || 'Sin descripción',
-              cantidad: prod.cantidad || 1,
-              precio_unitario: prod.precio || 0,
-              subtotal: (prod.precio || 0) * (prod.cantidad || 1)
-            });
+          await OrdenItemsService.crear({
+          orden_id: ordenId,
+          producto_id: isService ? null : (prod.id || null),
+          servicio_id: isService ? (prod.id || null) : null, 
+          tipo: prod.type || tipo,
+          descripcion: prod.nombre || 'Sin descripción',
+          cantidad: prod.cantidad || 1,
+          precio_unitario: prod.precio || 0,
+          subtotal: (prod.precio || 0) * (prod.cantidad || 1)
+          });
           } catch (itemError) {
             console.error('Error insertando item:', itemError);
           }
@@ -126,7 +140,7 @@ class PaymentsController {
         tipo: tipo
       };
 
-      // NUEVO: Agregar datos de cita si el pago es para un servicio
+      //Agregar datos de cita si el pago es para un servicio
       if (metadata.citaData) {
         const citaData = typeof metadata.citaData === 'string'
           ? JSON.parse(metadata.citaData)

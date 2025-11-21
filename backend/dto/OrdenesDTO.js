@@ -3,6 +3,7 @@ class OrdenCreateDTO {
         this.cliente_id = payload.cliente_id;
         this.tipo = payload.tipo;
         this.total = payload.total || 0.00;
+        this.cita_servicio_id = payload.cita_servicio_id || null;
     }
 
     validate() {
@@ -20,7 +21,8 @@ class OrdenCreateDTO {
         return {
             cliente_id: this.cliente_id,
             tipo: this.tipo,
-            total: this.total
+            total: this.total,
+            cita_servicio_id: this.cita_servicio_id
         };
     }
 }
@@ -31,6 +33,7 @@ class OrdenUpdateDTO {
         this.estado_pago = payload.estado_pago;
         this.total = payload.total;
         this.tipo = payload.tipo;
+        this.cita_servicio_id = payload.cita_servicio_id;
     }
 
     validate() {
@@ -46,7 +49,7 @@ class OrdenUpdateDTO {
 
     toPatchObject() {
         const out = {};
-        ['estado_orden', 'estado_pago', 'total', 'tipo'].forEach(k => {
+        ['estado_orden', 'estado_pago', 'total', 'tipo','cita_servicio_id'].forEach(k => {
             if (this[k] !== undefined) out[k] = this[k];
         });
         return out;

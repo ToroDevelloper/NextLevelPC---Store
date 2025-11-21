@@ -18,6 +18,11 @@ export const StripeProvider = ({ children }) => {
             setLoading(true);
             setError(null);
 
+            // Validación adicional en el frontend
+            if (total < 20) {
+                throw new Error(`Monto insuficiente. El mínimo es $20,000 COP.`);
+            }
+
             const res = await fetch("http://localhost:8080/api/payments/create-payment-intent", {
                 method: "POST",
                 credentials: "include",

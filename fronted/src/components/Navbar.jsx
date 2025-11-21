@@ -317,78 +317,108 @@ const handleCheckout = () => {
           </div>
 
           {/* Carrito */}
-          <div className="navbar-cart-container">
-            <button
-              className="navbar-icon-btn cart-btn"
-              aria-label="Carrito"
-              onClick={() => setCartOpen(o => !o)}
-            >
-              <IconCart />
-              {cartCount > 0 && (
-                <span className="navbar-cart-badge">{cartCount}</span>
-              )}
-            </button>
+<div className="navbar-cart-container">
+  <button
+    className="navbar-icon-btn cart-btn"
+    aria-label="Carrito"
+    onClick={() => setCartOpen(o => !o)}
+  >
+    <IconCart />
+    {cartCount > 0 && (
+      <span className="navbar-cart-badge">{cartCount}</span>
+    )}
+  </button>
 
-            {/* Dropdown del carrito */}
-            {cartOpen && (
-              <div className="navbar-cart-dropdown" ref={cartDropdownRef}>
-                <h4>Carrito ({cartCount} items)</h4>
-                {cartItems.length === 0 ? (
-                  <p>Tu carrito está vacío</p>
-                ) : (
-                  <>
-                    <ul className="navbar-cart-list">
-                      {cartItems.map(item => {
-                        const unitPrice = Number(item.price ?? item.precio ?? 0);
-                        const lineTotal = unitPrice * (item.quantity ?? 0);
-                        const imgSrc = item.image || item.imagen_url || 'https://placehold.co/100x100/EEE/31343C?text=Item';
+  {/* Dropdown del carrito */}
+  {cartOpen && (
+    <div className="navbar-cart-dropdown" ref={cartDropdownRef}>
+      <h4>Carrito ({cartCount} items)</h4>
+      {cartItems.length === 0 ? (
+        <p>Tu carrito está vacío</p>
+      ) : (
+        <>
+          <ul className="navbar-cart-list">
+            {cartItems.map(item => {
+              const unitPrice = Number(item.price ?? item.precio ?? 0);
+              const lineTotal = unitPrice * (item.quantity ?? 0);
+              const imgSrc = item.image || item.imagen_url || 'https://placehold.co/100x100/EEE/31343C?text=Item';
 
-                        return (
-                          <li key={`${item.type}-${item.id}`} className="navbar-cart-item">
-                            <img
-                              src={imgSrc}
-                              alt={item.nombre || 'Item del carrito'}
-                              className="navbar-cart-image"
-                              onError={(e) => {
-                                e.target.onerror = null;
-                                e.target.src = 'https://placehold.co/100x100/EEE/31343C?text=Item';
-                              }}
-                            />
-                            <div className="navbar-cart-info">
-                              <div className="navbar-cart-title">{item.nombre}</div>
-                              <div className="navbar-cart-price">
-                                {formatCurrency(lineTotal)} (x{item.quantity})
-                              </div>
-                            </div>
-                            <div className="navbar-cart-controls">
-                              <button onClick={() => updateQuantity(item.id, item.type, (item.quantity || 0) - 1)} aria-label="Disminuir">−</button>
-                              <button onClick={() => updateQuantity(item.id, item.type, (item.quantity || 0) + 1)} aria-label="Aumentar">+</button>
-                              <button onClick={() => removeFromCart(item.id, item.type)} aria-label="Eliminar" className="btn-remove">
-                                <IconClose />
-                              </button>
-                            </div>
-                          </li>
-                        );
-                      })}
-                    </ul>
-                    <div className="navbar-cart-total">
-                      <strong>Total:</strong>
-                      <strong>{formatCurrency(cartTotal)}</strong>
+              return (
+                <li key={`${item.type}-${item.id}`} className="navbar-cart-item">
+                  <img
+                    src={imgSrc}
+                    alt={item.nombre || 'Item del carrito'}
+                    className="navbar-cart-image"
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = 'https://placehold.co/100x100/EEE/31343C?text=Item';
+                    }}
+                  />
+                  <div className="navbar-cart-info">
+                    <div className="navbar-cart-title">{item.nombre}</div>
+                    <div className="navbar-cart-price">
+                      {formatCurrency(lineTotal)} (x{item.quantity})
                     </div>
-                    <div className="navbar-cart-actions">
-                      {/* usa handleCheckout con autenticación */}
-                      <button className="btn-checkout" onClick={handleCheckout}>
-                        Proceder al Pago
-                      </button>
-                      <button className="btn-clear-cart" onClick={clearCart}>
-                        Vaciar Carrito
-                      </button>
-                    </div>
-                  </>
-                )}
-              </div>
-            )}
+                    {/* Mostrar advertencia si es servicio con precio bajo */}
+                    {item.type === 'servicio' && unitPrice < 2000 && (
+                      <div className="price-warning" style={{color: 'red', fontSize: '12px'}}>
+                        Precio mínimo no alcanzado
+                      </div>
+                    )}
+                  </div>
+                  <div className="navbar-cart-controls">
+                    <button onClick={() => updateQuantity(item.id, item.type, (item.quantity || 0) - 1)} aria-label="Disminuir">−</button>
+                    <button onClick={() => updateQuantity(item.id, item.type, (item.quantity || 0) + 1)} aria-label="Aumentar">+</button>
+                    <button onClick={() => removeFromCart(item.id, item.type)} aria-label="Eliminar" className="btn-remove">
+                      <IconClose />
+                    </button>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+          <div className="navbar-cart-total">
+            <strong>Total:</strong>
+            <strong>{formatCurrency(cartTotal)}</strong>
           </div>
+          
+          {/* Mostrar advertencia si hay servicios con precio bajo */}
+          {cartItems.some(item => item.type === 'servicio' && Number(item.price ?? item.precio ?? 0) < 2000) && (
+            <div className="cart-warning" style={{
+              background: '#fff3cd',
+              border: '1px solid #ffeaa7',
+              borderRadius: '4px',
+              padding: '8px',
+              margin: '10px 0',
+              fontSize: '14px',
+              color: '#856404'
+            }}>
+              Algunos servicios no cumplen con el precio mínimo requerido ($2,000 COP)
+            </div>
+          )}
+
+          <div className="navbar-cart-actions">
+            {/* Deshabilitar checkout si hay servicios con precio bajo */}
+            <button 
+              className="btn-checkout" 
+              onClick={handleCheckout}
+              disabled={cartItems.some(item => item.type === 'servicio' && Number(item.price ?? item.precio ?? 0) < 2000)}
+              style={{
+                opacity: cartItems.some(item => item.type === 'servicio' && Number(item.price ?? item.precio ?? 0) < 2000) ? 0.5 : 1,
+                cursor: cartItems.some(item => item.type === 'servicio' && Number(item.price ?? item.precio ?? 0) < 2000) ? 'not-allowed' : 'pointer'
+              }}
+            >
+              Proceder al Pago
+            </button>
+            <button className="btn-clear-cart" onClick={clearCart}>
+              Vaciar Carrito
+            </button>
+          </div>
+        </>
+      )}
+    </div>
+  )}
+</div>
 
           {/*Botón de Menú Móvil */}
           <button 

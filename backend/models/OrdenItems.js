@@ -1,91 +1,101 @@
 const { executeQuery } = require('../config/db');
 
 class OrdenItems {
-    static async crear(data) {
-        const { 
-            orden_id, 
-            tipo, 
-            producto_id, 
-            descripcion, 
-            cantidad = 1, 
-            precio_unitario 
-        } = data;
+static async crear(data) {
+    const { 
+        orden_id, 
+        tipo, 
+        producto_id,
+        servicio_id,
+        descripcion, 
+        cantidad = 1, 
+        precio_unitario 
+    } = data;
 
-        // Validaciones básicas
-        if (!orden_id || !tipo || !descripcion || !precio_unitario) {
-            throw new Error('Faltan campos requeridos para crear item de orden');
-        }
-
-        // Validar que cantidad sea positiva
-        if (cantidad <= 0) {
-            throw new Error('La cantidad debe ser mayor a 0');
-        }
-
-        // Validar que precio sea válido
-        if (precio_unitario <= 0) {
-            throw new Error('El precio unitario debe ser mayor a 0');
-        }
-
-        const subtotal = precio_unitario * cantidad;
-
-        const result = await executeQuery(
-            `INSERT INTO orden_items 
-             (orden_id, tipo, producto_id, descripcion, cantidad, precio_unitario, subtotal) 
-             VALUES (?, ?, ?, ?, ?, ?, ?)`,
-            [orden_id, tipo, producto_id, descripcion, cantidad, precio_unitario, subtotal]
-        );
-
-        return result.insertId;
+    // Validaciones básicas
+    if (!orden_id || !tipo || !descripcion || !precio_unitario) {
+        throw new Error('Faltan campos requeridos para crear item de orden');
     }
 
-    static async obtenerTodos() {
-        return await executeQuery(`
-            SELECT oi.*,
-                   p.nombre as producto_nombre,
-                   p.precio_actual,
-                   o.numero_orden,
-                   o.cliente_id
-            FROM orden_items oi 
-            LEFT JOIN productos p ON oi.producto_id = p.id 
-            LEFT JOIN ordenes o ON oi.orden_id = o.id
-            ORDER BY oi.id DESC
-        `);
+    // Validar que cantidad sea positiva
+    if (cantidad <= 0) {
+        throw new Error('La cantidad debe ser mayor a 0');
     }
 
-    static async obtenerPorId(id) {
-        const result = await executeQuery(`
-            SELECT oi.*,
-                   p.nombre as producto_nombre,
-                   p.precio_actual,
-                   o.numero_orden,
-                   o.cliente_id,
-                   o.estado_orden,
-                   o.estado_pago
-            FROM orden_items oi 
-            LEFT JOIN productos p ON oi.producto_id = p.id 
-            LEFT JOIN ordenes o ON oi.orden_id = o.id
-            WHERE oi.id = ?
-        `, [id]);
-        
-        return result.length > 0 ? result[0] : null;
+    // Validar que precio sea válido
+    if (precio_unitario <= 0) {
+        throw new Error('El precio unitario debe ser mayor a 0');
     }
 
-    static async obtenerPorOrden(ordenId) {
-        if (!ordenId) {
-            throw new Error('El ID de la orden es requerido');
-        }
+    const subtotal = precio_unitario * cantidad;
 
-        return await executeQuery(`
-            SELECT oi.*,
-                   p.nombre as producto_nombre,
-                   p.precio_actual,
-                   p.stock
-            FROM orden_items oi 
-            LEFT JOIN productos p ON oi.producto_id = p.id 
-            WHERE oi.orden_id = ?
-            ORDER BY oi.id ASC
-        `, [ordenId]);
+    const result = await executeQuery(
+        `INSERT INTO orden_items 
+         (orden_id, tipo, producto_id, servicio_id, descripcion, cantidad, precio_unitario, subtotal) 
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        [orden_id, tipo, producto_id, servicio_id, descripcion, cantidad, precio_unitario, subtotal]
+    );
+
+    return result.insertId;
+}
+
+static async obtenerTodos() {
+    return await executeQuery(`
+        SELECT oi.*,
+               p.nombre as producto_nombre,
+               p.precio_actual,
+               s.nombre as servicio_nombre, 
+               s.precio as servicio_precio,
+               o.numero_orden,
+               o.cliente_id
+        FROM orden_items oi 
+        LEFT JOIN productos p ON oi.producto_id = p.id 
+        LEFT JOIN servicios s ON oi.servicio_id = s.id
+        LEFT JOIN ordenes o ON oi.orden_id = o.id
+        ORDER BY oi.id DESC
+    `);
+}
+
+static async obtenerPorId(id) {
+    const result = await executeQuery(`
+        SELECT oi.*,
+               p.nombre as producto_nombre,
+               p.precio_actual,
+               s.nombre as servicio_nombre,
+               s.precio as servicio_precio,
+               o.numero_orden,
+               o.cliente_id,
+               o.estado_orden,
+               o.estado_pago
+        FROM orden_items oi 
+        LEFT JOIN productos p ON oi.producto_id = p.id 
+        LEFT JOIN servicios s ON oi.servicio_id = s.id
+        LEFT JOIN ordenes o ON oi.orden_id = o.id
+        WHERE oi.id = ?
+    `, [id]);
+    
+    return result.length > 0 ? result[0] : null;
+}
+
+static async obtenerPorOrden(ordenId) {
+    if (!ordenId) {
+        throw new Error('El ID de la orden es requerido');
     }
+
+    return await executeQuery(`
+        SELECT oi.*,
+               p.nombre as producto_nombre,
+               p.precio_actual,
+               p.stock,
+               s.nombre as servicio_nombre,
+               s.precio as servicio_precio
+        FROM orden_items oi 
+        LEFT JOIN productos p ON oi.producto_id = p.id 
+        LEFT JOIN servicios s ON oi.servicio_id = s.id
+        WHERE oi.orden_id = ?
+        ORDER BY oi.id ASC
+    `, [ordenId]);
+}
 
     static async actualizar(id, data) {
         const camposPermitidos = ['cantidad', 'precio_unitario', 'subtotal', 'descripcion'];

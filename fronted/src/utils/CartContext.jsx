@@ -22,7 +22,13 @@ export const CartProvider = ({ children }) => {
     }, [cartItems]);
 
     const addToCart = (item) => {
-        const { id, type = 'producto', quantity = 1 } = item;
+        const { id, type = 'producto', quantity = 1, precio, price } = item;
+        
+        // Validar precio mínimo para servicios
+        const itemPrice = Number(precio ?? price ?? 0);
+        if (type === 'servicio' && itemPrice < 2000) {
+            throw new Error('Los servicios deben tener un valor mínimo de $2,000 COP');
+        }
 
         setCartItems(prevItems => {
             const existingItem = prevItems.find(i => i.id === id && i.type === type);
