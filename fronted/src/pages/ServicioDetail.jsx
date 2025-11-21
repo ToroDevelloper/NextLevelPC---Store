@@ -29,11 +29,12 @@ const ServicioDetail = () => {
     const handleSubmitModal = async (formData) => {
         if (!isAuthenticated) {
             alert('Debes iniciar sesión para agendar una cita de servicio.');
-            return;
+            return { success: false };
         }
         try {
             const response = await fetch(`${API_BASE}/api/citas-servicios`, {
                 method: 'POST',
+                credentials: 'include',
                 headers: {
                     'Content-Type': 'application/json',
                 },
@@ -47,13 +48,14 @@ const ServicioDetail = () => {
 
             if (response.ok && result.success) {
                 alert('¡Cita agendada con éxito! Nos pondremos en contacto contigo pronto.');
-                setIsModalOpen(false);
+                return { success: true, data: result.data };
             } else {
                 throw new Error(result.message || 'No se pudo agendar la cita.');
             }
         } catch (error) {
             console.error('Error al enviar el formulario:', error);
             alert(`Error: ${error.message}`);
+            return { success: false };
         }
     };
 

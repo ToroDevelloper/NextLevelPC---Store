@@ -17,16 +17,17 @@ class PaymentsController {
         return res.status(400).json({ success: false, mensaje: 'El monto es requerido.' });
       }
 
-      // Normalizar monto a centavos
+      /// Normalizar monto a centavos
       let amountInCents;
       if (amount_cents !== undefined && amount_cents !== null) {
         amountInCents = Math.round(Number(amount_cents));
       } else {
+        // El frontend ya envía 'amount' en centavos, NO multiplicar por 100 de nuevo
         const num = Number(amount);
         if (Number.isNaN(num)) {
           return res.status(400).json({ success: false, mensaje: 'El campo amount debe ser numérico.' });
         }
-        amountInCents = Math.round(num * 100);
+        amountInCents = Math.round(num); // ← CAMBIO: remover * 100
       }
 
       if (!Number.isFinite(amountInCents) || amountInCents <= 0) {
@@ -44,14 +45,14 @@ class PaymentsController {
       // **CREAR LA ORDEN USANDO TU SERVICIO**
       let productos = [];
       let tipo = 'producto'; // default
-      
+
       // Parsear productos del metadata
       if (metadata.productos) {
         try {
-          productos = typeof metadata.productos === 'string' 
-            ? JSON.parse(metadata.productos) 
+          productos = typeof metadata.productos === 'string'
+            ? JSON.parse(metadata.productos)
             : metadata.productos;
-          
+
           // Determinar tipo basado en el primer producto
           if (productos.length > 0 && productos[0].type === 'servicio') {
             tipo = 'servicio';
@@ -80,13 +81,13 @@ class PaymentsController {
       console.log('Creando orden en BD...');
       const ordenId = await OrdenesService.crear(ordenDTO);
       const ordenCreada = await OrdenesService.obtenerPorId(ordenId);
-      
+
       console.log('Orden creada:', ordenCreada.numero_orden);
 
       // Insertar items de la orden si hay productos
       if (productos.length > 0) {
         console.log(`Insertando ${productos.length} items...`);
-        
+
         for (const prod of productos) {
           try {
             await OrdenItemsService.crear({
@@ -148,7 +149,7 @@ class PaymentsController {
 
     } catch (error) {
       console.error('Error creating payment intent:', error);
-      
+
       // Logging detallado del error
       if (error.raw) {
         console.error('Stripe raw error:', error.raw);
@@ -165,8 +166,8 @@ class PaymentsController {
 
     try {
       event = stripe.webhooks.constructEvent(
-        req.body, 
-        sig, 
+        req.body,
+        sig,
         process.env.STRIPE_WEBHOOK_SECRET
       );
     } catch (err) {
@@ -198,7 +199,7 @@ class PaymentsController {
 
             if (actualizado) {
               console.log('Orden actualizada exitosamente en BD');
-              
+
               // Opcional: Enviar notificación, email, etc.
               // await NotificacionService.enviarConfirmacionPago(ordenId);
             } else {

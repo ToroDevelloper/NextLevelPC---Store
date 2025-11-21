@@ -228,6 +228,48 @@ CREATE TABLE IF NOT EXISTS `servicio_imagenes` (
 
 -- Data exporting was unselected.
 
+-- =====================================================
+-- 21-11-2025: SOPORTE DE PAGOS EN SERVICIOS
+-- =====================================================
+
+-- Agregar columna estado_pago a citas_servicios
+ALTER TABLE citas_servicios 
+ADD COLUMN estado_pago ENUM('pendiente', 'pagado', 'cancelado') 
+DEFAULT 'pendiente' 
+COMMENT 'Estado del pago de la cita'
+AFTER estado;
+
+-- Agregar columna orden_id para vincular con la orden de pago
+ALTER TABLE citas_servicios 
+ADD COLUMN orden_id INT NULL 
+COMMENT 'ID de la orden asociada al pago'
+AFTER estado_pago;
+
+-- Agregar foreign key a ordenes
+ALTER TABLE citas_servicios 
+ADD CONSTRAINT fk_cita_orden 
+FOREIGN KEY (orden_id) REFERENCES ordenes(id) 
+ON DELETE SET NULL
+ON UPDATE CASCADE;
+
+-- Agregar columna cita_servicio_id para vincular con la cita
+ALTER TABLE ordenes 
+ADD COLUMN cita_servicio_id INT NULL 
+COMMENT 'ID de la cita de servicio asociada'
+AFTER tipo;
+
+-- Agregar foreign key a citas_servicios
+ALTER TABLE ordenes 
+ADD CONSTRAINT fk_orden_cita 
+FOREIGN KEY (cita_servicio_id) REFERENCES citas_servicios(id) 
+ON DELETE SET NULL
+ON UPDATE CASCADE;
+
+-- Crear índices para mejorar rendimiento
+CREATE INDEX idx_cita_estado_pago ON citas_servicios(estado_pago);
+CREATE INDEX idx_cita_orden_id ON citas_servicios(orden_id);
+CREATE INDEX idx_orden_cita_id ON ordenes(cita_servicio_id);
+
 /*!40103 SET TIME_ZONE=IFNULL(@OLD_TIME_ZONE, 'system') */;
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
 /*!40014 SET FOREIGN_KEY_CHECKS=IFNULL(@OLD_FOREIGN_KEY_CHECKS, 1) */;

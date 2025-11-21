@@ -54,6 +54,18 @@ class CitaServicio {
         await executeQuery(query, [estado, id]);
         return this.findById(id);
     }
+
+    // NUEVO: Actualizar estado de pago y orden asociada
+    static async updateEstadoPago(id, estadoPago, ordenId = null) {
+        const query = `
+            UPDATE citas_servicios 
+            SET estado_pago = ?, orden_id = ? 
+            WHERE id = ?
+        `;
+        await executeQuery(query, [estadoPago, ordenId, id]);
+        return this.findById(id);
+    }
 }
 
 module.exports = CitaServicio;
+
