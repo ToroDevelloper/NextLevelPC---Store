@@ -8,10 +8,14 @@ class PaymentsController {
 
   static async createPaymentIntent(req, res) {
     try {
-      console.log('--- createPaymentIntent - request body ---');
-      console.log(JSON.stringify(req.body).slice(0, 2000));
+      const { amount, currency = 'cop', metadata = {}, amount_cents } = req.body;
 
-      let { amount, amount_cents, currency = 'cop', metadata = {} } = req.body;
+      console.log('--- createPaymentIntent - request body ---');
+      // console.log(JSON.stringify(req.body).slice(0, 200)); 
+      console.log('Metadata keys:', Object.keys(metadata || {}));
+      if (metadata && metadata.citaData) {
+        console.log('citaData recibida:', metadata.citaData);
+      }
 
       // Validación básica del monto
       if ((amount === undefined || amount === null) && (amount_cents === undefined || amount_cents === null)) {
@@ -91,9 +95,12 @@ class PaymentsController {
 
         for (const prod of productos) {
           try {
+            // Para servicios, producto_id debe ser NULL para evitar error de FK con tabla productos
+            const isService = (prod.type || tipo) === 'servicio';
+
             await OrdenItemsService.crear({
               orden_id: ordenId,
-              producto_id: prod.id || null,
+              producto_id: isService ? null : (prod.id || null),
               tipo: prod.type || tipo,
               descripcion: prod.nombre || 'Sin descripción',
               cantidad: prod.cantidad || 1,
@@ -125,10 +132,17 @@ class PaymentsController {
           ? JSON.parse(metadata.citaData)
           : metadata.citaData;
 
-        // Agregar servicio_id si viene en el primer producto
-        if (productos.length > 0 && productos[0].id) {
+        // Agregar servicio_id
+        // Prioridad 1: Si viene en citaData (lo agregaremos en el frontend)
+        if (citaData.servicio_id) {
+          safeMetadata.servicio_id = citaData.servicio_id.toString();
+        }
+        // Prioridad 2: Buscar en productos el que coincida (si hubiera lógica para ello) o usar el primero como fallback
+        else if (productos.length > 0 && productos[0].id) {
           safeMetadata.servicio_id = productos[0].id.toString();
         }
+
+        console.log('safeMetadata preparado (con cita):', safeMetadata);
 
         // Limitar cada campo a 500 caracteres (límite de Stripe para metadata)
         safeMetadata.cita_nombre = (citaData.nombre_cliente || citaData.nombre || '').slice(0, 500);
@@ -223,6 +237,8 @@ class PaymentsController {
 
               // NUEVO: Si hay datos de cita en metadata, crearla AHORA
               const metadata = paymentIntent.metadata;
+              console.log('Webhook metadata:', metadata);
+
               if (metadata.cita_nombre && metadata.servicio_id) {
                 try {
                   console.log('Creando cita automática desde webhook...');

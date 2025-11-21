@@ -70,7 +70,12 @@ const Checkout = ({ cart, onSuccess, onError }) => {
       // Buscar si hay datos de cita en algún producto
       const itemConCita = normalizedProductos.find(p => p.citaData);
       if (itemConCita) {
-        metadata.citaData = JSON.stringify(itemConCita.citaData);
+        // Incluir servicio_id en citaData para asegurar que el backend lo reciba
+        const citaDataCompleta = {
+          ...itemConCita.citaData,
+          servicio_id: itemConCita.id
+        };
+        metadata.citaData = JSON.stringify(citaDataCompleta);
       }
 
       console.log("Creando PaymentIntent...");
