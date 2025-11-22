@@ -22,23 +22,7 @@ export const CartProvider = ({ children }) => {
     }, [cartItems]);
 
     const addToCart = (item) => {
-        const { id, type = 'producto', quantity = 1, precio, price } = item;
-        
-        // Calcular el precio del nuevo item
-        const itemPrice = Number(precio ?? price ?? 0);
-        const newItemTotal = itemPrice * quantity;
-        
-        // Calcular el total actual del carrito
-        const currentCartTotal = cartItems.reduce((total, cartItem) => {
-            const cartItemPrice = Number(cartItem.precio ?? cartItem.price ?? 0);
-            return total + (cartItemPrice * cartItem.quantity);
-        }, 0);
-        
-        // Validar que el total del carrito (incluyendo el nuevo item) sea mínimo $2,000 COP
-        const newTotal = currentCartTotal + newItemTotal;
-        if (newTotal < 2000) {
-            throw new Error('El valor total del carrito debe ser mínimo $2,000 COP');
-        }
+        const { id, type = 'producto', quantity = 1 } = item;
 
         setCartItems(prevItems => {
             const existingItem = prevItems.find(i => i.id === id && i.type === type);
