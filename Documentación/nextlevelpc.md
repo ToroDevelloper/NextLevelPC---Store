@@ -54,16 +54,16 @@ Todos los usuarios de ejemplo tienen la contraseña: **`password123`**
 ### Categorías de Productos
 
 1. **Procesadores** (4 productos)
-   - AMD Ryzen 9 7950X - $599.99
-   - Intel Core i9-13900K - $589.99
-   - AMD Ryzen 7 7700X - $359.99
-   - Intel Core i5-13600K - $319.99
+   - AMD Ryzen 9 7950X - $2,500,000
+   - Intel Core i9-13900K - $2,450,000
+   - AMD Ryzen 7 7700X - $1,500,000
+   - Intel Core i5-13600K - $1,350,000
 
 2. **Tarjetas Gráficas** (4 productos)
-   - NVIDIA RTX 4090 - $1,599.99
-   - AMD Radeon RX 7900 XTX - $999.99
-   - NVIDIA RTX 4070 Ti - $799.99
-   - AMD Radeon RX 7800 XT - $549.99
+   - NVIDIA RTX 4090 - $6,800,000
+   - AMD Radeon RX 7900 XTX - $4,200,000
+   - NVIDIA RTX 4070 Ti - $3,400,000
+   - AMD Radeon RX 7800 XT - $2,300,000
 
 
 Cada producto incluye:
@@ -83,23 +83,23 @@ Cada producto incluye:
 
 | Servicio | Precio | Descripción |
 |----------|--------|-------------|
-| Instalación de Windows/Linux | $299.00 | Instalación limpia de SO con drivers y configuración |
-| Limpieza y Mantenimiento Básico | $199.00 | Limpieza física y optimización de software |
-| Instalación de Office y Programas | $249.00 | Suite Office y programas esenciales |
-| Diagnóstico de Problemas | $149.00 | Diagnóstico completo con reporte detallado |
-| Configuración de Router WiFi | $199.00 | Configuración y optimización de red WiFi |
-| Respaldo de Datos (Backup) | $299.00 | Backup completo con verificación de integridad |
+| Instalación de Windows/Linux | $80,000 | Instalación limpia de SO con drivers y configuración |
+| Limpieza y Mantenimiento Básico | $60,000 | Limpieza física y optimización de software |
+| Instalación de Office y Programas | $50,000 | Suite Office y programas esenciales |
+| Diagnóstico de Problemas | $40,000 | Diagnóstico completo con reporte detallado |
+| Configuración de Router WiFi | $50,000 | Configuración y optimización de red WiFi |
+| Respaldo de Datos (Backup) | $90,000 | Backup completo con verificación de integridad |
 
 ### Servicios Avanzados
 
 | Servicio | Precio | Descripción |
 |----------|--------|-------------|
-| Ensamblaje de PC Gaming/Workstation | $1,499.00 | Armado profesional con garantía 6 meses |
-| Reparación Avanzada de Laptops | $899.00 | Reballing, cambio de pantalla, upgrades |
-| Recuperación de Datos Profesional | $1,299.00 | Recuperación con software forense |
-| Instalación de Red Empresarial | $2,499.00 | Red completa con cableado y switches |
-| Configuración de Servidor | $1,899.00 | Windows Server/Linux con AD, DNS, DHCP |
-| Plan de Soporte Técnico Empresarial | $999.00 | Soporte 24/7 con visitas incluidas |
+| Ensamblaje de PC Gaming/Workstation | $150,000 | Armado profesional con garantía 6 meses |
+| Reparación Avanzada de Laptops | $250,000 | Reballing, cambio de pantalla, upgrades |
+| Recuperación de Datos Profesional | $350,000 | Recuperación con software forense |
+| Instalación de Red Empresarial | $1,500,000 | Red completa con cableado y switches |
+| Configuración de Servidor | $800,000 | Windows Server/Linux con AD, DNS, DHCP |
+| Plan de Soporte Técnico Empresarial | $500,000 | Soporte 24/7 con visitas incluidas |
 
 ### Galería de Imágenes
 
@@ -275,6 +275,8 @@ console.log('Base de datos creada exitosamente');
 - ✅ **Tabla Ordenes**: Se añadió la columna `cita_servicio_id` y su índice correspondiente `idx_orden_cita_id`.
 - ✅ **Usuarios**: Se recrearon los usuarios de ejemplo con contraseñas encriptadas (bcrypt).
 - ✅ **Integridad**: Se reforzaron las relaciones entre órdenes y citas de servicio.
+- ✅ **Precios**: Se actualizaron todos los precios a Pesos Colombianos (COP).
+- ✅ **Imágenes**: Se reemplazaron las URLs de imágenes por placeholders confiables (`placehold.co`).
 
 ---
 

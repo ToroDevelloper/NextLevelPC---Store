@@ -69,7 +69,7 @@ export const AuthProvider = ({ children }) => {
     const logout = (shouldRedirect = true) => {
         Cookies.remove('accessToken', { path: '/' });
         
-        fetch('http://localhost:8080/api/usuarios/logout', {
+        fetch('/api/usuarios/logout', {
             method: 'POST', 
             credentials: 'include' 
         }).catch(err => console.error('Error al llamar a logout:', err));

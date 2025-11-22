@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import '../styles/AgendarServicioModal.css';
 import { useAuth } from '../utils/AuthContext';
 
-const AgendarServicioModal = ({ servicio, onClose, onSubmit }) => {
+const AgendarServicioModal = ({ servicio, onClose, onSubmit, isOpen }) => {
     const { user, isAuthenticated } = useAuth();
 
     const [formData, setFormData] = useState({
@@ -45,6 +45,8 @@ const AgendarServicioModal = ({ servicio, onClose, onSubmit }) => {
         tomorrow.setDate(tomorrow.getDate() + 1);
         return tomorrow.toISOString().split('T')[0];
     };
+
+    if (!isOpen) return null;
 
     return (
         <div className="modal-overlay">

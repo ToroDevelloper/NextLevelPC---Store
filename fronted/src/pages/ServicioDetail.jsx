@@ -5,7 +5,7 @@ import AgendarServicioModal from '../components/AgendarServicioModal'; // Import
 import { useAuth } from '../utils/AuthContext';
 import { useCart } from '../utils/CartContext';
 
-const API_BASE = 'http://localhost:8080';
+const API_BASE = '';
 
 const ServicioDetail = () => {
     const { id } = useParams();
@@ -84,15 +84,29 @@ const ServicioDetail = () => {
                     setServicio(json.data);
 
                     // Process gallery images from servicio_imagenes table
-                    if (json.data.galeria_imagenes && Array.isArray(json.data.galeria_imagenes)) {
-                        const urls = json.data.galeria_imagenes.map(img => img.url);
-                        setGalleryImages(urls.length > 0 ? urls : ['https://placehold.co/600x400/EEE/31343C?text=Servicio']);
-                    } else if (json.data.imagen_url) {
-                        // Fallback to imagen_url if no gallery images
-                        setGalleryImages([json.data.imagen_url]);
-                    } else {
-                        setGalleryImages(['https://placehold.co/600x400/EEE/31343C?text=Servicio']);
+                    let images = [];
+                    
+                    if (json.data.galeria_imagenes && Array.isArray(json.data.galeria_imagenes) && json.data.galeria_imagenes.length > 0) {
+                        images = json.data.galeria_imagenes.map(img => {
+                            if (img.url.startsWith('http')) return img.url;
+                            return `${API_BASE}/uploads/${img.url}`;
+                        });
                     }
+                    
+                    // Si no hay imágenes en galería, usar imagen principal si existe
+                    if (images.length === 0 && json.data.imagen_url) {
+                        const imgUrl = json.data.imagen_url.startsWith('http')
+                            ? json.data.imagen_url
+                            : `${API_BASE}${json.data.imagen_url}`;
+                        images = [imgUrl];
+                    }
+                    
+                    // Si aún no hay imágenes, usar placeholder
+                    if (images.length === 0) {
+                        images = ['https://placehold.co/600x400/EEE/31343C?text=Servicio'];
+                    }
+                    
+                    setGalleryImages(images);
                 } else {
                     throw new Error(json.message || 'Error al cargar el servicio');
                 }
@@ -242,6 +256,13 @@ const ServicioDetail = () => {
                                 <p><strong>Modalidad:</strong> {servicio.modalidad || 'Presencial / Remoto'}</p>
                                 <p><strong>Garantía:</strong> {servicio.garantia || 'Garantía estándar'}</p>
                             </div>
+
+                            {/* Botón de acción principal - Movido aquí */}
+                            <div className="servicio-detail-actions">
+                                <button className="btn-agendar" onClick={handleOpenModal}>
+                                    Agendar Servicio
+                                </button>
+                            </div>
                         </div>
 
                         {/* Trust Badges */}
@@ -260,100 +281,100 @@ const ServicioDetail = () => {
                             </div>
                             <div className="trust-badge">
                                 <svg className="trust-badge-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04" />
                                 </svg>
-                                <span>Garantía Incluida</span>
-                            </div>
-                            <div className="trust-badge">
-                                <svg className="trust-badge-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
-                                </svg>
-                                <span>+500 Clientes</span>
+                                <span>Servicio Garantizado</span>
                             </div>
                         </div>
+                    </section>
 
-                        <div className="servicio-detail-actions servicio-detail-footer">
+                    {/* Tabs: Descripción, Especificaciones, Opiniones */}
+                    <div className="servicio-detail-tabs">
+                        <div className="tab-buttons">
                             <button
-                                className="servicio-detail-buy-btn btn-contratar"
+                                className={`tab-button ${activeTab === 'descripcion' ? 'active' : ''}`}
+                                onClick={() => setActiveTab('descripcion')}
                                 type="button"
-                                onClick={handleOpenModal}
                             >
-                                Contratar Servicio
+                                Descripción
                             </button>
-                            <p className="cta-microcopy">Sin compromiso • Respuesta inmediata</p>
-
-                            <a
-                                href={`https://wa.me/5215512345678?text=Hola,%20me%20interesa%20el%20servicio:%20${encodeURIComponent(servicio.nombre)}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="servicio-whatsapp-btn"
+                            <button
+                                className={`tab-button ${activeTab === 'especificaciones' ? 'active' : ''}`}
+                                onClick={() => setActiveTab('especificaciones')}
+                                type="button"
                             >
-                                <svg className="whatsapp-icon" viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
-                                </svg>
-                                Consultar por WhatsApp
-                            </a>
+                                Especificaciones
+                            </button>
+                            <button
+                                className={`tab-button ${activeTab === 'opiniones' ? 'active' : ''}`}
+                                onClick={() => setActiveTab('opiniones')}
+                                type="button"
+                            >
+                                Opiniones
+                            </button>
                         </div>
-                    </section>
-                    <section className="servicio-detail-meta-grid">
 
-                        <div className="servicio-detail-tabs">
-                            <div className="servicio-detail-tab-headers">
-                                <button
-                                    className={`servicio-tab-header ${activeTab === 'descripcion' ? 'active' : ''}`}
-                                    type="button"
-                                    onClick={() => setActiveTab('descripcion')}
-                                >
-                                    Descripción
-                                </button>
-                                <button
-                                    className={`servicio-tab-header ${activeTab === 'especificaciones' ? 'active' : ''}`}
-                                    type="button"
-                                    onClick={() => setActiveTab('especificaciones')}
-                                >
-                                    Especificaciones
-                                </button>
-                            </div>
-                            <div className="servicio-detail-tab-body">
-                                <div className={`servicio-tab-panel ${activeTab === 'descripcion' ? 'active' : ''}`}>
-                                    <p className="servicio-detail-description servicio-descripcion">
-                                        {descripcion}
-                                    </p>
+                        <div className="tab-content">
+                            {activeTab === 'descripcion' && (
+                                <div className="tab-descripcion">
+                                    <h2>Descripción del Servicio</h2>
+                                    <p>{descripcion}</p>
                                 </div>
-                                <div className={`servicio-tab-panel ${activeTab === 'especificaciones' ? 'active' : ''}`}>
-                                    <table className="servicio-specs-table">
-                                        <tbody>
-                                            {specs.map((spec) => (
-                                                <tr key={spec.label}>
-                                                    <th>{spec.label}</th>
-                                                    <td>{spec.value}</td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
+                            )}
+
+                            {activeTab === 'especificaciones' && (
+                                <div className="tab-especificaciones">
+                                    <h2>Especificaciones</h2>
+                                    <div className="especificaciones-list">
+                                        {specs.map((spec, index) => (
+                                            <div key={index} className="especificacion-item">
+                                                <strong>{spec.label}:</strong> {spec.value}
+                                            </div>
+                                        ))}
+                                    </div>
                                 </div>
-                            </div>
+                            )}
+
+                            {activeTab === 'opiniones' && (
+                                <div className="tab-opiniones">
+                                    <h2>Opiniones de Clientes</h2>
+                                    {/* Aquí iría el componente o lógica para mostrar opiniones */}
+                                    <p>Aún no hay opiniones para este servicio.</p>
+                                </div>
+                            )}
                         </div>
-                    </section>
+                    </div>
+
                 </div>
             </div>
 
+            {/* Modal para agendar servicio */}
+            <AgendarServicioModal
+                isOpen={isModalOpen}
+                onClose={handleCloseModal}
+                onSubmit={handleSubmitModal}
+                servicio={servicio}
+            />
+
             {/* Related Services */}
             {relatedServices.length > 0 && (
-                <div className="related-services">
-                    <h2 className="related-services-title">También te puede interesar</h2>
+                <div className="related-services-section">
+                    <h2>Servicios Relacionados</h2>
                     <div className="related-services-grid">
-                        {relatedServices.map(service => (
-                            <a
-                                key={service.id}
-                                href={`/servicios/${service.id}`}
+                        {relatedServices.map((rel) => (
+                            <div
+                                key={rel.id}
                                 className="related-service-card"
+                                onClick={() => navigate(`/servicios/${rel.id}`)}
                             >
-                                <div className="related-service-image-wrapper">
+                                <div className="related-service-image">
                                     <img
-                                        src={service.imagen_url || 'https://placehold.co/300x200/EEE/31343C?text=Servicio'}
-                                        alt={service.nombre}
-                                        className="related-service-image"
+                                        src={
+                                            rel.imagen_url
+                                                ? `${API_BASE}${rel.imagen_url}`
+                                                : 'https://placehold.co/300x200/EEE/31343C?text=Servicio'
+                                        }
+                                        alt={rel.nombre}
                                         onError={(e) => {
                                             e.target.onerror = null;
                                             e.target.src = 'https://placehold.co/300x200/EEE/31343C?text=Servicio';
@@ -361,25 +382,16 @@ const ServicioDetail = () => {
                                     />
                                 </div>
                                 <div className="related-service-info">
-                                    <h3 className="related-service-name">{service.nombre}</h3>
-                                    {service.tipo && <p className="related-service-type">{service.tipo}</p>}
-                                    <p className="related-service-price">${Number(service.precio || 0).toFixed(2)}</p>
+                                    <h3>{rel.nombre}</h3>
+                                    <p className="price">${Number(rel.precio).toFixed(2)}</p>
                                 </div>
-                            </a>
+                            </div>
                         ))}
                     </div>
                 </div>
             )}
-            {isModalOpen && (
-                <AgendarServicioModal
-                    servicio={servicio}
-                    onClose={handleCloseModal}
-                    onSubmit={handleSubmitModal}
-                />
-            )}
         </div>
     );
 };
-
 
 export default ServicioDetail;

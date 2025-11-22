@@ -4,7 +4,7 @@ import '../styles/Home.css';
 import '../styles/Productos.css';
 import { useCart } from '../utils/CartContext';
 
-const API_BASE = 'http://localhost:8080';
+const API_BASE = '';
 
 const Home = () => {
    

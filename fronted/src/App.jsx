@@ -29,7 +29,7 @@ function App() {
     const location = useLocation();
 
     useEffect(() => {
-        fetch('http://localhost:8080/api/health')
+        fetch('/api/health')
             .then(res => res.json())
             .then(data => {
                 console.log('Backend OK:', data.message);

@@ -46,7 +46,7 @@ export default function Registro() {
 
     setLoading(true);
     try {
-      const res = await fetch('http://localhost:8080/api/usuarios/registro', {
+      const res = await fetch('/api/usuarios/registro', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

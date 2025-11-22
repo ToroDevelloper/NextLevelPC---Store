@@ -7,7 +7,7 @@ import Footer from './Footer';
 import { Link } from 'react-router-dom';
 
 // --- CONSTANTES ---
-const API_BASE = 'http://localhost:8080';
+const API_BASE = '';
 
 // Icono de cerrar 
 const IconX = () => (
@@ -117,7 +117,7 @@ const closeLoginModal = () => {
                 console.log("Login exitoso. Redirigiendo a:", redirectTo);
                 navigate(redirectTo);
             } else if (loggedInUser && (loggedInUser.rol === 'admin' || loggedInUser.rol === 'empleado')) {
-                window.location.href = 'http://localhost:8080/ordenes';
+                window.location.href = '/ordenes';
             } else {
                 navigate('/home'); 
             }

@@ -23,7 +23,7 @@ export const StripeProvider = ({ children }) => {
                 throw new Error(`Monto insuficiente. El mínimo es $20,000 COP.`);
             }
 
-            const res = await fetch("http://localhost:8080/api/payments/create-payment-intent", {
+            const res = await fetch("/api/payments/create-payment-intent", {
                 method: "POST",
                 credentials: "include",
                 headers: { "Content-Type": "application/json" },

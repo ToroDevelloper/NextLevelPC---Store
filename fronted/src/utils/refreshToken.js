@@ -4,7 +4,7 @@
  */
 const refreshAccessToken = async () => {
     try {
-        const response = await fetch('http://localhost:8080/api/usuarios/refresh', {
+        const response = await fetch('/api/usuarios/refresh', {
             method: 'POST',
         });
 

@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import '../styles/Servicios.css';
 import AgendarServicioModal from '../components/AgendarServicioModal';
 
-const API_BASE = 'http://localhost:8080';
+const API_BASE = '';
 
 const Servicios = () => {
     const [servicios, setServicios] = useState([]);

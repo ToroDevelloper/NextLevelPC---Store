@@ -19,7 +19,7 @@ const Factura = () => {
                 setLoading(true);
                 console.log('Fetching orden con ID:', id);
 
-                const response = await fetch(`http://localhost:8080/api/ordenes/${id}`, {
+                const response = await fetch(`/api/ordenes/${id}`, {
                     method: 'GET',
                     credentials: 'include',
                     headers: {

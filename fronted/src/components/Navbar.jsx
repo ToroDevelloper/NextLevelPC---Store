@@ -5,7 +5,7 @@ import { useCart } from '../utils/CartContext';
 import { useAuth } from '../utils/AuthContext';
 
 // --- Constante para la API ---
-const API_BASE = 'http://localhost:8080';
+const API_BASE = '';
 
 // Íconos SVG (MANTENIDOS EXACTAMENTE IGUAL)
 const IconCart = () => (
@@ -229,7 +229,7 @@ const handleCheckout = () => {
           {(user?.rol === 'admin' || user?.rol === 'empleado') && (
             <>
               <a
-                href="http://localhost:8080/productos"
+                href="/productos"
                 className="navbar-nav-link"
                 target="_blank"
                 rel="noreferrer"
@@ -237,7 +237,7 @@ const handleCheckout = () => {
                 Vista Productos
               </a>
               <a
-                href="http://localhost:8080/ordenes"
+                href="/ordenes"
                 className="navbar-nav-link"
                 target="_blank"
                 rel="noreferrer"
