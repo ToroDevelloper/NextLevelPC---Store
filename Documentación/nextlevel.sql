@@ -441,33 +441,7 @@ ADD CONSTRAINT `fk_orden_cita`
 FOREIGN KEY (`cita_servicio_id`) REFERENCES `citas_servicios`(`id`)
 ON DELETE SET NULL;
 
--- Agregar cita_servicio_id a ordenes
-ALTER TABLE `ordenes` 
-ADD COLUMN `cita_servicio_id` INT NULL 
-COMMENT 'ID de la cita de servicio asociada'
-AFTER tipo;
 
-ALTER TABLE `ordenes` 
-ADD CONSTRAINT `fk_orden_cita` 
-FOREIGN KEY (`cita_servicio_id`) REFERENCES `citas_servicios`(`id`) 
-ON DELETE SET NULL
-ON UPDATE CASCADE;
-
-CREATE INDEX `idx_orden_cita_id` ON `ordenes`(`cita_servicio_id`);
-
--- Agregar servicio_id a orden_items
-ALTER TABLE `orden_items` 
-ADD COLUMN `servicio_id` INT(11) NULL AFTER `producto_id`,
-ADD CONSTRAINT `fk_orden_items_servicio` 
-FOREIGN KEY (`servicio_id`) REFERENCES `servicios`(`id`) 
-ON DELETE SET NULL 
-ON UPDATE CASCADE;
-
-CREATE INDEX `idx_servicio_id` ON `orden_items`(`servicio_id`);
-
--- Modificar ENUM de tipo en ordenes para incluir 'mixto'
-ALTER TABLE `ordenes` 
-MODIFY COLUMN `tipo` ENUM('producto', 'servicio', 'mixto') NOT NULL;
 
 -- =====================================================
 -- FINALIZACIÓN
