@@ -118,7 +118,7 @@ Cada servicio incluye:
 
 - ✅ Número único de orden (formato: `ORD-timestamp`)
 - ✅ Relación con usuario/cliente
-- ✅ Tipo: producto o servicio
+- ✅ Tipo: producto, servicio o mixto
 - ✅ Estado de orden: pendiente, procesando, completada, cancelada
 - ✅ Estado de pago: pendiente, pagado, reembolsado
 - ✅ Integración con Stripe (payment_intent_id)
@@ -189,7 +189,7 @@ estado (1) ──→ (N) productos
 - `idx_stripe_payment_intent` en ordenes
 - `idx_cita_estado_pago` en citas_servicios
 - `idx_cita_orden_id` en citas_servicios
-- `idx_orden_cita_id` en ordenes
+- `idx_orden_cita_id` en ordenes (Nuevo)
 - `idx_servicio_activo` en servicio_imagenes
 - `idx_servicio_orden` en servicio_imagenes
 - `idx_principal` en servicio_imagenes
@@ -270,6 +270,12 @@ console.log('Base de datos creada exitosamente');
 - ✅ Índices de optimización
 - ✅ Foreign keys con integridad referencial
 
+### 2025-11-22 - Actualización de Schema y Usuarios
+- ✅ **Tabla Ordenes**: Se agregó el tipo 'mixto' al ENUM de `tipo`.
+- ✅ **Tabla Ordenes**: Se añadió la columna `cita_servicio_id` y su índice correspondiente `idx_orden_cita_id`.
+- ✅ **Usuarios**: Se recrearon los usuarios de ejemplo con contraseñas encriptadas (bcrypt).
+- ✅ **Integridad**: Se reforzaron las relaciones entre órdenes y citas de servicio.
+
 ---
 
 ## 🔗 Archivos Relacionados
@@ -291,4 +297,4 @@ Si encuentras algún problema con el script o necesitas ayuda:
 
 ---
 
-**Última actualización**: 21 de Noviembre 2025
+**Última actualización**: 22 de Noviembre 2025

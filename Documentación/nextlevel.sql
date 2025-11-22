@@ -72,6 +72,12 @@ CREATE TABLE IF NOT EXISTS `usuarios` (
   CONSTRAINT `usuarios_ibfk_1` FOREIGN KEY (`rol_id`) REFERENCES `roles` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+INSERT INTO `usuarios` (`id`, `nombre`, `apellido`, `correo`, `hash_password`, `rol_id`, `estado`) VALUES
+(1, 'Admin', 'Sistema', 'admin@nextlevel.com', '$2b$10$6XSEjTXTVECb/bk62kBOcum7m4/ATUwGx0.SS6uCptlxHeDphChny', 1, 'activo'),
+(2, 'Juan', 'Pérez', 'juan.perez@email.com', '$2b$10$6XSEjTXTVECb/bk62kBOcum7m4/ATUwGx0.SS6uCptlxHeDphChny', 2, 'activo'),
+(3, 'María', 'González', 'maria.gonzalez@email.com', '$2b$10$6XSEjTXTVECb/bk62kBOcum7m4/ATUwGx0.SS6uCptlxHeDphChny', 2, 'activo'),
+(6, 'Luis', 'Hernández', 'luis.hernandez@email.com', '$2b$10$6XSEjTXTVECb/bk62kBOcum7m4/ATUwGx0.SS6uCptlxHeDphChny', 3, 'activo');
+
 
 -- =====================================================
 -- TABLA: refresh_tokens
@@ -331,7 +337,7 @@ INSERT INTO `servicio_imagenes` (`servicio_id`, `url`, `alt_text`, `orden`, `es_
 CREATE TABLE IF NOT EXISTS `ordenes` (
   `id` INT(11) NOT NULL AUTO_INCREMENT,
   `cliente_id` INT(11) DEFAULT NULL,
-  `tipo` ENUM('producto','servicio') NOT NULL,
+  `tipo` ENUM('producto','servicio','mixto') NOT NULL,
   `cita_servicio_id` INT NULL COMMENT 'ID de la cita de servicio asociada',
   `numero_orden` VARCHAR(50) NOT NULL,
   `total` DECIMAL(12,2) DEFAULT 0.00,
@@ -344,6 +350,7 @@ CREATE TABLE IF NOT EXISTS `ordenes` (
   UNIQUE KEY `numero_orden` (`numero_orden`),
   KEY `cliente_id` (`cliente_id`),
   KEY `idx_stripe_payment_intent` (`stripe_payment_intent_id`),
+  KEY `idx_orden_cita_id` (`cita_servicio_id`),
   CONSTRAINT `ordenes_ibfk_1` FOREIGN KEY (`cliente_id`) REFERENCES `usuarios` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -351,10 +358,10 @@ CREATE TABLE IF NOT EXISTS `ordenes` (
 INSERT INTO `ordenes` (`cliente_id`, `tipo`, `numero_orden`, `total`, `estado_orden`, `estado_pago`, `created_at`) VALUES
 (2, 'producto', 'ORD-1732234567890', 1199.98, 'completada', 'pagado', '2025-11-15 10:30:00'),
 (3, 'producto', 'ORD-1732234567891', 549.99, 'completada', 'pagado', '2025-11-16 14:20:00'),
-(4, 'servicio', 'ORD-1732234567892', 299.00, 'completada', 'pagado', '2025-11-17 09:15:00'),
-(5, 'producto', 'ORD-1732234567893', 2398.96, 'procesando', 'pagado', '2025-11-18 16:45:00'),
-(7, 'servicio', 'ORD-1732234567894', 1499.00, 'pendiente', 'pagado', '2025-11-19 11:30:00'),
-(8, 'producto', 'ORD-1732234567895', 799.99, 'completada', 'pagado', '2025-11-20 13:10:00');
+(2, 'servicio', 'ORD-1732234567892', 299.00, 'completada', 'pagado', '2025-11-17 09:15:00'),
+(3, 'producto', 'ORD-1732234567893', 2398.96, 'procesando', 'pagado', '2025-11-18 16:45:00'),
+(2, 'servicio', 'ORD-1732234567894', 1499.00, 'pendiente', 'pagado', '2025-11-19 11:30:00'),
+(3, 'producto', 'ORD-1732234567895', 799.99, 'completada', 'pagado', '2025-11-20 13:10:00');
 
 -- =====================================================
 -- TABLA: orden_items
