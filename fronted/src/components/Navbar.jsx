@@ -196,11 +196,7 @@ const handleCheckout = () => {
       <div className="navbar-container">
         {/* Logo */}
         <Link to="/home" className="navbar-logo">
-          <img 
-            src="https://placehold.co/200x50/1F2937/FFFFFF?text=NextLevelPC" 
-            alt="NextLevelPC" 
-            className="navbar-logo-img" 
-          />
+          <img src="./logo.png" className="navbar-logo-img" alt="Logo" />
         </Link>
 
         {/* Navegación Desktop */}

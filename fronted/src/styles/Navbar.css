@@ -23,11 +23,10 @@
   align-items: center;
   text-decoration: none;
 }
-
 .navbar-logo-img {
   width: 200px;
   height: auto;
-  transition: transform 0.3s ease;
+  transition: transform 0.5s ease;
 }
 
 .navbar-logo-img:hover {
