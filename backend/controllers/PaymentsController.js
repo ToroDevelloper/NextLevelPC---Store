@@ -68,17 +68,26 @@ class PaymentsController {
       if (metadata.productos) {
         try {
           productos = typeof metadata.productos === 'string'
-            ? JSON.parse(metadata.productos)
-            : metadata.productos;
+          ? JSON.parse(metadata.productos)
+          : metadata.productos;
 
-          // Determinar tipo basado en el primer producto
-          if (productos.length > 0 && productos[0].type === 'servicio') {
-            tipo = 'servicio';
+          //Determinar tipo basado en TODOS los productos
+          const tieneProductos = productos.some(p => p.type === 'producto');
+          const tieneServicios = productos.some(p => p.type === 'servicio');
+
+          if (tieneProductos && tieneServicios) {
+          tipo = 'mixto';
+          } else if (tieneServicios) {
+          tipo = 'servicio';
+          } else {
+          tipo = 'producto';
           }
-        } catch (e) {
+
+          console.log(`Tipo de orden detectado: ${tipo}`);
+          } catch (e) {
           console.error('Error parseando productos:', e);
+          }
         }
-      }
 
       // Crear orden usando tu DTO y servicio
       const ordenDTO = new OrdenCreateDTO({

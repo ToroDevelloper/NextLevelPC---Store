@@ -1114,6 +1114,27 @@ FROM servicios
 WHERE activo = 1
 GROUP BY tipo;
 
+
+=================================================================
+Sistema de Pagos Completo y Funcional
+=================================================================
+
+en la base de datos se agregó la columna cita_servicio_id INT(11) NULL a la tabla ordenes con su respectiva foreign key hacia citas_servicios,
+se agregó la columna servicio_id INT(11) NULL a la tabla orden_items con foreign key hacia servicios y su índice correspondiente,
+se modificó el ENUM de la columna tipo en ordenes para incluir el valor 'mixto' además de 'producto' y 'servicio',
+permitiendo registrar órdenes que contengan ambos tipos de items; en el backend se actualizó PaymentsController.js para crear órdenes antes de generar el PaymentIntent,
+detectar automáticamente el tipo de orden (producto, servicio o mixto) analizando todos los items del carrito,
+insertar correctamente los items diferenciando entre producto_id y servicio_id según corresponda,
+y crear automáticamente citas de servicio cuando se detectan en el metadata del pago; se modificaron los modelos Ordenes.js y OrdenItems.js para soportar las nuevas columnas cita_servicio_id y servicio_id respectivamente,
+agregando las validaciones necesarias y actualizando todos los queries con LEFT JOINs a la tabla servicios para traer información completa;
+se actualizaron todos los DTOs (OrdenCreateDTO, OrdenUpdateDTO, OrdenItemCreateDTO, OrdenItemResponseDTO) para incluir y validar los nuevos campos,
+aceptando 'mixto' como tipo válido de orden y requiriendo servicio_id cuando el tipo sea 'servicio';
+se corrigieron errores en OrdenItemsService.js donde la validación de errores estaba mal implementada con !errors.length>0 cuando debía ser errors.length > 0;
+se actualizó el modelo CitaServicio.js para aceptar tanto los nombres de campos con sufijo _cliente y _cita como sin sufijos, usando operadores OR como fallback para mayor flexibilidad;
+y se configuró el webhook de Stripe para que al recibir el evento payment_intent.succeeded actualice automáticamente el estado de la orden a 'pagado' y 'completada',
+cree la cita de servicio si existe metadata de cita, y vincule bidireccionalmente la orden con la cita mediante cita_servicio_id y orden_id,
+todo funcionando de forma sincronizada entre frontend React con Stripe Elements, backend Node.js/Express, webhooks de Stripe y base de datos MySQL.
+
 =================================================================
 FIN DE DOCUMENTACIÓN
 =================================================================

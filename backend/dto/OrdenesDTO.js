@@ -10,7 +10,7 @@ class OrdenCreateDTO {
         const errors = [];
         
         if (!this.cliente_id) errors.push('cliente_id es obligatorio');
-        if (!this.tipo || !['producto', 'servicio'].includes(this.tipo)) 
+        if (!this.tipo || !['producto', 'servicio','mixto'].includes(this.tipo)) 
             errors.push('tipo debe ser "producto" o "servicio"');
         if (this.total < 0) errors.push('total no puede ser negativo');
 
@@ -41,7 +41,7 @@ class OrdenUpdateDTO {
         
         if (this.total !== undefined && this.total < 0) 
             errors.push('total no puede ser negativo');
-        if (this.tipo !== undefined && !['producto', 'servicio'].includes(this.tipo)) 
+        if (this.tipo !== undefined && !['producto', 'servicio','mixto'].includes(this.tipo)) 
             errors.push('tipo debe ser "producto" o "servicio"');
             
         return errors;

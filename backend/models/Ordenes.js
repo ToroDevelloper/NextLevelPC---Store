@@ -6,8 +6,8 @@ static async crear(data) {
     const { cliente_id, tipo, total = 0.00, cita_servicio_id = null } = data;
 
     // Validaciones básicas
-    if (!tipo || !['producto', 'servicio'].includes(tipo)) {
-        throw new Error('Tipo debe ser "producto" o "servicio"');
+    if (!tipo || !['producto', 'servicio', 'mixto'].includes(tipo)) {
+        throw new Error('Tipo debe ser "producto", "servicio" o "mixto"');
     }
 
     if (total < 0) {
@@ -88,7 +88,7 @@ static async actualizar(id, data) {
         throw new Error('El total no puede ser negativo');
     }
 
-    if (data.tipo !== undefined && !['producto', 'servicio'].includes(data.tipo)) {
+    if (data.tipo !== undefined && !['producto', 'servicio','mixto'].includes(data.tipo)) {
         throw new Error('Tipo debe ser "producto" o "servicio"');
     }
 
