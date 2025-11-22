@@ -72,18 +72,6 @@ CREATE TABLE IF NOT EXISTS `usuarios` (
   CONSTRAINT `usuarios_ibfk_1` FOREIGN KEY (`rol_id`) REFERENCES `roles` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Usuarios de ejemplo (contraseña: password123)
-INSERT INTO `usuarios` (`id`, `nombre`, `apellido`, `correo`, `hash_password`, `rol_id`, `estado`) VALUES
-(1, 'Admin', 'Sistema', 'admin@nextlevel.com', '$2b$10$rX8V3qK9pL2mN4oP6sT7uOz1yW3vH5jI8kM2nQ4rS6tU7vX9yZ0aB', 1, 'activo'),
-(2, 'Juan', 'Pérez', 'juan.perez@email.com', '$2b$10$rX8V3qK9pL2mN4oP6sT7uOz1yW3vH5jI8kM2nQ4rS6tU7vX9yZ0aB', 2, 'activo'),
-(3, 'María', 'González', 'maria.gonzalez@email.com', '$2b$10$rX8V3qK9pL2mN4oP6sT7uOz1yW3vH5jI8kM2nQ4rS6tU7vX9yZ0aB', 2, 'activo'),
-(4, 'Carlos', 'Rodríguez', 'carlos.rodriguez@email.com', '$2b$10$rX8V3qK9pL2mN4oP6sT7uOz1yW3vH5jI8kM2nQ4rS6tU7vX9yZ0aB', 2, 'activo'),
-(5, 'Ana', 'Martínez', 'ana.martinez@email.com', '$2b$10$rX8V3qK9pL2mN4oP6sT7uOz1yW3vH5jI8kM2nQ4rS6tU7vX9yZ0aB', 2, 'activo'),
-(6, 'Luis', 'Hernández', 'luis.hernandez@email.com', '$2b$10$rX8V3qK9pL2mN4oP6sT7uOz1yW3vH5jI8kM2nQ4rS6tU7vX9yZ0aB', 3, 'activo'),
-(7, 'Sofia', 'López', 'sofia.lopez@email.com', '$2b$10$rX8V3qK9pL2mN4oP6sT7uOz1yW3vH5jI8kM2nQ4rS6tU7vX9yZ0aB', 2, 'activo'),
-(8, 'Diego', 'García', 'diego.garcia@email.com', '$2b$10$rX8V3qK9pL2mN4oP6sT7uOz1yW3vH5jI8kM2nQ4rS6tU7vX9yZ0aB', 2, 'activo'),
-(9, 'Laura', 'Ramírez', 'laura.ramirez@email.com', '$2b$10$rX8V3qK9pL2mN4oP6sT7uOz1yW3vH5jI8kM2nQ4rS6tU7vX9yZ0aB', 2, 'activo'),
-(10, 'Pedro', 'Torres', 'pedro.torres@email.com', '$2b$10$rX8V3qK9pL2mN4oP6sT7uOz1yW3vH5jI8kM2nQ4rS6tU7vX9yZ0aB', 3, 'activo');
 
 -- =====================================================
 -- TABLA: refresh_tokens
