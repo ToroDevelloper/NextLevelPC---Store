@@ -10,6 +10,8 @@ const PRODUCT_DEFAULTS = {
   description: 'Producto disponible en NextLevelPC.',
   category: 'No especificada'
 };
+// Constantes de paginación
+const PRODUCTOS_POR_PAGINA = 15;
 
 // --- Funciones de Normalización (Helpers) ---
 
@@ -115,12 +117,7 @@ const parseSpecs = (specsJSON, raw, stock) => {
   return specs;
 };
 
-
-// --- Componentes de UI Puros (Memoizados) ---
-
-/**
- * Componente para imagen con manejo de error.
- */
+// --- Componentes de UI ---
 const ProductImage = React.memo(({ product, className = "producto-card-image" }) => (
   <img
     src={product.image || DEFAULT_IMAGE}
@@ -197,6 +194,102 @@ const ProductList = React.memo(({ products, onProductClick, onAddToCart }) => (
     ))}
   </div>
 ));
+
+/**
+ * Componente de Paginación
+ */
+const Pagination = React.memo(({ currentPage, totalPages, onPageChange }) => {
+  if (totalPages <= 1) return null;
+
+  const pages = [];
+  const maxVisiblePages = 5;
+  
+  let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+  let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+  
+  if (endPage - startPage + 1 < maxVisiblePages) {
+    startPage = Math.max(1, endPage - maxVisiblePages + 1);
+  }
+
+  // Botón anterior
+  if (currentPage > 1) {
+    pages.push(
+      <button
+        key="prev"
+        className="pagination-btn"
+        onClick={() => onPageChange(currentPage - 1)}
+      >
+        ‹ Anterior
+      </button>
+    );
+  }
+
+  // Primera página
+  if (startPage > 1) {
+    pages.push(
+      <button
+        key={1}
+        className={`pagination-btn ${1 === currentPage ? 'active' : ''}`}
+        onClick={() => onPageChange(1)}
+      >
+        1
+      </button>
+    );
+    if (startPage > 2) {
+      pages.push(<span key="ellipsis1" className="pagination-ellipsis">...</span>);
+    }
+  }
+
+  // Páginas visibles
+  for (let i = startPage; i <= endPage; i++) {
+    pages.push(
+      <button
+        key={i}
+        className={`pagination-btn ${i === currentPage ? 'active' : ''}`}
+        onClick={() => onPageChange(i)}
+      >
+        {i}
+      </button>
+    );
+  }
+
+  // Última página
+  if (endPage < totalPages) {
+    if (endPage < totalPages - 1) {
+      pages.push(<span key="ellipsis2" className="pagination-ellipsis">...</span>);
+    }
+    pages.push(
+      <button
+        key={totalPages}
+        className={`pagination-btn ${totalPages === currentPage ? 'active' : ''}`}
+        onClick={() => onPageChange(totalPages)}
+      >
+        {totalPages}
+      </button>
+    );
+  }
+
+  // Botón siguiente
+  if (currentPage < totalPages) {
+    pages.push(
+      <button
+        key="next"
+        className="pagination-btn"
+        onClick={() => onPageChange(currentPage + 1)}
+      >
+        Siguiente ›
+      </button>
+    );
+  }
+
+  return (
+    <div className="pagination-container">
+      <div className="pagination">
+        {pages}
+      </div>
+    </div>
+  );
+});
 
 /**
  * Componente para el detalle del producto.
@@ -312,6 +405,9 @@ const Productos = () => {
   });
   const { products, loading, error } = state;
 
+  // Estado de paginación
+  const [currentPage, setCurrentPage] = useState(1);
+
   // Helpers para actualizar el estado
   const setProducts = (newProducts) => {
     setState(prev => ({ ...prev, products: newProducts }));
@@ -327,7 +423,6 @@ const Productos = () => {
   const routeInfo = useMemo(() => {
     const searchParams = new URLSearchParams(location.search);
     const searchQuery = searchParams.get('q') || '';
-
     const categoriaId = searchParams.get('categoria_id') || '0';
 
     const isProductsRoute = location.pathname === '/productos';
@@ -352,7 +447,28 @@ const Productos = () => {
 
   const { productId, searchQuery, categoriaId, isProductsRoute, isSearchRoute, isProductDetailRoute } = routeInfo;
 
-  // --- Lógica de Fetch ---
+  // --- Lógica de Paginación ---
+
+  // Calcular productos para la página actual
+  const paginatedProducts = useMemo(() => {
+    if (productId) return products; // No paginar en vista de detalle
+    
+    const startIndex = (currentPage - 1) * PRODUCTOS_POR_PAGINA;
+    const endIndex = startIndex + PRODUCTOS_POR_PAGINA;
+    return products.slice(startIndex, endIndex);
+  }, [products, currentPage, productId]);
+
+  // Calcular total de páginas
+  const totalPages = useMemo(() => {
+    if (productId) return 1;
+    return Math.ceil(products.length / PRODUCTOS_POR_PAGINA);
+  }, [products.length, productId]);
+
+  // Resetear a página 1 cuando cambian los filtros o búsqueda
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, categoriaId, location.pathname]);
+
 
   // Helper memoizado para construir el endpoint
   const buildEndpoint = useCallback(() => {
@@ -362,7 +478,6 @@ const Productos = () => {
     }
 
     // Lógica unificada para filtros
-    // Sigue usando 'categoria_id' si viene en la URL
     const params = new URLSearchParams();
 
     if (searchQuery) {
@@ -373,7 +488,6 @@ const Productos = () => {
       params.append('categoria_id', categoriaId);
     }
 
-    // Siempre usamos este endpoint para listas y búsquedas
     return `${API_BASE}/api/productos/con-imagenes?${params.toString()}`;
 
   }, [productId, searchQuery, categoriaId]);
@@ -390,7 +504,7 @@ const Productos = () => {
   // useEffect de Carga de Datos
   useEffect(() => {
     const fetchProducts = async () => {
-      // No debe hacer fetch si está en /productos/buscar sin 'q' Y sin 'categoria_id'
+  
       if (isSearchRoute && !searchQuery && (categoriaId === '0' || !categoriaId)) {
         setLoading(false);
         setProducts([]);
@@ -462,6 +576,12 @@ const Productos = () => {
     navigate(`/productos/${productId}`);
   }, [navigate]);
 
+  const handlePageChange = useCallback((newPage) => {
+    setCurrentPage(newPage);
+    // Scroll suave hacia arriba al cambiar de página
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, []);
+
   // --- Render ---
 
   const getTitle = () => {
@@ -496,11 +616,19 @@ const Productos = () => {
     return productId ? (
       <ProductDetail product={products[0]} onAddToCart={handleAddToCart} />
     ) : (
-      <ProductList
-        products={products}
-        onProductClick={handleProductClick}
-        onAddToCart={handleAddToCart}
-      />
+      <>
+  <ProductList
+    products={paginatedProducts}
+    onProductClick={handleProductClick}
+    onAddToCart={handleAddToCart}
+  />
+  
+  <Pagination
+    currentPage={currentPage}
+    totalPages={totalPages}
+    onPageChange={handlePageChange}
+  />
+</>
     );
   };
 
