@@ -716,7 +716,7 @@ CORRECCIÓN CRÍTICA:
 - Bug: Se cobraba 100x el precio ($250 → $25,000)
 - Causa: Doble conversión a centavos (frontend y backend)
 - Solución: Remover multiplicación por 100 en PaymentsController.js línea 30
-- Estado: RESUELTO ✅
+- Estado: RESUELTO 
 
 -------------------------------------------------------------------
 NOVIEMBRE 21, 2025 - PASARELA DE PAGOS Y FACTURACIÓN
@@ -911,7 +911,7 @@ CORRECCIÓN CRÍTICA:
 - Bug: Se cobraba 100x el precio ($250 → $25,000)
 - Causa: Doble conversión a centavos (frontend y backend)
 - Solución: Remover multiplicación por 100 en PaymentsController.js línea 30
-- Estado: RESUELTO ✅
+- Estado: RESUELTO 
 
 -------------------------------------------------------------------
 NOVIEMBRE 21, 2025 - PASARELA DE PAGOS Y FACTURACIÓN
