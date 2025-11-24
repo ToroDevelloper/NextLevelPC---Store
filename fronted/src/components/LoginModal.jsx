@@ -74,21 +74,22 @@ const LoginModal = ({ onClose }) => {
     };
 
     return (
-        <>
-            <div className="login-modal-overlay" onClick={onClose}></div>
-            <div className="login-modal-content">
+        <div className="auth-modal-wrapper">
+            <div className="auth-modal-container">
                 <button 
                     onClick={onClose}
-                    className="login-modal-close"
+                    className="auth-modal-close"
                     aria-label="Cerrar"
                 >
                     <IconX />
                 </button>
                 
-                <h2>Iniciar Sesión</h2>
-                <p className="modal-subtitle">Tu información está protegida</p>
+                <div className="auth-modal-header">
+                    <h2>Iniciar Sesión</h2>
+                    <p className="auth-modal-subtitle">Tu información está protegida</p>
+                </div>
 
-                <form className="login-modal-form" onSubmit={handleSubmit}>
+                <form className="auth-modal-form" onSubmit={handleSubmit}>
                     <div className="form-group">
                         <label htmlFor="login-correo">Email</label>
                         <input 
@@ -96,7 +97,7 @@ const LoginModal = ({ onClose }) => {
                             id="login-correo"
                             value={loginData.correo}
                             onChange={(e) => updateLoginData('correo', e.target.value)}
-                            placeholder="Email"
+                            placeholder="Ingresa tu email"
                             required
                             disabled={loading}
                         />
@@ -108,31 +109,31 @@ const LoginModal = ({ onClose }) => {
                             id="login-password"
                             value={loginData.password}
                             onChange={(e) => updateLoginData('password', e.target.value)}
-                            placeholder="Contraseña"
+                            placeholder="Ingresa tu contraseña"
                             required
                             disabled={loading}
                         />
                     </div>
                     
                     {error && (
-                        <div className="login-modal-error">
+                        <div className="auth-modal-error">
                             {error}
                         </div>
                     )}
 
                     <button 
                         type="submit" 
-                        className="btn-login-submit"
+                        className="auth-submit-btn"
                         disabled={loading}
                     >
                         {loading ? 'Ingresando...' : 'Iniciar Sesión'}
                     </button>
                 </form>
 
-                <div className="login-modal-footer">
+                <div className="auth-modal-footer">
                     <p>¿No tienes cuenta?</p>
                     <button 
-                        className="btn-login-register"
+                        className="auth-switch-btn"
                         onClick={switchToRegister}
                         disabled={loading}
                     >
@@ -140,7 +141,7 @@ const LoginModal = ({ onClose }) => {
                     </button>
                 </div>
             </div>
-        </>
+        </div>
     );
 };
 
