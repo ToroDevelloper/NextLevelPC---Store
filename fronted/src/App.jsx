@@ -1,3 +1,4 @@
+// App.jsx
 import { useEffect, Fragment } from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 
@@ -13,11 +14,13 @@ import Factura from './pages/Factura';
 // Components
 import Layout from './components/Layout';
 import TransicionBienvenida from './pages/TransicionBienvenida';
+// ELIMINAR: import AuthModals from './components/AuthModals'; ← QUITAR ESTA LÍNEA
 
 // Context Providers
 import { useAuth } from './utils/AuthContext';
 import { StripeProvider } from './utils/StripeContext.jsx';
 import { stripePromise } from "./utils/stripePromise";
+import { AuthModalProvider } from './contexts/AuthContext';
 
 // External Libraries
 import { Elements } from '@stripe/react-stripe-js';
@@ -54,37 +57,33 @@ function App() {
             <TransicionBienvenida />
 
             <StripeProvider>
-                <Layout>
-                    <Routes>
-                        <Route path="/" element={<Home />} />
-                        <Route path="/home" element={<Home />} />
+                <AuthModalProvider>
+                    <Layout>
+                        <Routes>
+                            <Route path="/" element={<Home />} />
+                            <Route path="/home" element={<Home />} />
+                            <Route path="/productos" element={<Productos />} />
+                            <Route path="/productos/:id" element={<Productos />} />
+                            <Route path="/servicios" element={<Servicios />} />
+                            <Route path="/servicios/:id" element={<ServicioDetail />} />
+                            <Route path="/perfil" element={<Perfil />} />
+                            <Route
+                                path="/checkout"
+                                element={
+                                    <Elements stripe={stripePromise}>
+                                        <Checkout cart={cartItems} />
+                                    </Elements>
+                                }
+                            />
+                            <Route path="/factura/:id" element={<Factura />} />
+                            <Route path="/unauthorized" element={<div>No tienes permiso</div>} />
+                            <Route path="*" element={<Navigate to="/" replace />} />
+                        </Routes>
 
-                        {/* Productos */}
-                        <Route path="/productos" element={<Productos />} />
-                        <Route path="/productos/:id" element={<Productos />} />
-
-                        {/* Servicios */}
-                        <Route path="/servicios" element={<Servicios />} />
-                        <Route path="/servicios/:id" element={<ServicioDetail />} />
-
-                        <Route path="/perfil" element={<Perfil />} />
-
-                        {/* CHECKOUT CORREGIDO */}
-                        <Route
-                            path="/checkout"
-                            element={
-                                <Elements stripe={stripePromise}>
-                                    <Checkout cart={cartItems} />
-                                </Elements>
-                            }
-                        />
-
-                        <Route path="/factura/:id" element={<Factura />} />
-
-                        <Route path="/unauthorized" element={<div>No tienes permiso</div>} />
-                        <Route path="*" element={<Navigate to="/" replace />} />
-                    </Routes>
-                </Layout>
+                        {/* ELIMINAR: <AuthModals /> ← QUITAR ESTA LÍNEA */}
+                        {/* AuthModals se renderiza DENTRO de AuthModalProvider */}
+                    </Layout>
+                </AuthModalProvider>
             </StripeProvider>
         </Fragment>
     );
