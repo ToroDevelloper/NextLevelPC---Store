@@ -9,7 +9,8 @@ const AuthModals = () => {
     if (!authModal.isOpen) return null;
 
     return (
-        <div className="modal-fixed-container">
+        <div className="auth-modals-container">
+            <div className="auth-modal-backdrop" onClick={closeAuthModal}></div>
             {authModal.type === 'login' && (
                 <LoginModal onClose={closeAuthModal} />
             )}
