@@ -3,11 +3,12 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import '../styles/Navbar.css';
 import { useCart } from '../utils/CartContext';
 import { useAuth } from '../utils/AuthContext';
+import '../styles/login.css';
 
 // --- Constante para la API ---
 const API_BASE = '';
 
-// Íconos SVG (MANTENIDOS EXACTAMENTE IGUAL)
+// Íconos SVG (mantener igual)
 const IconCart = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M3 3h2l.4 2M7 13h10l3-8H6.4M7 13L5.1 6M7 13l-2 7h13" />
@@ -34,7 +35,6 @@ const IconFilter = () => (
   </svg>
 );
 
-// --- NUEVO: Iconos para el menú móvil ---
 const IconMenu = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <line x1="3" y1="12" x2="21" y2="12"></line>
@@ -50,13 +50,39 @@ const IconClose = () => (
   </svg>
 );
 
-const Navbar = ({ onLoginClick }) => {
+const IconX = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="18" y1="6" x2="6" y2="18"></line>
+    <line x1="6" y1="6" x2="18" y2="18"></line>
+  </svg>
+);
+
+const Navbar = () => {
   const { cartItems, removeFromCart, updateQuantity, clearCart } = useCart();
-  const { user, isAuthenticated, logout } = useAuth();
+  const { user, isAuthenticated, login, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [cartOpen, setCartOpen] = useState(false);
+
+  // --- Estados para los modales ---
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
+  const [loginCorreo, setLoginCorreo] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
+  const [loginError, setLoginError] = useState(null);
+  const [loginLoading, setLoginLoading] = useState(false);
+  const [redirectTo, setRedirectTo] = useState(null);
+
+  const [registerData, setRegisterData] = useState({
+    nombre: '',
+    apellido: '',
+    correo: '',
+    hash_password: '',
+    confirmPassword: ''
+  });
+  const [registerError, setRegisterError] = useState(null);
+  const [registerLoading, setRegisterLoading] = useState(false);
 
   // --- Estado y Refs para el dropdown de categorías ---
   const [categories, setCategories] = useState([]);
@@ -64,17 +90,204 @@ const Navbar = ({ onLoginClick }) => {
   const categoryButtonRef = useRef(null);
   const categoryDropdownRef = useRef(null);
 
-  // --- NUEVO: Estado para menú móvil ---
+  // --- Estado para menú móvil ---
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const cartDropdownRef = useRef(null);
 
-  // --- useEffect para cargar categorías ---
+  // --- Controlar scroll cuando modales están abiertos ---
+  useEffect(() => {
+    if (isLoginModalOpen || isRegisterModalOpen) {
+      document.body.classList.add('modal-open');
+    } else {
+      document.body.classList.remove('modal-open');
+    }
+
+    return () => {
+      document.body.classList.remove('modal-open');
+    };
+  }, [isLoginModalOpen, isRegisterModalOpen]);
+
+  // --- FUNCIONES PARA MODALES ---
+  const openLoginModal = (targetPath = null) => {
+    if (user) {
+      navigate(targetPath || "/");
+      return;
+    }
+    setRedirectTo(targetPath);
+    setLoginError(null);
+    setLoginLoading(false);
+    setIsLoginModalOpen(true);
+  };
+
+  const closeLoginModal = () => {
+    setIsLoginModalOpen(false);
+    setLoginCorreo('');
+    setLoginPassword('');
+    setLoginError(null);
+    setLoginLoading(false);
+    setRedirectTo(null);
+  };
+
+  const openRegisterModal = () => {
+    setRegisterError(null);
+    setRegisterLoading(false);
+    setRegisterData({
+      nombre: '',
+      apellido: '',
+      correo: '',
+      hash_password: '',
+      confirmPassword: ''
+    });
+    setIsRegisterModalOpen(true);
+  };
+
+  const closeRegisterModal = () => {
+    setIsRegisterModalOpen(false);
+    setRegisterData({
+      nombre: '',
+      apellido: '',
+      correo: '',
+      hash_password: '',
+      confirmPassword: ''
+    });
+    setRegisterError(null);
+    setRegisterLoading(false);
+  };
+
+  const handleLoginSubmit = async (e) => {
+    e.preventDefault();
+    setLoginError(null);
+    setLoginLoading(true);
+
+    try {
+      const res = await fetch(`${API_BASE}/api/usuarios/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include', 
+        body: JSON.stringify({ 
+          correo: loginCorreo, 
+          hash_password: loginPassword 
+        }),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        const errorMessage = errorData.mensaje || 'Credenciales inválidas o error de servidor.';
+        setLoginError(errorMessage);
+        setLoginLoading(false);
+        return;
+      }
+
+      const data = await res.json();
+      const token = data.access_token;
+      
+      let loggedInUser = null;
+      try {
+        loggedInUser = login(token); 
+      } catch (error) {
+        setLoginError("Error al procesar la sesión. Intente de nuevo.");
+        setLoginLoading(false);
+        return;
+      }
+
+      closeLoginModal();
+
+      if (redirectTo === '/checkout') {
+        navigate(redirectTo);
+      } else if (loggedInUser && (loggedInUser.rol === 'admin' || loggedInUser.rol === 'empleado')) {
+        window.location.href = '/ordenes';
+      } else {
+        navigate('/home'); 
+      }
+
+    } catch (error) {
+      console.error('Error durante el proceso de login:', error);
+      setLoginError('No se pudo conectar con el servidor.');
+      setLoginLoading(false);
+    }
+  };
+
+  const handleRegisterChange = (e) => {
+    setRegisterData({
+      ...registerData,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  const handleRegisterSubmit = async (e) => {
+    e.preventDefault();
+    setRegisterError(null);
+
+    if (!registerData.nombre || !registerData.correo || !registerData.hash_password) {
+      setRegisterError('Completa todos los campos obligatorios.');
+      return;
+    }
+
+    if (registerData.hash_password !== registerData.confirmPassword) {
+      setRegisterError('Las contraseñas no coinciden.');
+      return;
+    }
+
+    if (registerData.hash_password.length < 6) {
+      setRegisterError('La contraseña debe tener al menos 6 caracteres.');
+      return;
+    }
+
+    setRegisterLoading(true);
+    try {
+      const res = await fetch('/api/usuarios/registro', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          nombre: registerData.nombre,
+          apellido: registerData.apellido,
+          correo: registerData.correo,
+          hash_password: registerData.hash_password
+        }),
+      });
+
+      const text = await res.text();
+      let data = {};
+      try {
+        data = text ? JSON.parse(text) : {};
+      } catch (err) {
+        console.warn('Respuesta no JSON:', text);
+      }
+
+      if (!res.ok) {
+        setRegisterError(data.mensaje || data.message || `Error ${res.status}`);
+        setRegisterLoading(false);
+        return;
+      }
+
+      setRegisterLoading(false);
+      alert('¡Registro exitoso! Ahora puedes iniciar sesión.');
+      closeRegisterModal();
+      openLoginModal();
+
+    } catch (err) {
+      console.error('Error en registro:', err);
+      setRegisterError('No se pudo conectar con el servidor.');
+      setRegisterLoading(false);
+    }
+  };
+
+  const switchToLogin = () => {
+    closeRegisterModal();
+    openLoginModal();
+  };
+
+  const switchToRegister = () => {
+    closeLoginModal();
+    openRegisterModal();
+  };
+
+  // --- Resto del código del navbar ---
   useEffect(() => {
     const fetchCategories = async () => {
       try {
         const response = await fetch(`${API_BASE}/api/categorias/producto`);
         if (!response.ok) {
-          // Si falla la conexión, usamos datos de mock
           setCategories([
             { id: '1', nombre: 'Hardware' },
             { id: '2', nombre: 'Periféricos' },
@@ -98,15 +311,12 @@ const Navbar = ({ onLoginClick }) => {
     fetchCategories();
   }, []);
 
-  // --- NUEVO: Manejo del clic fuera para cerrar dropdowns ---
   useEffect(() => {
     const handleClickOutside = (event) => {
-      // 1. Carrito
       if (cartOpen && cartDropdownRef.current && !cartDropdownRef.current.contains(event.target) && !event.target.closest('.cart-btn')) {
         setCartOpen(false);
       }
 
-      // 2. Categorías
       if (isCategoryDropdownOpen && categoryDropdownRef.current && !categoryDropdownRef.current.contains(event.target) && categoryButtonRef.current && !categoryButtonRef.current.contains(event.target)) {
         setIsCategoryDropdownOpen(false);
       }
@@ -139,12 +349,11 @@ const Navbar = ({ onLoginClick }) => {
     if (user) {
       navigate('/perfil');
     } else {
-      onLoginClick(null); 
+      openLoginModal(null); 
     }
     setIsMobileMenuOpen(false); 
   };
 
-  // --- NUEVO: Handler para navegación móvil ---
   const handleNavLinkClick = (path) => {
     navigate(path);
     setIsMobileMenuOpen(false);
@@ -157,10 +366,8 @@ const Navbar = ({ onLoginClick }) => {
     return s + unitPrice * qty;
   }, 0);
 
-  // --- NUEVO: Función para formatear moneda ---
   const formatCurrency = (amount) => new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP' }).format(amount);
 
-  // Handlers para el dropdown de categorías
   const toggleCategoryDropdown = () => {
     setIsCategoryDropdownOpen(prev => !prev);
   };
@@ -175,340 +382,510 @@ const Navbar = ({ onLoginClick }) => {
     setIsMobileMenuOpen(false); 
   };
 
-  // Handler para checkout con autenticación ---
-const handleCheckout = () => {
-    console.log('Iniciando checkout...');
-    console.log('Usuario autenticado:', isAuthenticated);
-    
+  const handleCheckout = () => {
     if (!isAuthenticated) {
-        console.log('Usuario no autenticado, abriendo modal...');
-        onLoginClick('/checkout');
-        setCartOpen(false);
+      openLoginModal('/checkout');
+      setCartOpen(false);
     } else {
-        console.log('Usuario autenticado, redirigiendo a checkout...');
-        setCartOpen(false);
-        navigate('/checkout');
+      setCartOpen(false);
+      navigate('/checkout');
     }
-};
+  };
 
   return (
-    <header className="navbar">
-      <div className="navbar-container">
-        {/* Logo */}
-        <Link to="/home" className="navbar-logo">
-          <img src="./logo.png" className="navbar-logo-img" alt="Logo" />
-        </Link>
+    <>
+      <header className="navbar">
+        <div className="navbar-container">
+          {/* Logo */}
+          <Link to="/home" className="navbar-logo">
+            <img src="./logo.png" className="navbar-logo-img" alt="Logo" />
+          </Link>
 
-        {/* Navegación Desktop */}
-        <nav className="navbar-nav">
-          {/* Navegación de tienda solo para clientes o usuarios sin rol aún */}
-          {(!user || user.rol === 'cliente') && (
-            <>
-              <Link
-                to="/home"
-                className={`navbar-nav-link ${isActive('/home') ? 'active' : ''}`}
-              >
-                Inicio
-              </Link>
-              <Link
-                to="/productos"
-                className={`navbar-nav-link ${isActive('/productos') ? 'active' : ''}`}
-              >
-                Productos
-              </Link>
-              <Link
-                to="/servicios"
-                className={`navbar-nav-link ${isActive('/servicios') ? 'active' : ''}`}
-              >
-                Servicios
-              </Link>
-            </>
-          )}
-
-          {/* Navegación de vistas sólo para admin / empleado */}
-          {(user?.rol === 'admin' || user?.rol === 'empleado') && (
-            <>
-              <a
-                href="/productos"
-                className="navbar-nav-link"
-                target="_blank"
-                rel="noreferrer"
-              >
-                Vista Productos
-              </a>
-              <a
-                href="/ordenes"
-                className="navbar-nav-link"
-                target="_blank"
-                rel="noreferrer"
-              >
-                Vista Órdenes
-              </a>
-            </>
-          )}
-        </nav>
-
-        {/* Búsqueda y Categorías Desktop */}
-        <div className="navbar-search-category-container">
-          {/* Búsqueda */}
-          <form className="navbar-search-form" onSubmit={handleSearchSubmit}>
-            <input
-              type="text"
-              className="navbar-search-input"
-              placeholder="Buscar productos..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-            <button type="submit" className="navbar-search-btn" aria-label="Buscar">
-              <IconSearch />
-            </button>
-          </form>
-
-          {/* Botón de Categorías */}
-          <div className="category-dropdown-container">
-            <button 
-              ref={categoryButtonRef}
-              className="navbar-category-btn"
-              onClick={toggleCategoryDropdown}
-              aria-label="Filtrar por categoría"
-            >
-              <IconFilter />
-              <span className="category-btn-text">Categorías</span>
-            </button>
-            
-            {isCategoryDropdownOpen && (
-              <ul 
-                ref={categoryDropdownRef}
-                className="category-dropdown-menu"
-              >
-                <li onClick={() => handleCategoryClick('0')}>
-                  Todas las categorías
-                </li>
-                {categories.length > 0 ? (
-                  categories.map(cat => (
-                    <li key={cat.id} onClick={() => handleCategoryClick(cat.id)}>
-                      {cat.nombre}
-                    </li>
-                  ))
-                ) : (
-                  <li className="category-dropdown-loading">Cargando...</li>
-                )}
-              </ul>
-            )}
-          </div>
-        </div>
-
-        {/* Usuario y Carrito */}
-        <div className="navbar-actions">
-          {/* Contenedor del Perfil de Usuario */}
-          <div className="navbar-profile-container">
-            {isAuthenticated}
-            <button
-              className="navbar-icon-btn"
-              aria-label="Perfil de usuario"
-              onClick={handleUserClick}
-            >
-              <IconUser />
-            </button>
-          </div>
-
-          {/* Carrito */}
-<div className="navbar-cart-container">
-  <button
-    className="navbar-icon-btn cart-btn"
-    aria-label="Carrito"
-    onClick={() => setCartOpen(o => !o)}
-  >
-    <IconCart />
-    {cartCount > 0 && (
-      <span className="navbar-cart-badge">{cartCount}</span>
-    )}
-  </button>
-
-  {/* Dropdown del carrito */}
-  {cartOpen && (
-    <div className="navbar-cart-dropdown" ref={cartDropdownRef}>
-      <h4>Carrito ({cartCount} items)</h4>
-      {cartItems.length === 0 ? (
-        <p>Tu carrito está vacío</p>
-      ) : (
-        <>
-          <ul className="navbar-cart-list">
-            {cartItems.map(item => {
-              const unitPrice = Number(item.price ?? item.precio ?? 0);
-              const lineTotal = unitPrice * (item.quantity ?? 0);
-              const imgSrc = item.image || item.imagen_url || 'https://placehold.co/100x100/EEE/31343C?text=Item';
-
-              return (
-                <li key={`${item.type}-${item.id}`} className="navbar-cart-item">
-                  <img
-                    src={imgSrc}
-                    alt={item.nombre || 'Item del carrito'}
-                    className="navbar-cart-image"
-                    onError={(e) => {
-                      e.target.onerror = null;
-                      e.target.src = 'https://placehold.co/100x100/EEE/31343C?text=Item';
-                    }}
-                  />
-                  <div className="navbar-cart-info">
-                    <div className="navbar-cart-title">{item.nombre}</div>
-                    <div className="navbar-cart-price">
-                      {formatCurrency(lineTotal)} (x{item.quantity})
-                    </div>
-                    {/* Mostrar advertencia si es servicio con precio bajo */}
-                    {item.type === 'servicio' && unitPrice < 2000 && (
-                      <div className="price-warning" style={{color: 'red', fontSize: '12px'}}>
-                        Precio mínimo no alcanzado
-                      </div>
-                    )}
-                  </div>
-                  <div className="navbar-cart-controls">
-                    <button onClick={() => updateQuantity(item.id, item.type, (item.quantity || 0) - 1)} aria-label="Disminuir">−</button>
-                    <button onClick={() => updateQuantity(item.id, item.type, (item.quantity || 0) + 1)} aria-label="Aumentar">+</button>
-                    <button onClick={() => removeFromCart(item.id, item.type)} aria-label="Eliminar" className="btn-remove">
-                      <IconClose />
-                    </button>
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
-          <div className="navbar-cart-total">
-            <strong>Total:</strong>
-            <strong>{formatCurrency(cartTotal)}</strong>
-          </div>
-          
-          {/* Mostrar advertencia si hay servicios con precio bajo */}
-          {cartItems.some(item => item.type === 'servicio' && Number(item.price ?? item.precio ?? 0) < 2000) && (
-            <div className="cart-warning" style={{
-              background: '#fff3cd',
-              border: '1px solid #ffeaa7',
-              borderRadius: '4px',
-              padding: '8px',
-              margin: '10px 0',
-              fontSize: '14px',
-              color: '#856404'
-            }}>
-              Algunos servicios no cumplen con el precio mínimo requerido ($2,000 COP)
-            </div>
-          )}
-
-          <div className="navbar-cart-actions">
-            {/* Deshabilitar checkout si hay servicios con precio bajo */}
-            <button 
-              className="btn-checkout" 
-              onClick={handleCheckout}
-              disabled={cartItems.some(item => item.type === 'servicio' && Number(item.price ?? item.precio ?? 0) < 2000)}
-              style={{
-                opacity: cartItems.some(item => item.type === 'servicio' && Number(item.price ?? item.precio ?? 0) < 2000) ? 0.5 : 1,
-                cursor: cartItems.some(item => item.type === 'servicio' && Number(item.price ?? item.precio ?? 0) < 2000) ? 'not-allowed' : 'pointer'
-              }}
-            >
-              Proceder al Pago
-            </button>
-            <button className="btn-clear-cart" onClick={clearCart}>
-              Vaciar Carrito
-            </button>
-          </div>
-        </>
-      )}
-    </div>
-  )}
-</div>
-
-          {/*Botón de Menú Móvil */}
-          <button 
-            className="navbar-mobile-menu-btn"
-            onClick={() => setIsMobileMenuOpen(o => !o)}
-            aria-label="Menú principal"
-          >
-            {isMobileMenuOpen ? <IconClose /> : <IconMenu />}
-          </button>
-        </div>
-      </div>
-
-      {/* Menú Móvil */}
-      <nav className={`navbar-mobile-menu ${isMobileMenuOpen ? 'mobile-menu-open' : ''}`}>
-        <div className="mobile-nav-content">
-          {/* Búsqueda Móvil */}
-          <form className="mobile-search-form" onSubmit={handleSearchSubmit}>
-            <input
-              type="text"
-              className="mobile-search-input"
-              placeholder="Buscar productos..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-            <button type="submit" className="mobile-search-btn" aria-label="Buscar">
-              <IconSearch />
-            </button>
-          </form>
-
-          {/* Navegación Móvil */}
-          <div className="mobile-nav-links">
+          {/* Navegación Desktop */}
+          <nav className="navbar-nav">
             {(!user || user.rol === 'cliente') && (
               <>
                 <Link
                   to="/home"
-                  className={`mobile-nav-link ${isActive('/home') ? 'active' : ''}`}
-                  onClick={() => handleNavLinkClick('/home')}
+                  className={`navbar-nav-link ${isActive('/home') ? 'active' : ''}`}
                 >
                   Inicio
                 </Link>
                 <Link
                   to="/productos"
-                  className={`mobile-nav-link ${isActive('/productos') ? 'active' : ''}`}
-                  onClick={() => handleNavLinkClick('/productos')}
+                  className={`navbar-nav-link ${isActive('/productos') ? 'active' : ''}`}
                 >
                   Productos
                 </Link>
                 <Link
                   to="/servicios"
-                  className={`mobile-nav-link ${isActive('/servicios') ? 'active' : ''}`}
-                  onClick={() => handleNavLinkClick('/servicios')}
+                  className={`navbar-nav-link ${isActive('/servicios') ? 'active' : ''}`}
                 >
                   Servicios
                 </Link>
               </>
             )}
 
-            {/* Categorías Móvil */}
-            <div className="mobile-categories">
-              <span className="mobile-categories-title">Categorías:</span>
-              <div className="mobile-categories-list">
-                <button onClick={() => handleCategoryClick('0')} className="mobile-category-btn">
-                  Todas las categorías
-                </button>
-                {categories.map(cat => (
-                  <button key={cat.id} onClick={() => handleCategoryClick(cat.id)} className="mobile-category-btn">
-                    {cat.nombre}
-                  </button>
-                ))}
-              </div>
-            </div>
+            {(user?.rol === 'admin' || user?.rol === 'empleado') && (
+              <>
+                <a
+                  href="/productos"
+                  className="navbar-nav-link"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Vista Productos
+                </a>
+                <a
+                  href="/ordenes"
+                  className="navbar-nav-link"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Vista Órdenes
+                </a>
+              </>
+            )}
+          </nav>
 
-            {/* Autenticación Móvil */}
-            <div className="mobile-auth-buttons">
-              {isAuthenticated ? (
-                <button 
-                  className="btn-logout-mobile" 
-                  onClick={() => { logout(); setIsMobileMenuOpen(false); }}
+          {/* Búsqueda y Categorías Desktop */}
+          <div className="navbar-search-category-container">
+            {/* Búsqueda */}
+            <form className="navbar-search-form" onSubmit={handleSearchSubmit}>
+              <input
+                type="text"
+                className="navbar-search-input"
+                placeholder="Buscar productos..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+              <button type="submit" className="navbar-search-btn" aria-label="Buscar">
+                <IconSearch />
+              </button>
+            </form>
+
+            {/* Botón de Categorías */}
+            <div className="category-dropdown-container">
+              <button 
+                ref={categoryButtonRef}
+                className="navbar-category-btn"
+                onClick={toggleCategoryDropdown}
+                aria-label="Filtrar por categoría"
+              >
+                <IconFilter />
+                <span className="category-btn-text">Categorías</span>
+              </button>
+              
+              {isCategoryDropdownOpen && (
+                <ul 
+                  ref={categoryDropdownRef}
+                  className="category-dropdown-menu"
                 >
-                  Cerrar Sesión
-                </button>
-              ) : (
-                <button 
-                  className="btn-login-mobile" 
-                  onClick={() => { onLoginClick(null); setIsMobileMenuOpen(false); }}
-                >
-                  Iniciar Sesión
-                </button>
+                  <li onClick={() => handleCategoryClick('0')}>
+                    Todas las categorías
+                  </li>
+                  {categories.length > 0 ? (
+                    categories.map(cat => (
+                      <li key={cat.id} onClick={() => handleCategoryClick(cat.id)}>
+                        {cat.nombre}
+                      </li>
+                    ))
+                  ) : (
+                    <li className="category-dropdown-loading">Cargando...</li>
+                  )}
+                </ul>
               )}
             </div>
           </div>
+
+          {/* Usuario y Carrito */}
+          <div className="navbar-actions">
+            {/* Contenedor del Perfil de Usuario */}
+            <div className="navbar-profile-container">
+              {isAuthenticated}
+              <button
+                className="navbar-icon-btn"
+                aria-label="Perfil de usuario"
+                onClick={handleUserClick}
+              >
+                <IconUser />
+              </button>
+            </div>
+
+            {/* Carrito */}
+            <div className="navbar-cart-container">
+              <button
+                className="navbar-icon-btn cart-btn"
+                aria-label="Carrito"
+                onClick={() => setCartOpen(o => !o)}
+              >
+                <IconCart />
+                {cartCount > 0 && (
+                  <span className="navbar-cart-badge">{cartCount}</span>
+                )}
+              </button>
+
+              {cartOpen && (
+                <div className="navbar-cart-dropdown" ref={cartDropdownRef}>
+                  <h4>Carrito ({cartCount} items)</h4>
+                  {cartItems.length === 0 ? (
+                    <p>Tu carrito está vacío</p>
+                  ) : (
+                    <>
+                      <ul className="navbar-cart-list">
+                        {cartItems.map(item => {
+                          const unitPrice = Number(item.price ?? item.precio ?? 0);
+                          const lineTotal = unitPrice * (item.quantity ?? 0);
+                          const imgSrc = item.image || item.imagen_url || 'https://placehold.co/100x100/EEE/31343C?text=Item';
+
+                          return (
+                            <li key={`${item.type}-${item.id}`} className="navbar-cart-item">
+                              <img
+                                src={imgSrc}
+                                alt={item.nombre || 'Item del carrito'}
+                                className="navbar-cart-image"
+                                onError={(e) => {
+                                  e.target.onerror = null;
+                                  e.target.src = 'https://placehold.co/100x100/EEE/31343C?text=Item';
+                                }}
+                              />
+                              <div className="navbar-cart-info">
+                                <div className="navbar-cart-title">{item.nombre}</div>
+                                <div className="navbar-cart-price">
+                                  {formatCurrency(lineTotal)} (x{item.quantity})
+                                </div>
+                                {item.type === 'servicio' && unitPrice < 2000 && (
+                                  <div className="price-warning" style={{color: 'red', fontSize: '12px'}}>
+                                    Precio mínimo no alcanzado
+                                  </div>
+                                )}
+                              </div>
+                              <div className="navbar-cart-controls">
+                                <button onClick={() => updateQuantity(item.id, item.type, (item.quantity || 0) - 1)} aria-label="Disminuir">−</button>
+                                <button onClick={() => updateQuantity(item.id, item.type, (item.quantity || 0) + 1)} aria-label="Aumentar">+</button>
+                                <button onClick={() => removeFromCart(item.id, item.type)} aria-label="Eliminar" className="btn-remove">
+                                  <IconClose />
+                                </button>
+                              </div>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                      <div className="navbar-cart-total">
+                        <strong>Total:</strong>
+                        <strong>{formatCurrency(cartTotal)}</strong>
+                      </div>
+                      
+                      {cartItems.some(item => item.type === 'servicio' && Number(item.price ?? item.precio ?? 0) < 2000) && (
+                        <div className="cart-warning" style={{
+                          background: '#fff3cd',
+                          border: '1px solid #ffeaa7',
+                          borderRadius: '4px',
+                          padding: '8px',
+                          margin: '10px 0',
+                          fontSize: '14px',
+                          color: '#856404'
+                        }}>
+                          Algunos servicios no cumplen con el precio mínimo requerido ($2,000 COP)
+                        </div>
+                      )}
+
+                      <div className="navbar-cart-actions">
+                        <button 
+                          className="btn-checkout" 
+                          onClick={handleCheckout}
+                          disabled={cartItems.some(item => item.type === 'servicio' && Number(item.price ?? item.precio ?? 0) < 2000)}
+                          style={{
+                            opacity: cartItems.some(item => item.type === 'servicio' && Number(item.price ?? item.precio ?? 0) < 2000) ? 0.5 : 1,
+                            cursor: cartItems.some(item => item.type === 'servicio' && Number(item.price ?? item.precio ?? 0) < 2000) ? 'not-allowed' : 'pointer'
+                          }}
+                        >
+                          Proceder al Pago
+                        </button>
+                        <button className="btn-clear-cart" onClick={clearCart}>
+                          Vaciar Carrito
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Botón de Menú Móvil */}
+            <button 
+              className="navbar-mobile-menu-btn"
+              onClick={() => setIsMobileMenuOpen(o => !o)}
+              aria-label="Menú principal"
+            >
+              {isMobileMenuOpen ? <IconClose /> : <IconMenu />}
+            </button>
+          </div>
         </div>
-      </nav>
-    </header>
+
+        {/* Menú Móvil */}
+        <nav className={`navbar-mobile-menu ${isMobileMenuOpen ? 'mobile-menu-open' : ''}`}>
+          <div className="mobile-nav-content">
+            {/* Búsqueda Móvil */}
+            <form className="mobile-search-form" onSubmit={handleSearchSubmit}>
+              <input
+                type="text"
+                className="mobile-search-input"
+                placeholder="Buscar productos..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+              <button type="submit" className="mobile-search-btn" aria-label="Buscar">
+                <IconSearch />
+              </button>
+            </form>
+
+            {/* Navegación Móvil */}
+            <div className="mobile-nav-links">
+              {(!user || user.rol === 'cliente') && (
+                <>
+                  <Link
+                    to="/home"
+                    className={`mobile-nav-link ${isActive('/home') ? 'active' : ''}`}
+                    onClick={() => handleNavLinkClick('/home')}
+                  >
+                    Inicio
+                  </Link>
+                  <Link
+                    to="/productos"
+                    className={`mobile-nav-link ${isActive('/productos') ? 'active' : ''}`}
+                    onClick={() => handleNavLinkClick('/productos')}
+                  >
+                    Productos
+                  </Link>
+                  <Link
+                    to="/servicios"
+                    className={`mobile-nav-link ${isActive('/servicios') ? 'active' : ''}`}
+                    onClick={() => handleNavLinkClick('/servicios')}
+                  >
+                    Servicios
+                  </Link>
+                </>
+              )}
+
+              {/* Categorías Móvil */}
+              <div className="mobile-categories">
+                <span className="mobile-categories-title">Categorías:</span>
+                <div className="mobile-categories-list">
+                  <button onClick={() => handleCategoryClick('0')} className="mobile-category-btn">
+                    Todas las categorías
+                  </button>
+                  {categories.map(cat => (
+                    <button key={cat.id} onClick={() => handleCategoryClick(cat.id)} className="mobile-category-btn">
+                      {cat.nombre}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Autenticación Móvil */}
+              <div className="mobile-auth-buttons">
+                {isAuthenticated ? (
+                  <button 
+                    className="btn-logout-mobile" 
+                    onClick={() => { logout(); setIsMobileMenuOpen(false); }}
+                  >
+                    Cerrar Sesión
+                  </button>
+                ) : (
+                  <button 
+                    className="btn-login-mobile" 
+                    onClick={() => { openLoginModal(null); setIsMobileMenuOpen(false); }}
+                  >
+                    Iniciar Sesión
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        </nav>
+      </header>
+
+      {/* MODALES - POSICIÓN FIJADA CORRECTAMENTE */}
+      {/* Modal de LOGIN */}
+      {isLoginModalOpen && (
+        <div className="modal-fixed-container">
+          <div className="login-modal-overlay" onClick={closeLoginModal}></div>
+          <div className="login-modal-content">
+            <button 
+              onClick={closeLoginModal}
+              className="login-modal-close"
+              aria-label="Cerrar"
+            >
+              <IconX />
+            </button>
+            
+            <h2>Iniciar Sesión</h2>
+            <p className="modal-subtitle">Tu información está protegida</p>
+
+            <form className="login-modal-form" onSubmit={handleLoginSubmit}>
+              <div className="form-group">
+                <label htmlFor="login-correo">Email</label>
+                <input 
+                  type="email" 
+                  id="login-correo"
+                  value={loginCorreo}
+                  onChange={(e) => setLoginCorreo(e.target.value)}
+                  placeholder="Email"
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="login-password">Contraseña</label>
+                <input 
+                  type="password" 
+                  id="login-password"
+                  value={loginPassword}
+                  onChange={(e) => setLoginPassword(e.target.value)}
+                  placeholder="Contraseña"
+                  required
+                />
+              </div>
+              
+              {loginError && (
+                <div className="login-modal-error">
+                  {loginError}
+                </div>
+              )}
+
+              <button 
+                type="submit" 
+                className="btn-login-submit"
+                disabled={loginLoading}
+              >
+                {loginLoading ? 'Ingresando...' : 'Iniciar Sesión'}
+              </button>
+            </form>
+
+            <div className="login-modal-footer">
+              <p>¿No tienes cuenta?</p>
+              <button 
+                className="btn-login-register"
+                onClick={switchToRegister}
+              >
+                Registrarse
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de REGISTRO */}
+      {isRegisterModalOpen && (
+        <div className="modal-fixed-container">
+          <div className="login-modal-overlay" onClick={closeRegisterModal}></div>
+          <div className="login-modal-content">
+            <button 
+              onClick={closeRegisterModal}
+              className="login-modal-close"
+              aria-label="Cerrar"
+            >
+              <IconX />
+            </button>
+            
+            <h2>Crear Cuenta</h2>
+            <p className="modal-subtitle">Únete a nuestra comunidad</p>
+
+            <form className="login-modal-form" onSubmit={handleRegisterSubmit}>
+              <div className="form-row">
+                <div className="form-group">
+                  <label htmlFor="register-nombre">Nombre *</label>
+                  <input
+                    type="text"
+                    id="register-nombre"
+                    name="nombre"
+                    value={registerData.nombre}
+                    onChange={handleRegisterChange}
+                    required
+                    placeholder="Tu nombre"
+                  />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="register-apellido">Apellido</label>
+                  <input
+                    type="text"
+                    id="register-apellido"
+                    name="apellido"
+                    value={registerData.apellido}
+                    onChange={handleRegisterChange}
+                    placeholder="Tu apellido"
+                  />
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="register-correo">Correo electrónico *</label>
+                <input
+                  type="email"
+                  id="register-correo"
+                  name="correo"
+                  value={registerData.correo}
+                  onChange={handleRegisterChange}
+                  required
+                  placeholder="tu@correo.com"
+                />
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label htmlFor="register-password">Contraseña *</label>
+                  <input
+                    type="password"
+                    id="register-password"
+                    name="hash_password"
+                    value={registerData.hash_password}
+                    onChange={handleRegisterChange}
+                    required
+                    placeholder="Mínimo 6 caracteres"
+                  />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="register-confirmPassword">Confirmar contraseña *</label>
+                  <input
+                    type="password"
+                    id="register-confirmPassword"
+                    name="confirmPassword"
+                    value={registerData.confirmPassword}
+                    onChange={handleRegisterChange}
+                    required
+                    placeholder="Repite tu contraseña"
+                  />
+                </div>
+              </div>
+
+              {registerError && (
+                <div className="login-modal-error">
+                  {registerError}
+                </div>
+              )}
+
+              <button 
+                type="submit" 
+                className="btn-login-submit"
+                disabled={registerLoading}
+              >
+                {registerLoading ? 'Creando cuenta...' : 'Crear cuenta'}
+              </button>
+            </form>
+
+            <div className="login-modal-footer">
+              <p>¿Ya tienes cuenta?</p>
+              <button 
+                className="btn-login-register"
+                onClick={switchToLogin}
+              >
+                Iniciar sesión
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 };
 
