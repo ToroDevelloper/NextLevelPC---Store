@@ -82,21 +82,22 @@ const RegisterModal = ({ onClose }) => {
     };
 
     return (
-        <>
-            <div className="login-modal-overlay" onClick={onClose}></div>
-            <div className="login-modal-content register-modal">
+        <div className="auth-modal-wrapper register-modal">
+            <div className="auth-modal-container">
                 <button 
                     onClick={onClose}
-                    className="login-modal-close"
+                    className="auth-modal-close"
                     aria-label="Cerrar"
                 >
                     <IconX />
                 </button>
                 
-                <h2>Crear Cuenta</h2>
-                <p className="modal-subtitle">Únete a nuestra comunidad</p>
+                <div className="auth-modal-header">
+                    <h2>Crear Cuenta</h2>
+                    <p className="auth-modal-subtitle">Únete a nuestra comunidad</p>
+                </div>
 
-                <form className="login-modal-form" onSubmit={handleSubmit}>
+                <form className="auth-modal-form" onSubmit={handleSubmit}>
                     <div className="form-row">
                         <div className="form-group">
                             <label htmlFor="register-nombre">Nombre *</label>
@@ -169,24 +170,24 @@ const RegisterModal = ({ onClose }) => {
                     </div>
 
                     {error && (
-                        <div className="login-modal-error">
+                        <div className="auth-modal-error">
                             {error}
                         </div>
                     )}
 
                     <button 
                         type="submit" 
-                        className="btn-login-submit"
+                        className="auth-submit-btn"
                         disabled={loading}
                     >
                         {loading ? 'Creando cuenta...' : 'Crear cuenta'}
                     </button>
                 </form>
 
-                <div className="login-modal-footer">
+                <div className="auth-modal-footer">
                     <p>¿Ya tienes cuenta?</p>
                     <button 
-                        className="btn-login-register"
+                        className="auth-switch-btn"
                         onClick={switchToLogin}
                         disabled={loading}
                     >
@@ -194,7 +195,7 @@ const RegisterModal = ({ onClose }) => {
                     </button>
                 </div>
             </div>
-        </>
+        </div>
     );
 };
 
