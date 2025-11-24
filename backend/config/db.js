@@ -3,9 +3,9 @@ const path = require('path');
 require('dotenv').config({ path: path.join(__dirname, '..', '..', '.env') });
 
 const dbConfig = {
-    host: process.env.DB_HOST || '136.115.113.60',
-    user: process.env.DB_USER || 'admin',
-    password: process.env.DB_PASSWORD || 'admin',
+    host: process.env.DB_HOST || '34.27.58.232',
+    user: process.env.DB_USER || 'Colaboradores',
+    password: process.env.DB_PASSWORD || 'Colaboradores',
     database: process.env.DB_NAME || 'nextlevel', 
     port: process.env.DB_PORT || 3306,
     charset: 'utf8mb4',
