@@ -1,8 +1,8 @@
 import { useEffect, Fragment } from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 
+// Pages
 import Home from './pages/Home';
-import Registro from './pages/Registro';
 import Productos from './pages/productos';
 import Servicios from './pages/Servicios';
 import ServicioDetail from './pages/ServicioDetail';
@@ -10,16 +10,20 @@ import Perfil from './pages/Perfil';
 import Checkout from './pages/Checkout';
 import Factura from './pages/Factura';
 
+// Components
 import Layout from './components/Layout';
 import TransicionBienvenida from './pages/TransicionBienvenida';
 
+// Context Providers
 import { useAuth } from './utils/AuthContext';
 import { StripeProvider } from './utils/StripeContext.jsx';
 import { stripePromise } from "./utils/stripePromise";
 
+// External Libraries
 import { Elements } from '@stripe/react-stripe-js';
 import { useCart } from "./utils/CartContext";
 
+// Styles
 import './styles/Global.css';
 import './styles/TransicionBienvenida.css';
 
@@ -54,8 +58,6 @@ function App() {
                     <Routes>
                         <Route path="/" element={<Home />} />
                         <Route path="/home" element={<Home />} />
-
-                        <Route path="/registro" element={<Registro />} />
 
                         {/* Productos */}
                         <Route path="/productos" element={<Productos />} />
