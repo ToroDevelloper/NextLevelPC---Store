@@ -5,7 +5,7 @@ import AgendarServicioModal from '../components/AgendarServicioModal'; // Import
 import { useAuth } from '../utils/AuthContext';
 import { useCart } from '../utils/CartContext';
 
-const API_BASE = '';
+const API_BASE = 'http://localhost:8080';
 
 const ServicioDetail = () => {
     const { id } = useParams();
@@ -84,29 +84,15 @@ const ServicioDetail = () => {
                     setServicio(json.data);
 
                     // Process gallery images from servicio_imagenes table
-                    let images = [];
-                    
-                    if (json.data.galeria_imagenes && Array.isArray(json.data.galeria_imagenes) && json.data.galeria_imagenes.length > 0) {
-                        images = json.data.galeria_imagenes.map(img => {
-                            if (img.url.startsWith('http')) return img.url;
-                            return `${API_BASE}/uploads/${img.url}`;
-                        });
+                    if (json.data.galeria_imagenes && Array.isArray(json.data.galeria_imagenes)) {
+                        const urls = json.data.galeria_imagenes.map(img => `${API_BASE}/uploads/${img.url}`);
+                        setGalleryImages(urls.length > 0 ? urls : ['https://placehold.co/600x400/EEE/31343C?text=Servicio']);
+                    } else if (json.data.imagen_url) {
+                        // Fallback to imagen_url if no gallery images
+                        setGalleryImages([`${API_BASE}${json.data.imagen_url}`]);
+                    } else {
+                        setGalleryImages(['https://placehold.co/600x400/EEE/31343C?text=Servicio']);
                     }
-                    
-                    // Si no hay imágenes en galería, usar imagen principal si existe
-                    if (images.length === 0 && json.data.imagen_url) {
-                        const imgUrl = json.data.imagen_url.startsWith('http')
-                            ? json.data.imagen_url
-                            : `${API_BASE}${json.data.imagen_url}`;
-                        images = [imgUrl];
-                    }
-                    
-                    // Si aún no hay imágenes, usar placeholder
-                    if (images.length === 0) {
-                        images = ['https://placehold.co/600x400/EEE/31343C?text=Servicio'];
-                    }
-                    
-                    setGalleryImages(images);
                 } else {
                     throw new Error(json.message || 'Error al cargar el servicio');
                 }
@@ -256,13 +242,6 @@ const ServicioDetail = () => {
                                 <p><strong>Modalidad:</strong> {servicio.modalidad || 'Presencial / Remoto'}</p>
                                 <p><strong>Garantía:</strong> {servicio.garantia || 'Garantía estándar'}</p>
                             </div>
-
-                            {/* Botón de acción principal - Movido aquí */}
-                            <div className="servicio-detail-actions">
-                                <button className="btn-agendar" onClick={handleOpenModal}>
-                                    Agendar Servicio
-                                </button>
-                            </div>
                         </div>
 
                         {/* Trust Badges */}
@@ -342,56 +321,4 @@ const ServicioDetail = () => {
                                     <p>Aún no hay opiniones para este servicio.</p>
                                 </div>
                             )}
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-
-            {/* Modal para agendar servicio */}
-            <AgendarServicioModal
-                isOpen={isModalOpen}
-                onClose={handleCloseModal}
-                onSubmit={handleSubmitModal}
-                servicio={servicio}
-            />
-
-            {/* Related Services */}
-            {relatedServices.length > 0 && (
-                <div className="related-services-section">
-                    <h2>Servicios Relacionados</h2>
-                    <div className="related-services-grid">
-                        {relatedServices.map((rel) => (
-                            <div
-                                key={rel.id}
-                                className="related-service-card"
-                                onClick={() => navigate(`/servicios/${rel.id}`)}
-                            >
-                                <div className="related-service-image">
-                                    <img
-                                        src={
-                                            rel.imagen_url
-                                                ? `${API_BASE}${rel.imagen_url}`
-                                                : 'https://placehold.co/300x200/EEE/31343C?text=Servicio'
-                                        }
-                                        alt={rel.nombre}
-                                        onError={(e) => {
-                                            e.target.onerror = null;
-                                            e.target.src = 'https://placehold.co/300x200/EEE/31343C?text=Servicio';
-                                        }}
-                                    />
-                                </div>
-                                <div className="related-service-info">
-                                    <h3>{rel.nombre}</h3>
-                                    <p className="price">${Number(rel.precio).toFixed(2)}</p>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            )}
-        </div>
-    );
-};
-
-export default ServicioDetail;
+                        </div

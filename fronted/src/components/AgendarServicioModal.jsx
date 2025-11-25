@@ -49,51 +49,66 @@ const AgendarServicioModal = ({ servicio, onClose, onSubmit, isOpen }) => {
     if (!isOpen) return null;
 
     return (
-        <div className="modal-overlay">
-            <div className="modal-content">
+        <div className="modal-overlay" onClick={onClose}>
+            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                <button className="modal-close-btn" onClick={onClose}>&times;</button>
                 <div className="modal-header">
-                    <h2>Agendar Servicio: {servicio?.nombre}</h2>
-                    <button className="modal-close-btn" onClick={onClose}>&times;</button>
+                    <h2>Agendar: {servicio?.nombre}</h2>
                 </div>
 
                 <form className="modal-form" onSubmit={handleSubmit}>
-                    <div className="form-group">
-                        <label htmlFor="nombre">Nombre Completo</label>
-                        <input
-                            type="text"
-                            id="nombre"
-                            name="nombre"
-                            value={formData.nombre}
-                            onChange={handleChange}
-                            required
-                            placeholder="Tu nombre completo"
-                        />
+                    <div className="form-row">
+                        <div className="form-group">
+                            <label htmlFor="nombre">Nombre Completo</label>
+                            <input
+                                type="text"
+                                id="nombre"
+                                name="nombre"
+                                value={formData.nombre}
+                                onChange={handleChange}
+                                required
+                                placeholder="Tu nombre completo"
+                            />
+                        </div>
+                        <div className="form-group">
+                            <label htmlFor="email">Correo Electrónico</label>
+                            <input
+                                type="email"
+                                id="email"
+                                name="email"
+                                value={formData.email}
+                                onChange={handleChange}
+                                required
+                                placeholder="tucorreo@ejemplo.com"
+                            />
+                        </div>
                     </div>
 
-                    <div className="form-group">
-                        <label htmlFor="email">Correo Electrónico</label>
-                        <input
-                            type="email"
-                            id="email"
-                            name="email"
-                            value={formData.email}
-                            onChange={handleChange}
-                            required
-                            placeholder="tucorreo@ejemplo.com"
-                        />
-                    </div>
-
-                    <div className="form-group">
-                        <label htmlFor="telefono">Teléfono</label>
-                        <input
-                            type="tel"
-                            id="telefono"
-                            name="telefono"
-                            value={formData.telefono}
-                            onChange={handleChange}
-                            required
-                            placeholder="Tu número de contacto"
-                        />
+                    <div className="form-row">
+                        <div className="form-group">
+                            <label htmlFor="telefono">Teléfono</label>
+                            <input
+                                type="tel"
+                                id="telefono"
+                                name="telefono"
+                                value={formData.telefono}
+                                onChange={handleChange}
+                                required
+                                placeholder="Tu número de contacto"
+                            />
+                        </div>
+                        <div className="form-group">
+                            <label htmlFor="fecha_cita">Fecha Preferida</label>
+                            <input
+                                type="date"
+                                id="fecha_cita"
+                                name="fecha_cita"
+                                value={formData.fecha_cita}
+                                onChange={handleChange}
+                                required
+                                min={getMinDate()}
+                            />
+                        </div>
                     </div>
 
                     <div className="form-group">
@@ -106,19 +121,6 @@ const AgendarServicioModal = ({ servicio, onClose, onSubmit, isOpen }) => {
                             onChange={handleChange}
                             required
                             placeholder="Dirección donde se realizará el servicio"
-                        />
-                    </div>
-
-                    <div className="form-group">
-                        <label htmlFor="fecha_cita">Fecha Preferida</label>
-                        <input
-                            type="date"
-                            id="fecha_cita"
-                            name="fecha_cita"
-                            value={formData.fecha_cita}
-                            onChange={handleChange}
-                            required
-                            min={getMinDate()}
                         />
                     </div>
 
@@ -140,7 +142,7 @@ const AgendarServicioModal = ({ servicio, onClose, onSubmit, isOpen }) => {
                             Cancelar
                         </button>
                         <button type="submit" className="btn-submit">
-                            Ir a Pagar
+                            Agendar y Pagar
                         </button>
                     </div>
                 </form>
