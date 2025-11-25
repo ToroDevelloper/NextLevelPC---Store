@@ -321,4 +321,56 @@ const ServicioDetail = () => {
                                     <p>Aún no hay opiniones para este servicio.</p>
                                 </div>
                             )}
-                        </div
+                        </div>
+                    </div>
+
+                    <div className="servicio-detail-actions">
+                        <button className="btn-agendar" onClick={handleOpenModal}>
+                            Agendar Cita de Servicio
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            {/* Related Services */}
+            {relatedServices.length > 0 && (
+                <div className="related-services-section">
+                    <h2>Servicios Relacionados</h2>
+                    <div className="related-services-grid">
+                        {relatedServices.map((rel) => (
+                            <div
+                                key={rel.id}
+                                className="related-service-card"
+                                onClick={() => navigate(`/servicios/${rel.id}`)}
+                            >
+                                <div className="related-service-image">
+                                    <img
+                                        src={rel.imagen_url ? `${API_BASE}${rel.imagen_url}` : 'https://placehold.co/600x400/EEE/31343C?text=Servicio'}
+                                        alt={rel.nombre}
+                                        onError={(e) => {
+                                            e.target.onerror = null;
+                                            e.target.src = 'https://placehold.co/600x400/EEE/31343C?text=Servicio';
+                                        }}
+                                    />
+                                </div>
+                                <div className="related-service-info">
+                                    <h3>{rel.nombre}</h3>
+                                    <p className="price">${Number(rel.precio).toFixed(2)}</p>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
+
+            <AgendarServicioModal
+                isOpen={isModalOpen}
+                onClose={handleCloseModal}
+                onSubmit={handleSubmitModal}
+                servicio={servicio}
+            />
+        </div>
+    );
+};
+
+export default ServicioDetail;
