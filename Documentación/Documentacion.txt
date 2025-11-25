@@ -1139,8 +1139,3 @@ todo funcionando de forma sincronizada entre frontend React con Stripe Elements,
 FIN DE DOCUMENTACIÓN
 =================================================================
 
-
-
-===================================
-ESTO ES UN PULL REQUEST DE PRUEBAS
-===================================
