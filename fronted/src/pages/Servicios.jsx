@@ -2,8 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import '../styles/Servicios.css';
 import AgendarServicioModal from '../components/AgendarServicioModal';
+import { getImageUrl, handleImageError } from '../utils/imageHelper';
 
-const API_BASE = '';
+const API_BASE = 'http://localhost:8080';
 
 const Servicios = () => {
     const [servicios, setServicios] = useState([]);
@@ -182,10 +183,10 @@ const Servicios = () => {
                         <div key={servicio.id} className="servicio-card-link" onClick={() => handleCardClick(servicio.id)}>
                             <div className="servicio-card">
                                 <img
-                                    src={servicio.imagen_url || 'https://placehold.co/600x400/EEE/31343C?text=Servicio'}
+                                    src={getImageUrl(servicio.imagen_url)}
                                     alt={servicio.nombre}
                                     className="servicio-card-image"
-                                    onError={(e) => { e.target.onerror = null; e.target.src = 'https://placehold.co/600x400/EEE/31343C?text=Servicio'; }}
+                                    onError={handleImageError}
                                 />
                                 <div className="servicio-info">
                                     <h3>{servicio.nombre}</h3>
