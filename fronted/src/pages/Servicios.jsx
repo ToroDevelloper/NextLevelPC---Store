@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import '../styles/Servicios.css';
 import AgendarServicioModal from '../components/AgendarServicioModal';
+import { useAuth } from '../utils/AuthContext';
+import { useCart } from '../utils/CartContext';
 import { getImageUrl, handleImageError } from '../utils/imageHelper';
 
 const API_BASE = 'http://localhost:8080';
@@ -15,6 +17,8 @@ const Servicios = () => {
     const [servicioSeleccionado, setServicioSeleccionado] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const navigate = useNavigate();
+    const { addToCart } = useCart();
+    const { isAuthenticated } = useAuth();
 
     const handleCardClick = (id) => {
         navigate(`/servicios/${id}`);
@@ -31,32 +35,47 @@ const Servicios = () => {
         setServicioSeleccionado(null);
     };
 
-    const handleSubmitModal = async (formData) => {
+    const handleSubmitModal = (formData) => {
+        if (!isAuthenticated) {
+            alert('Debes iniciar sesión para agendar una cita de servicio.');
+            return { success: false };
+        }
+
         if (!servicioSeleccionado) return;
+
         try {
-            const response = await fetch(`${API_BASE}/api/citas-servicios`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    ...formData,
-                    servicio_id: servicioSeleccionado.id,
-                }),
-            });
+            // Construir objeto del servicio con datos de la cita
+            const servicioConCita = {
+                id: servicioSeleccionado.id,
+                nombre: servicioSeleccionado.nombre,
+                precio: servicioSeleccionado.precio,
+                imagen: servicioSeleccionado.imagen_url,
+                type: 'servicio',
+                cantidad: 1,
+                // Metadata de la cita para procesar después del pago
+                citaData: {
+                    nombre_cliente: formData.nombre,
+                    email_cliente: formData.email,
+                    telefono_cliente: formData.telefono,
+                    direccion_cliente: formData.direccion,
+                    fecha_cita: formData.fecha_cita,
+                    descripcion_problema: formData.descripcion_problema
+                }
+            };
 
-            const result = await response.json();
+            // Agregar al carrito
+            addToCart(servicioConCita);
 
-            if (response.ok && result.success) {
-                alert('¡Cita agendada con éxito! Nos pondremos en contacto contigo pronto.');
-                setIsModalOpen(false);
-                setServicioSeleccionado(null);
-            } else {
-                throw new Error(result.message || 'No se pudo agendar la cita.');
-            }
+            // Cerrar modal y redirigir al checkout
+            setIsModalOpen(false);
+            setServicioSeleccionado(null);
+            navigate('/checkout');
+
+            return { success: true };
         } catch (error) {
-            console.error('Error al enviar el formulario:', error);
+            console.error('Error al procesar la solicitud:', error);
             alert(`Error: ${error.message}`);
+            return { success: false };
         }
     };
 
@@ -214,6 +233,7 @@ const Servicios = () => {
 
             {isModalOpen && servicioSeleccionado && (
                 <AgendarServicioModal
+                    isOpen={isModalOpen}
                     servicio={servicioSeleccionado}
                     onClose={handleCloseModal}
                     onSubmit={handleSubmitModal}
