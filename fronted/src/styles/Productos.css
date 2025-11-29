@@ -233,8 +233,7 @@
 /* Wrapper de cada miniatura individual */
 .product-thumbnail-wrapper {
   width: 100%;
-  /* CAMBIO: Aumentamos la altura para que sea un rectángulo VERTICAL */
-  height: 110px; 
+  height: 60px; 
   border: 2px solid var(--color-border);
   border-radius: var(--border-radius);
   cursor: pointer;
@@ -421,86 +420,80 @@
   color: var(--color-text);
 }
 
-/* TABS */
-.product-detail-tabs {
-  border-top: 1px solid var(--color-border);
-  margin-top: 2rem;
+/* --- NUEVOS ESTILOS DE FLUJO VERTICAL (Estilo ML) --- */
+
+.product-content-flow {
+  padding: 0 3rem 3rem 3rem; /* Espacio a los lados y abajo */
+  max-width: 1000px; /* Ancho máximo de lectura para que no sea eterno */
+  margin: 0 auto; /* Centrado */
 }
 
-.product-detail-tab-headers {
-  display: flex;
-  background-color: var(--color-background-soft);
-  border-bottom: 1px solid var(--color-border);
-  padding: 0 3rem;
+.product-section {
+  margin-top: 3rem;
+  margin-bottom: 3rem;
 }
 
-.producto-tab-header {
-  padding: 1.25rem 2rem;
-  font-weight: 600;
-  color: var(--color-text-light);
-  border-bottom: 3px solid transparent;
-  cursor: pointer;
-  transition: var(--transition-speed);
+.section-title {
+  font-size: 1.5rem; /* ~24px */
+  font-weight: 400; /* No muy negrita, más elegante */
+  color: #333;
+  margin-bottom: 1.5rem;
 }
 
-.producto-tab-header:hover {
-  color: var(--color-accent);
+.product-description-text {
+  font-size: 1.1rem; /* ~16px o 18px */
+  line-height: 1.6; /* Altura de línea para facilitar lectura */
+  color: #666; /* Gris oscuro, no negro puro (menos cansa la vista) */
+  white-space: pre-wrap; /* Respeta los saltos de línea del texto original */
 }
 
-.producto-tab-header.active {
-  color: var(--color-accent);
-  border-bottom-color: var(--color-accent);
+.section-divider {
+  border: 0;
+  border-top: 1px solid #e9ecef; /* Línea gris muy sutil */
+  margin: 2rem 0;
 }
 
-.product-detail-tab-body {
-  padding: 3rem;
-}
-
-.producto-tab-panel {
-  display: none;
-}
-
-.producto-tab-panel.active {
-  display: block;
-  animation: fadeIn 0.5s ease;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* SPEC TABLE */
-.product-specs-table {
-  width: 100%;
-  max-width: 700px;
-  border-collapse: collapse;
-  background: var(--color-white);
-  border-radius: var(--border-radius);
+/* Tabla de Especificaciones rediseñada para el flujo vertical */
+.specs-container {
+  border: 1px solid #ebebeb;
+  border-radius: 8px;
   overflow: hidden;
 }
 
-.product-specs-table th,
-.product-specs-table td {
+.product-specs-table-flow {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.product-specs-table-flow th,
+.product-specs-table-flow td {
   padding: 1rem 1.5rem;
-  border-bottom: 1px solid var(--color-border);
   text-align: left;
+  font-size: 0.95rem;
 }
 
-.product-specs-table th {
+.product-specs-table-flow th {
+  background-color: #f5f5f5;
+  width: 35%; /* Ancho fijo para las etiquetas */
+  color: #333;
   font-weight: 600;
-  background-color: var(--color-background-soft);
+  border-bottom: 1px solid #ebebeb;
 }
 
-.product-specs-table tr:hover {
-  background-color: var(--color-background-soft);
+.product-specs-table-flow td {
+  background-color: #fff;
+  color: #666;
+  border-bottom: 1px solid #ebebeb;
+}
+
+.product-specs-table-flow tr:last-child th,
+.product-specs-table-flow tr:last-child td {
+  border-bottom: none;
+}
+
+.product-specs-table-flow tr:nth-child(even) th,
+.product-specs-table-flow tr:nth-child(even) td {
+  background-color: #fafafa; /* Efecto cebra muy sutil */
 }
 
 /* ===== ESTILOS DE PAGINACIÓN ===== */
@@ -625,17 +618,24 @@
     font-size: 1.8rem;
   }
 
-  .product-detail-tab-headers {
-    padding: 0 1.5rem;
+  /* Responsive para el flujo */
+  .product-content-flow {
+    padding: 0 1.5rem 2rem 1.5rem;
+  }
+  
+  .section-title {
+    font-size: 1.3rem;
   }
 
-  .producto-tab-header {
-    padding: 1rem 1.5rem;
-    font-size: 0.9rem;
+  .product-specs-table-flow th, 
+  .product-specs-table-flow td {
+    display: block; /* En móviles la tabla se vuelve bloques */
+    width: 100%;
   }
-
-  .product-detail-tab-body {
-    padding: 1.5rem;
+  
+  .product-specs-table-flow th {
+    background-color: #eee;
+    padding-bottom: 0.5rem;
   }
 
   /* Responsive para paginación */
@@ -686,14 +686,6 @@
   .product-detail-quantity {
     width: 100%;
     margin-bottom: 0.5rem;
-  }
-
-  .product-detail-tab-headers {
-    flex-direction: column;
-  }
-
-  .producto-tab-header {
-    text-align: center;
   }
 
   /* Responsive para paginación */

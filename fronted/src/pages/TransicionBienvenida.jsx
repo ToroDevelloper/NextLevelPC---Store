@@ -6,44 +6,58 @@ const TransicionBienvenida = () => {
   const [destruirComponente, setDestruirComponente] = useState(false);
 
   useEffect(() => {
-    // 1. Inicia el temporizador para comenzar la animación de salida
-    // Damos 2.5 segundos para que se vean las animaciones de entrada + lectura
+    // 1. Asegúrate de que el archivo en la carpeta public se llame "transicion.m4a" (sin tilde)
+    const audio = new Audio('/transicion.m4a');
+    audio.volume = 0.5;
+
+    // --- DEBUGGING: Esto te dirá si el archivo no carga ---
+    audio.addEventListener('error', (e) => {
+      console.error("ERROR CRÍTICO: No se pudo cargar el archivo de audio. Verifica el nombre en la carpeta public.", e);
+    });
+    
+    // Intentamos reproducir
+    const playPromise = audio.play();
+
+    if (playPromise !== undefined) {
+      playPromise
+        .then(() => {
+          console.log("Audio reproduciéndose correctamente.");
+        })
+        .catch(error => {
+          // Si entra aquí, es 99% seguro que es el bloqueo de Autoplay de Chrome
+          console.warn("Audio bloqueado por el navegador (Autoplay Policy). El usuario debe interactuar primero.", error);
+        });
+    }
+
     const fadeOutTimer = setTimeout(() => {
       setAnimandoSalida(true);
-    }, 2500); // 2.5 segundos visible
+    }, 2500);
 
-    // 2. Inicia el temporizador para destruir el componente
-    // (2.5s visibles + 0.7s de animación de salida = 3.2s total)
     const destroyTimer = setTimeout(() => {
       setDestruirComponente(true);
-    }, 3200); 
+    }, 3200);
 
     return () => {
       clearTimeout(fadeOutTimer);
       clearTimeout(destroyTimer);
+      audio.pause();
+      audio.currentTime = 0;
     };
   }, []);
 
   if (destruirComponente) {
-    return null; // El componente se desmonta del DOM
+    return null;
   }
 
   return (
-    // Aplicamos la clase 'oculto' cuando 'animandoSalida' es true
     <div className={`fondo-bienvenida ${animandoSalida ? 'oculto' : ''}`}>
       <div className="contenido-bienvenida">
-        
-        {/* 1. El texto de bienvenida */}
         <h2 className="texto-bienvenida">Bienvenidos a</h2>
-        
-        {/* 2. La imagen del logo */}
         <img 
-          src="/logo.png" // Ruta desde la carpeta public
+          src="/logo.png" 
           alt="NextLevelPC Logo" 
           className="logo-imagen"
         />
-
-        {/* 3. El eslogan */}
         <p className="subtitulo-bienvenida">Despierta tu poder digital.</p>
       </div>
     </div>

@@ -292,10 +292,7 @@ const Pagination = React.memo(({ currentPage, totalPages, onPageChange }) => {
 });
 
 const ProductDetail = React.memo(({ product, onAddToCart }) => {
-  const [activeTab, setActiveTab] = useState('descripcion');
   const [activeImage, setActiveImage] = useState(product.image);
-  
-  // NUEVO: Estado para controlar si el modal (Zoom) está abierto
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
@@ -401,42 +398,39 @@ const ProductDetail = React.memo(({ product, onAddToCart }) => {
             </div>
           </div>
         </div>
+        
+        {/* NUEVO CONTENEDOR DE CONTENIDO FLUIDO (Fuera del main grid) */}
+        <div className="product-content-flow">
+          
+          {/* SECCIÓN 1: DESCRIPCIÓN */}
+          <div className="product-section">
+            <h3 className="section-title">Descripción</h3>
+            <p className="product-description-text">
+              {description}
+            </p>
+          </div>
 
-        {/* TABS */}
-        <div className="product-detail-tabs">
-          <div className="product-detail-tab-headers">
-            <button
-              className={`producto-tab-header ${activeTab === 'descripcion' ? 'active' : ''}`}
-              type="button"
-              onClick={() => setActiveTab('descripcion')}
-            >
-              Descripción
-            </button>
-            <button
-              className={`producto-tab-header ${activeTab === 'especificaciones' ? 'active' : ''}`}
-              type="button"
-              onClick={() => setActiveTab('especificaciones')}
-            >
-              Especificaciones
-            </button>
-          </div>
-          <div className="product-detail-tab-body">
-            <div className={`producto-tab-panel ${activeTab === 'descripcion' ? 'active' : ''}`}>
-              <p className="product-detail-description">{description}</p>
+          <hr className="section-divider" />
+
+          {/* SECCIÓN 2: ESPECIFICACIONES (Si existen) */}
+          {specs && specs.length > 0 && (
+            <div className="product-section">
+              <h3 className="section-title">Características del producto</h3>
+              <div className="specs-container">
+                <table className="product-specs-table-flow">
+                  <tbody>
+                    {specs.map((spec, idx) => (
+                      <tr key={idx}>
+                        <th>{spec.label}</th>
+                        <td>{spec.value}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
-            <div className={`producto-tab-panel ${activeTab === 'especificaciones' ? 'active' : ''}`}>
-              <table className="product-specs-table">
-                <tbody>
-                  {specs.map((spec, idx) => (
-                    <tr key={idx}>
-                      <th>{spec.label}</th>
-                      <td>{spec.value}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
+          )}
+
         </div>
       </div>
 
@@ -709,7 +703,7 @@ const Productos = () => {
 
   return (
     <div className="productos-page">
-      <h2 className="productos-title">{getTitle()}</h2>
+    {!productId && <h2 className="productos-title">{getTitle()}</h2>}
 
       {renderContent()}
     </div>
