@@ -1,4 +1,3 @@
-/* Variables CSS para mantener consistencia y fácil personalización */
 :root {
   --color-blanco: #fff;
   --color-texto: #333;
@@ -9,107 +8,117 @@
   --easing-dramatic: cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-/* El contenedor principal de la transición */
+/* Animaciones */
+@keyframes fadeInUp {
+  0% { opacity: 0; transform: translateY(30px) scale(0.95); filter: blur(4px); }
+  100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0px); }
+}
+
+@keyframes subtleGlow {
+  0%, 100% { filter: drop-shadow(0 0 0px rgba(47, 122, 135, 0.3)); }
+  50% { filter: drop-shadow(0 0 12px rgba(47, 122, 135, 0.6)); }
+}
+
+@keyframes textShine {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+@keyframes expandLine {
+  0% { width: 0; opacity: 0; }
+  100% { width: min(200px, 80%); opacity: 1; }
+}
+
+@keyframes loadingShimmer {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+/* =========================================
+   2. ESTILOS BASE (ESCRITORIO / GENERAL)
+   Así se verá en PC y Pantallas Grandes
+   ========================================= */
+
 .fondo-bienvenida {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
-  height: 100%;
+  height: 100%; /* En escritorio esto está bien */
   background-color: var(--color-blanco);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 9999;
+  overflow: hidden; /* Importante para evitar barras de scroll */
   opacity: 1;
-  transition: 
-    opacity var(--duracion-transicion) var(--easing-suave),
-    visibility var(--duracion-transicion) var(--easing-suave);
-  will-change: opacity; /* Mejora de rendimiento */
-  backdrop-filter: blur(0px); /* Preparado para efecto blur */
+  transition: opacity var(--duracion-transicion) var(--easing-suave),
+              visibility var(--duracion-transicion) var(--easing-suave);
+  will-change: opacity;
 }
 
-/* Clase que se añade con JS para iniciar el fade-out */
+.fondo-bienvenida::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  animation: loadingShimmer 2s ease-in-out;
+  pointer-events: none; /* Para que no interfiera con clics */
+}
+
 .fondo-bienvenida.oculto {
   opacity: 0;
-  visibility: hidden; /* Mejor que pointer-events para accesibilidad */
+  visibility: hidden;
   pointer-events: none;
-  backdrop-filter: blur(8px); /* Efecto blur al salir */
+  backdrop-filter: blur(8px);
 }
 
-/* Contenedor para centrar el contenido */
 .contenido-bienvenida {
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  gap: 1.5rem; /* Espaciado consistente entre elementos */
+  gap: 1.5rem;
+  /* Ancho máximo para que no se estire demasiado en monitores gigantes */
+  max-width: 1200px; 
+  padding: 0 20px;
 }
 
-/* Animaciones mejoradas */
-@keyframes fadeInUp {
-  0% {
-    opacity: 0;
-    transform: translateY(30px) scale(0.95);
-    filter: blur(4px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-    filter: blur(0px);
-  }
-}
-
-@keyframes subtleGlow {
-  0%, 100% {
-    filter: drop-shadow(0 0 0px rgba(47, 122, 135, 0.3));
-  }
-  50% {
-    filter: drop-shadow(0 0 12px rgba(47, 122, 135, 0.6));
-  }
-}
-
-@keyframes textShine {
-  0% {
-    background-position: -200% center;
-  }
-  100% {
-    background-position: 200% center;
-  }
-}
-
-/* Aplicamos las animaciones a los elementos */
 .texto-bienvenida,
 .logo-imagen,
 .subtitulo-bienvenida {
   opacity: 0;
-  animation: 
-    fadeInUp 0.8s var(--easing-dramatic) forwards,
-    fadeInUp 0.8s var(--easing-dramatic) forwards;
-  will-change: transform, opacity, filter; /* Optimización */
+  animation: fadeInUp 0.8s var(--easing-dramatic) forwards;
+  will-change: transform, opacity, filter;
 }
 
-/* Estilos específicos para cada elemento */
 .texto-bienvenida {
-  font-size: clamp(1.8rem, 4vw, 2.5rem); /* Responsivo */
+  /* clamp ayuda, pero abajo haremos un ajuste fino para móvil */
+  font-size: clamp(2rem, 4vw, 3rem); 
   font-weight: 300;
   color: var(--color-texto);
   margin: 0;
   letter-spacing: -0.02em;
   animation-delay: 0.2s;
+  background: linear-gradient(90deg, var(--color-texto), var(--color-primario), var(--color-texto));
+  background-size: 200% auto;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: textShine 3s ease-in-out 0.5s infinite;
 }
 
 .logo-imagen {
-  max-width: min(380px, 80vw); /* Responsivo con límites */
-  max-height: 180px;
-  width: auto;
+  max-width: 380px; /* Tamaño grande para escritorio */
   height: auto;
   margin: 0.5rem 0;
   animation-delay: 0.5s;
   transition: transform 0.3s var(--easing-suave);
 }
 
-/* Efecto hover sutil para el logo (si el usuario pasa el mouse) */
 .logo-imagen:hover {
   transform: scale(1.05);
   animation: subtleGlow 2s ease-in-out infinite;
@@ -125,7 +134,6 @@
   padding-bottom: 0.5rem;
 }
 
-/* Efecto de subrayado animado para el subtítulo */
 .subtitulo-bienvenida::after {
   content: '';
   position: absolute;
@@ -138,112 +146,48 @@
   animation: expandLine 1.2s var(--easing-suave) 1.4s forwards;
 }
 
-@keyframes expandLine {
-  0% {
-    width: 0;
-    opacity: 0;
-  }
-  100% {
-    width: min(200px, 80%);
-    opacity: 1;
-  }
-}
+/* =========================================
+   3. SECCIÓN MÓVIL (MEDIA QUERIES)
+   Aquí sobreescribimos SOLO lo necesario para móvil
+   ========================================= */
 
-/* Efecto de gradiente animado para el texto de bienvenida */
-.texto-bienvenida {
-  background: linear-gradient(
-    90deg,
-    var(--color-texto),
-    var(--color-primario),
-    var(--color-texto)
-  );
-  background-size: 200% auto;
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  animation: textShine 3s ease-in-out 0.5s infinite;
-}
-
-/* Mejoras de accesibilidad */
-@media (prefers-reduced-motion: reduce) {
-  .fondo-bienvenida,
-  .texto-bienvenida,
-  .logo-imagen,
-  .subtitulo-bienvenida {
-    animation: none !important;
-    transition: none !important;
-    opacity: 1 !important;
-    transform: none !important;
-  }
-  
-  .fondo-bienvenida.oculto {
-    opacity: 0 !important;
-    visibility: hidden !important;
-  }
-}
-
-/* Modo oscuro opcional */
-@media (prefers-color-scheme: dark) {
-  .fondo-bienvenida {
-    background-color: #0a0a0a;
-  }
-  
-  .texto-bienvenida {
-    color: #f5f5f5;
-    background: linear-gradient(
-      90deg,
-      #f5f5f5,
-      var(--color-primario),
-      #f5f5f5
-    );
-    background-clip: text;
-    -webkit-background-clip: text;
-  }
-}
-
-/* Responsive para móviles */
 @media (max-width: 768px) {
-  .contenido-bienvenida {
-    gap: 1rem;
+  
+  /* Arreglo del fondo: Usamos dvh para evitar problemas con la barra de navegación */
+  .fondo-bienvenida {
+    height: 100dvh; 
+    height: 100vh;
     padding: 0 1rem;
   }
-  
+
+  .contenido-bienvenida {
+    width: 100%;
+    gap: 1rem;
+  }
+
+  /* El logo debe ser más pequeño en móvil para no ocupar toda la pantalla */
   .logo-imagen {
-    max-width: 280px;
-    max-height: 140px;
+    max-width: 260px;
+    width: 70%;
   }
-  
+
+  /* Ajuste fino del tamaño de letra */
   .texto-bienvenida {
-    font-size: 1.8rem;
+    font-size: 2rem; 
+    line-height: 1.2;
   }
-  
+
   .subtitulo-bienvenida {
-    font-size: 1.3rem;
+    font-size: 1.1rem;
   }
 }
 
-/* Loading state mejorado */
-.fondo-bienvenida::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.4),
-    transparent
-  );
-  animation: loadingShimmer 2s ease-in-out;
-}
-
-@keyframes loadingShimmer {
-  0% {
-    left: -100%;
-  }
-  100% {
-    left: 100%;
+/* Modo oscuro (Opcional, se mantiene igual) */
+@media (prefers-color-scheme: dark) {
+  .fondo-bienvenida { background-color: #0a0a0a; }
+  .texto-bienvenida {
+    background: linear-gradient(90deg, #f5f5f5, var(--color-primario), #f5f5f5);
+    background-clip: text;
+    -webkit-background-clip: text;
   }
 }
