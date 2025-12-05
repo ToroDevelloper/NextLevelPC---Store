@@ -4,7 +4,7 @@ Este documento describe el script SQL completo para la base de datos del sistema
 
 ---
 
-## 📋 Información General
+## Información General
 
 - **Archivo**: `script_db_completo.sql`
 - **Base de Datos**: `nextlevel`
@@ -15,7 +15,7 @@ Este documento describe el script SQL completo para la base de datos del sistema
 
 ---
 
-## 📊 Estructura de la Base de Datos
+## Estructura de la Base de Datos
 
 ### Tablas Incluidas (13 tablas)
 
@@ -34,7 +34,7 @@ Este documento describe el script SQL completo para la base de datos del sistema
 
 ---
 
-## 🔐 Usuarios de Ejemplo
+## Usuarios de Ejemplo
 
 Todos los usuarios de ejemplo tienen la contraseña: **`password123`**
 
@@ -49,7 +49,7 @@ Todos los usuarios de ejemplo tienen la contraseña: **`password123`**
 
 ---
 
-## 🛍️ Productos (40 productos en 10 categorías)
+## Productos (40 productos en 10 categorías)
 
 ### Categorías de Productos
 
@@ -67,17 +67,17 @@ Todos los usuarios de ejemplo tienen la contraseña: **`password123`**
 
 
 Cada producto incluye:
-- ✅ Nombre descriptivo
-- ✅ Descripción corta (marketing)
-- ✅ Descripción detallada (información completa)
-- ✅ Especificaciones técnicas (JSON-compatible)
-- ✅ Precio actual
-- ✅ Stock disponible
-- ✅ Estado (activo/inactivo)
+- Nombre descriptivo
+- Descripción corta (marketing)
+- Descripción detallada (información completa)
+- Especificaciones técnicas (JSON-compatible)
+- Precio actual
+- Stock disponible
+- Estado (activo/inactivo)
 
 ---
 
-## 🔧 Servicios (12 servicios: 6 básicos + 6 avanzados)
+## Servicios (12 servicios: 6 básicos + 6 avanzados)
 
 ### Servicios Básicos
 
@@ -104,25 +104,25 @@ Cada producto incluye:
 ### Galería de Imágenes
 
 Cada servicio incluye:
-- ✅ Imagen principal
-- ✅ Galería de 3-4 imágenes adicionales
-- ✅ Textos alternativos para SEO
-- ✅ Orden de visualización
-- ✅ Soft delete (activo/inactivo)
+- Imagen principal
+- Galería de 3-4 imágenes adicionales
+- Textos alternativos para SEO
+- Orden de visualización
+- Soft delete (activo/inactivo)
 
 ---
 
-## 💳 Sistema de Pagos y Órdenes
+## Sistema de Pagos y Órdenes
 
 ### Características de Órdenes
 
-- ✅ Número único de orden (formato: `ORD-timestamp`)
-- ✅ Relación con usuario/cliente
-- ✅ Tipo: producto, servicio o mixto
-- ✅ Estado de orden: pendiente, procesando, completada, cancelada
-- ✅ Estado de pago: pendiente, pagado, reembolsado
-- ✅ Integración con Stripe (payment_intent_id)
-- ✅ Fecha de pago registrada
+- Número único de orden (formato: `ORD-timestamp`)
+- Relación con usuario/cliente
+- Tipo: producto, servicio o mixto
+- Estado de orden: pendiente, procesando, completada, cancelada
+- Estado de pago: pendiente, pagado, reembolsado
+- Integración con Stripe (payment_intent_id)
+- Fecha de pago registrada
 
 ### Relación con Citas de Servicio
 
@@ -133,17 +133,17 @@ Las órdenes están vinculadas bidireccionalmente con citas:
 
 ---
 
-## 📅 Citas de Servicios
+## Citas de Servicios
 
 ### Campos de Cita
 
-- ✅ Información del cliente (nombre, email, teléfono, dirección)
-- ✅ Servicio solicitado
-- ✅ Fecha y hora de la cita
-- ✅ Descripción del problema
-- ✅ Estado de la cita: pendiente, confirmada, cancelada, completada
-- ✅ Estado de pago: pendiente, pagado, cancelado
-- ✅ Relación con orden de pago
+- Información del cliente (nombre, email, teléfono, dirección)
+- Servicio solicitado
+- Fecha y hora de la cita
+- Descripción del problema
+- Estado de la cita: pendiente, confirmada, cancelada, completada
+- Estado de pago: pendiente, pagado, cancelado
+- Relación con orden de pago
 
 ### Flujo de Pago para Servicios
 
@@ -155,7 +155,7 @@ Las órdenes están vinculadas bidireccionalmente con citas:
 
 ---
 
-## 🔑 Foreign Keys y Relaciones
+## Foreign Keys y Relaciones
 
 ### Relaciones Principales
 
@@ -181,7 +181,7 @@ estado (1) ──→ (N) productos
 
 ---
 
-## 📈 Índices para Optimización
+## Índices para Optimización
 
 ### Índices Creados
 
@@ -196,7 +196,7 @@ estado (1) ──→ (N) productos
 
 ---
 
-## 🚀 Cómo Usar el Script
+## Cómo Usar el Script
 
 ### Opción 1: Importar en HeidiSQL/phpMyAdmin
 
@@ -239,7 +239,7 @@ console.log('Base de datos creada exitosamente');
 
 ---
 
-## ⚠️ Notas Importantes
+## Notas Importantes
 
 > [!WARNING]
 > Este script **ELIMINA** la base de datos `nextlevel` si existe y la crea nuevamente.
@@ -255,40 +255,40 @@ console.log('Base de datos creada exitosamente');
 
 ---
 
-## 📝 Changelog
+## Changelog
 
 ### 2025-11-21 - Versión Completa
-- ✅ Creación de script completo con todas las tablas
-- ✅ 40 productos en 10 categorías con especificaciones completas
-- ✅ 12 servicios (6 básicos + 6 avanzados)
-- ✅ 10 usuarios de ejemplo con roles
-- ✅ 6 órdenes de ejemplo con items
-- ✅ 4 citas de servicio de ejemplo
-- ✅ Integración completa con Stripe
-- ✅ Relación bidireccional ordenes ↔ citas
-- ✅ Galerías de imágenes para servicios
-- ✅ Índices de optimización
-- ✅ Foreign keys con integridad referencial
+- Creación de script completo con todas las tablas
+- 40 productos en 10 categorías con especificaciones completas
+- 12 servicios (6 básicos + 6 avanzados)
+- 10 usuarios de ejemplo con roles
+- 6 órdenes de ejemplo con items
+- 4 citas de servicio de ejemplo
+- Integración completa con Stripe
+- Relación bidireccional ordenes ↔ citas
+- Galerías de imágenes para servicios
+- Índices de optimización
+- Foreign keys con integridad referencial
 
 ### 2025-11-22 - Actualización de Schema y Usuarios
-- ✅ **Tabla Ordenes**: Se agregó el tipo 'mixto' al ENUM de `tipo`.
-- ✅ **Tabla Ordenes**: Se añadió la columna `cita_servicio_id` y su índice correspondiente `idx_orden_cita_id`.
-- ✅ **Usuarios**: Se recrearon los usuarios de ejemplo con contraseñas encriptadas (bcrypt).
-- ✅ **Integridad**: Se reforzaron las relaciones entre órdenes y citas de servicio.
-- ✅ **Precios**: Se actualizaron todos los precios a Pesos Colombianos (COP).
-- ✅ **Imágenes**: Se reemplazaron las URLs de imágenes por placeholders confiables (`placehold.co`).
+- **Tabla Ordenes**: Se agregó el tipo 'mixto' al ENUM de `tipo`.
+- **Tabla Ordenes**: Se añadió la columna `cita_servicio_id` y su índice correspondiente `idx_orden_cita_id`.
+- **Usuarios**: Se recrearon los usuarios de ejemplo con contraseñas encriptadas (bcrypt).
+- **Integridad**: Se reforzaron las relaciones entre órdenes y citas de servicio.
+- **Precios**: Se actualizaron todos los precios a Pesos Colombianos (COP).
+- **Imágenes**: Se reemplazaron las URLs de imágenes por placeholders confiables (`placehold.co`).
 
 ---
 
-## 🔗 Archivos Relacionados
+## Archivos Relacionados
 
 - [`nextlevel.sql`](./nextlevel.sql) - Estructura de tablas (solo DDL)
-- [`script_db_completo.sql`](./script_db_completo.sql) - **Script completo con datos** ⭐
+- [`script_db_completo.sql`](./script_db_completo.sql) - **Script completo con datos** 
 - [`Documentacion.txt`](./Documentacion.txt) - Historial de cambios del proyecto
 
 ---
 
-## 💡 Soporte
+## Soporte
 
 Si encuentras algún problema con el script o necesitas ayuda:
 
