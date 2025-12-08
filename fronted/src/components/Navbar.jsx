@@ -115,19 +115,9 @@ const Navbar = () => {
 
           {/* Nav Desktop */}
           <nav className="navbar-nav">
-            {(!user || user.rol === 'cliente') && (
-              <>
-                <Link to="/home" className={`navbar-nav-link ${isActive('/home') ? 'active' : ''}`}>Inicio</Link>
-                <Link to="/productos" className={`navbar-nav-link ${isActive('/productos') ? 'active' : ''}`}>Productos</Link>
-                <Link to="/servicios" className={`navbar-nav-link ${isActive('/servicios') ? 'active' : ''}`}>Servicios</Link>
-              </>
-            )}
-            {(user?.rol === 'admin' || user?.rol === 'empleado') && (
-              <>
-                <a href="/productos" className="navbar-nav-link" target="_blank" rel="noreferrer">Vista Productos</a>
-                <a href="/ordenes" className="navbar-nav-link" target="_blank" rel="noreferrer">Vista Órdenes</a>
-              </>
-            )}
+            <Link to="/home" className={`navbar-nav-link ${isActive('/home') ? 'active' : ''}`}>Inicio</Link>
+            <Link to="/productos" className={`navbar-nav-link ${isActive('/productos') ? 'active' : ''}`}>Productos</Link>
+            <Link to="/servicios" className={`navbar-nav-link ${isActive('/servicios') ? 'active' : ''}`}>Servicios</Link>
           </nav>
 
           {/* Buscador y Filtro Desktop */}

@@ -22,7 +22,7 @@ const LoginModal = ({ onClose }) => {
         switchToRegister
     } = useAuthModal();
 
-    const { login } = useAuth();
+    const { login, logout } = useAuth();
     const navigate = useNavigate();
     const API_BASE = '';
 
@@ -55,14 +55,15 @@ const LoginModal = ({ onClose }) => {
 
             try {
                 const loggedInUser = login(token);
-                onClose();
 
                 if (loggedInUser && (loggedInUser.rol === 'admin' || loggedInUser.rol === 'empleado')) {
-                    window.location.href = '/ordenes';
+                    window.location.href = 'http://localhost:8080/productos';
                 } else {
+                    onClose();
                     navigate('/home');
                 }
             } catch (error) {
+                console.error(error);
                 setError("Error al procesar la sesión. Intente de nuevo.");
             }
         } catch (error) {
