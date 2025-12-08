@@ -44,18 +44,31 @@ export const AuthProvider = ({ children }) => {
             return;
         }
         
-        setUser(decoded); 
-        setIsAuthenticated(true);
+        // Si es admin o empleado, no lo autenticamos en la SPA pública
+        if (decoded.rol === 'admin' || decoded.rol === 'empleado') {
+            setIsAuthenticated(false);
+            setUser(null);
+            // Opcional: Eliminar la cookie si queremos forzar logout completo en SPA
+            // Cookies.remove('accessToken', { path: '/' });
+        } else {
+            setUser(decoded);
+            setIsAuthenticated(true);
+        }
         
     }, []);
 
     const login = (accessToken) => {
         try {
-            const decodedUser = jwtDecode(accessToken); 
+            const decodedUser = jwtDecode(accessToken);
+
+            // Si es admin o empleado, no actualizamos el estado global de la SPA
+            if (decodedUser.rol === 'admin' || decodedUser.rol === 'empleado') {
+                return decodedUser; // Retornamos el usuario para que LoginModal pueda redirigir
+            }
 
             setUser(decodedUser);
             setIsAuthenticated(true);
-            return decodedUser; 
+            return decodedUser;
             
         } catch (error) {
             console.error("Error al procesar el login:", error);
