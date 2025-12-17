@@ -1,12 +1,11 @@
 /* ========================================
-   PERFIL - ESTILOS COMPLETOS REDISEÑADOS
+   PERFIL - ESTILOS INTEGRADOS CON LOGIN Y PRODUCTOS
    ======================================== */
 
-/* Variables para integrarse con la tienda */
+/* Variables EXACTAMENTE iguales a Login/Productos */
 :root {
   --color-logo: #3B6F7A;
   --color-accent: var(--color-logo);
-  --color-accent-light: #4a8a96;
   --color-accent-text: #FFFFFF;
   --color-background: #FFFFFF;
   --color-background-soft: #f8f9fa;
@@ -15,83 +14,95 @@
   --color-border: #e9ecef;
   --color-white: #FFFFFF;
   --color-dark: var(--color-text);
-  --color-success: #10b981;
-  --color-error: #ef4444;
-  --color-warning: #f59e0b;
-  --color-info: #3b82f6;
-  
+
   --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.04);
   --shadow-md: 0 5px 15px rgba(0, 0, 0, 0.08);
   --shadow-lg: 0 8px 25px rgba(0, 0, 0, 0.12);
-  --shadow-xl: 0 15px 40px rgba(0, 0, 0, 0.15);
   --border-radius: 8px;
-  --border-radius-lg: 12px;
   --transition-speed: 0.3s ease;
 }
 
-/* Contenedor principal que ocupa toda la página */
+/* Contenedor principal - Ocupa toda la página */
 .perfil-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
   padding: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
-/* Botón para volver a la tienda */
+/* ========================================
+   NAVEGACIÓN SUPERIOR - Ancha y limpia
+   ======================================== */
 .perfil-back-nav {
-  background: var(--color-background);
+  background: var(--color-white);
   border-bottom: 1px solid var(--color-border);
-  padding: 1rem 2rem;
+  padding: 1.25rem 4rem; /* Más padding para usar más ancho */
   box-shadow: var(--shadow-sm);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  width: 100%;
 }
 
 .btn-back-to-shop {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  color: var(--color-text);
+  gap: 0.75rem;
+  color: var(--color-logo);
   text-decoration: none;
-  font-weight: 500;
-  font-size: 0.95rem;
-  padding: 0.5rem 1rem;
+  font-weight: 600;
+  font-size: 1rem;
+  padding: 0.85rem 1.75rem;
   border-radius: var(--border-radius);
   transition: all var(--transition-speed);
-  background: transparent;
-  border: 1px solid transparent;
+  background: var(--color-background-soft);
+  border: 2px solid var(--color-border);
 }
 
 .btn-back-to-shop:hover {
-  background: var(--color-background-soft);
-  color: var(--color-accent);
-  border-color: var(--color-border);
+  background: var(--color-logo);
+  color: var(--color-white);
+  border-color: var(--color-logo);
+  transform: translateX(-5px);
+  box-shadow: var(--shadow-md);
 }
 
 .btn-back-to-shop i {
-  font-size: 0.9rem;
+  font-size: 1rem;
+  transition: transform var(--transition-speed);
 }
 
-/* Container principal - ahora más ancho */
-.perfil-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 2rem;
+.btn-back-to-shop:hover i {
+  transform: translateX(-3px);
 }
 
 /* ========================================
-   HEADER DEL PERFIL - Más elegante
+   CONTENEDOR PRINCIPAL - Mucho más ancho
+   ======================================== */
+.perfil-container {
+  max-width: 1400px; /* Mucho más ancho que antes */
+  margin: 0 auto;
+  padding: 2.5rem 4rem; /* Más padding lateral */
+  width: 100%;
+}
+
+/* ========================================
+   HEADER DEL PERFIL - Amplio y elegante
    ======================================== */
 .perfil-header {
   display: flex;
   align-items: center;
-  gap: 2rem;
-  background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-light) 100%);
-  padding: 3rem;
-  border-radius: var(--border-radius-lg);
+  gap: 3rem; /* Más espacio entre elementos */
+  background: linear-gradient(135deg, var(--color-logo) 0%, #4a8a96 100%);
+  padding: 3.5rem 4rem; /* Más padding horizontal */
+  border-radius: var(--border-radius);
   color: white;
-  margin-bottom: 2rem;
+  margin-bottom: 3rem;
   box-shadow: var(--shadow-lg);
   position: relative;
   overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  width: 100%;
 }
 
 .perfil-header::before {
@@ -101,34 +112,40 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: radial-gradient(circle at top right, rgba(255,255,255,0.1) 0%, transparent 70%);
+  background: radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
   pointer-events: none;
 }
 
 .perfil-avatar {
-  font-size: 5rem;
+  font-size: 5.5rem;
   opacity: 0.95;
   z-index: 1;
-  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+  color: rgba(255, 255, 255, 0.95);
+  flex-shrink: 0;
 }
 
 .perfil-header-info {
   flex: 1;
   z-index: 1;
+  min-width: 0; /* Permite que se ajuste bien */
 }
 
 .perfil-header-info h1 {
   margin: 0 0 0.5rem 0;
-  font-size: 2.25rem;
+  font-size: 2.5rem;
   font-weight: 700;
   letter-spacing: -0.5px;
+  line-height: 1.2;
+  word-wrap: break-word;
 }
 
 .perfil-email {
-  margin: 0 0 1rem 0;
+  margin: 0 0 1.5rem 0;
   opacity: 0.9;
-  font-size: 1.1rem;
+  font-size: 1.2rem;
   font-weight: 400;
+  line-height: 1.4;
 }
 
 .perfil-rol {
@@ -141,22 +158,27 @@
   text-transform: capitalize;
   font-weight: 600;
   letter-spacing: 0.5px;
-  border: 1px solid rgba(255,255,255,0.3);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 /* ========================================
-   MENSAJE DE FEEDBACK
+   MENSAJE DE FEEDBACK - Estilo login
    ======================================== */
 .perfil-message {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 1rem;
   padding: 1.25rem 1.5rem;
   border-radius: var(--border-radius);
-  margin-bottom: 2rem;
+  margin-bottom: 2.5rem;
   font-weight: 500;
   animation: slideIn 0.3s ease;
+  background: white;
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--color-border);
   border-left: 4px solid transparent;
+  width: 100%;
 }
 
 @keyframes slideIn {
@@ -171,15 +193,13 @@
 }
 
 .perfil-message.success {
-  background: #d1fae5;
-  color: #065f46;
-  border-color: #10b981;
+  border-left-color: #10b981;
+  background: linear-gradient(90deg, rgba(16, 185, 129, 0.05) 0%, white 100%);
 }
 
 .perfil-message.error {
-  background: #fee2e2;
-  color: #991b1b;
-  border-color: #ef4444;
+  border-left-color: #ef4444;
+  background: linear-gradient(90deg, rgba(239, 68, 68, 0.05) 0%, white 100%);
 }
 
 .perfil-message i {
@@ -187,17 +207,18 @@
 }
 
 /* ========================================
-   TABS DE NAVEGACIÓN - Más modernas
+   TABS DE NAVEGACIÓN - Anchas y organizadas
    ======================================== */
 .perfil-tabs {
   display: flex;
   gap: 0.75rem;
   background: white;
   padding: 0.75rem;
-  border-radius: var(--border-radius-lg);
-  margin-bottom: 2rem;
+  border-radius: var(--border-radius);
+  margin-bottom: 2.5rem;
   box-shadow: var(--shadow-md);
   border: 1px solid var(--color-border);
+  width: 100%;
 }
 
 .perfil-tab {
@@ -215,33 +236,20 @@
   font-weight: 600;
   color: var(--color-text-light);
   transition: all var(--transition-speed);
-  position: relative;
+  min-width: 0; /* Permite que se ajuste bien */
+  white-space: nowrap;
   overflow: hidden;
-}
-
-.perfil-tab::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(59, 111, 122, 0.1), transparent);
-  transition: left 0.6s;
-}
-
-.perfil-tab:hover::before {
-  left: 100%;
+  text-overflow: ellipsis;
 }
 
 .perfil-tab:hover {
   background: var(--color-background-soft);
-  color: var(--color-accent);
+  color: var(--color-logo);
   transform: translateY(-2px);
 }
 
 .perfil-tab.active {
-  background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-light) 100%);
+  background: linear-gradient(135deg, var(--color-logo) 0%, #4a8a96 100%);
   color: white;
   box-shadow: 0 4px 15px rgba(59, 111, 122, 0.3);
   transform: translateY(-2px);
@@ -249,36 +257,31 @@
 
 .perfil-tab i {
   font-size: 1.25rem;
+  flex-shrink: 0;
 }
 
 /* ========================================
-   CONTENIDO / SECCIONES - Más amplio
+   CONTENIDO PRINCIPAL - Muy amplio y organizado
    ======================================== */
 .perfil-content {
   background: white;
-  border-radius: var(--border-radius-lg);
-  padding: 2.5rem;
+  border-radius: var(--border-radius);
+  padding: 3rem 4rem; /* Más padding horizontal */
   box-shadow: var(--shadow-md);
   border: 1px solid var(--color-border);
   margin-bottom: 3rem;
-}
-
-.perfil-section {
-  animation: fadeIn 0.3s ease;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .section-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 2rem;
+  margin-bottom: 2.5rem;
   padding-bottom: 1.5rem;
   border-bottom: 2px solid var(--color-border);
+  width: 100%;
 }
 
 .section-header h2 {
@@ -286,36 +289,42 @@
   font-size: 1.75rem;
   color: var(--color-text);
   font-weight: 700;
+  flex: 1;
 }
 
 /* ========================================
-   GRID DE INFORMACIÓN - Mejor organizado
+   GRID DE INFORMACIÓN - Mucho más espaciado
    ======================================== */
 .perfil-info-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); /* Tarjetas más anchas */
+  gap: 2rem; /* Más espacio entre tarjetas */
+  width: 100%;
 }
 
 .info-item {
   background: var(--color-background-soft);
-  padding: 1.5rem;
+  padding: 2rem;
   border-radius: var(--border-radius);
   border: 1px solid var(--color-border);
   transition: all var(--transition-speed);
-  position: relative;
-  overflow: hidden;
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .info-item:hover {
   transform: translateY(-4px);
-  box-shadow: var(--shadow-md);
-  border-color: var(--color-accent);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--color-logo);
 }
 
 .info-label {
   display: block;
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   color: var(--color-text-light);
   margin-bottom: 0.5rem;
   text-transform: uppercase;
@@ -325,25 +334,28 @@
 
 .info-value {
   display: block;
-  font-size: 1.1rem;
+  font-size: 1.2rem; /* Texto más grande */
   color: var(--color-text);
-  font-weight: 500;
+  font-weight: 600;
   line-height: 1.4;
+  word-break: break-word;
 }
 
 /* ========================================
-   FORMULARIOS - Más elegantes
+   FORMULARIOS - Inputs amplios como login
    ======================================== */
 .perfil-form {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  width: 100%;
 }
 
 .form-group {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+  width: 100%;
 }
 
 .form-group label {
@@ -360,11 +372,13 @@
   transition: all var(--transition-speed);
   background: white;
   color: var(--color-text);
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .form-group input:focus {
   outline: none;
-  border-color: var(--color-accent);
+  border-color: var(--color-logo);
   box-shadow: 0 0 0 3px rgba(59, 111, 122, 0.1);
 }
 
@@ -372,12 +386,14 @@
   font-size: 0.85rem;
   color: var(--color-text-light);
   font-style: italic;
+  margin-top: 0.25rem;
 }
 
 .password-input-wrapper {
   position: relative;
   display: flex;
   align-items: center;
+  width: 100%;
 }
 
 .password-input-wrapper input {
@@ -400,45 +416,45 @@
 }
 
 .toggle-password:hover {
-  color: var(--color-accent);
+  color: var(--color-logo);
 }
 
 /* ========================================
-   BOTONES - Actualizados
+   BOTONES - Estilo consistente con login
    ======================================== */
 .form-actions {
   display: flex;
   gap: 1rem;
-  margin-top: 1rem;
+  margin-top: 2rem;
   justify-content: flex-end;
+  width: 100%;
 }
 
 .btn-edit {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
+  padding: 0.875rem 1.75rem;
   background: white;
-  border: 2px solid var(--color-accent);
+  border: 2px solid var(--color-logo);
   border-radius: var(--border-radius);
-  font-size: 0.95rem;
+  font-size: 1rem;
   font-weight: 600;
-  color: var(--color-accent);
+  color: var(--color-logo);
   cursor: pointer;
   transition: all var(--transition-speed);
 }
 
 .btn-edit:hover {
-  background: var(--color-accent);
+  background: var(--color-logo);
   color: white;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(59, 111, 122, 0.2);
 }
 
 .btn-save {
-  flex: 0 0 auto;
-  padding: 1rem 2rem;
-  background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-light) 100%);
+  padding: 0.875rem 2rem;
+  background: var(--color-logo);
   border: none;
   border-radius: var(--border-radius);
   color: white;
@@ -446,12 +462,13 @@
   font-weight: 600;
   cursor: pointer;
   transition: all var(--transition-speed);
-  min-width: 150px;
+  min-width: 180px;
 }
 
 .btn-save:hover:not(:disabled) {
+  background: #2a5a64;
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(59, 111, 122, 0.3);
+  box-shadow: 0 4px 12px rgba(59, 111, 122, 0.3);
 }
 
 .btn-save:disabled {
@@ -462,7 +479,7 @@
 }
 
 .btn-cancel {
-  padding: 1rem 2rem;
+  padding: 0.875rem 2rem;
   background: white;
   border: 2px solid var(--color-border);
   border-radius: var(--border-radius);
@@ -479,39 +496,14 @@
   color: var(--color-text);
 }
 
-.btn-refresh {
-  width: 48px;
-  height: 48px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: white;
-  border: 2px solid var(--color-border);
-  border-radius: var(--border-radius);
-  color: var(--color-text-light);
-  cursor: pointer;
-  transition: all var(--transition-speed);
-}
-
-.btn-refresh:hover:not(:disabled) {
-  background: var(--color-accent);
-  border-color: var(--color-accent);
-  color: white;
-  transform: rotate(90deg);
-}
-
-.btn-refresh:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
 /* ========================================
-   SECCIÓN DE SEGURIDAD
+   SECCIÓN DE SEGURIDAD - Amplia y organizada
    ======================================== */
 .security-section {
   margin-top: 3rem;
-  padding-top: 2rem;
+  padding-top: 2.5rem;
   border-top: 2px solid var(--color-border);
+  width: 100%;
 }
 
 .security-section h3 {
@@ -526,14 +518,15 @@
   color: var(--color-text-light);
   font-size: 1rem;
   line-height: 1.5;
+  max-width: 800px;
 }
 
 .btn-logout {
   display: inline-flex;
   align-items: center;
   gap: 0.75rem;
-  padding: 1rem 2rem;
-  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  padding: 0.875rem 2rem;
+  background: #ef4444;
   border: none;
   border-radius: var(--border-radius);
   color: white;
@@ -544,32 +537,34 @@
 }
 
 .btn-logout:hover {
+  background: #dc2626;
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.3);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
 }
 
 /* ========================================
-   LISTA DE ÓRDENES - Mejor organizada
+   LISTA DE ÓRDENES - Amplia y organizada
    ======================================== */
 .ordenes-list {
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 1.5rem;
+  width: 100%;
 }
 
 .orden-card {
-  background: var(--color-background-soft);
+  background: white;
   border: 1px solid var(--color-border);
-  border-radius: var(--border-radius-lg);
+  border-radius: var(--border-radius);
   overflow: hidden;
   transition: all var(--transition-speed);
-  position: relative;
+  width: 100%;
 }
 
 .orden-card:hover {
-  border-color: var(--color-accent);
-  box-shadow: var(--shadow-md);
-  transform: translateY(-4px);
+  border-color: var(--color-logo);
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-3px);
 }
 
 .orden-header {
@@ -577,7 +572,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 1.25rem 1.5rem;
-  background: white;
+  background: var(--color-background-soft);
   border-bottom: 1px solid var(--color-border);
 }
 
@@ -622,14 +617,14 @@
 }
 
 .orden-tipo i {
-  color: var(--color-accent);
+  color: var(--color-logo);
   font-size: 1.2rem;
 }
 
 .orden-total {
   font-size: 1.3rem;
   font-weight: 700;
-  color: var(--color-accent);
+  color: var(--color-logo);
 }
 
 .orden-estados {
@@ -648,6 +643,7 @@
   border: 1px solid transparent;
 }
 
+/* Estados con colores como login */
 .estado-pendiente {
   background: #fef3c7;
   color: #92400e;
@@ -669,12 +665,12 @@
 .estado-cancelada, .estado-reembolsado {
   background: #fee2e2;
   color: #991b1b;
-  border-color: #ef4444;
+  border-color: #fca5a5;
 }
 
 .orden-actions {
   padding: 1rem 1.5rem;
-  background: white;
+  background: var(--color-background-soft);
   border-top: 1px solid var(--color-border);
   text-align: right;
 }
@@ -685,9 +681,9 @@
   gap: 0.75rem;
   padding: 0.75rem 1.5rem;
   background: transparent;
-  border: 2px solid var(--color-accent);
+  border: 2px solid var(--color-logo);
   border-radius: var(--border-radius);
-  color: var(--color-accent);
+  color: var(--color-logo);
   font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
@@ -695,9 +691,9 @@
 }
 
 .btn-ver-detalle:hover {
-  background: var(--color-accent);
+  background: var(--color-logo);
   color: white;
-  transform: translateX(5px);
+  transform: translateX(3px);
 }
 
 /* ========================================
@@ -710,7 +706,7 @@
   text-align: center;
   padding: 4rem 2rem;
   color: var(--color-text-light);
-  max-width: 600px;
+  max-width: 800px; /* Más ancho */
   margin: 0 auto;
 }
 
@@ -735,13 +731,16 @@
   font-size: 1.1rem;
   line-height: 1.6;
   margin-bottom: 2rem;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .spinner {
   width: 50px;
   height: 50px;
   border: 4px solid var(--color-border);
-  border-top-color: var(--color-accent);
+  border-top-color: var(--color-logo);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
   margin: 0 auto 1.5rem;
@@ -753,8 +752,8 @@
 
 .btn-shop {
   margin-top: 1rem;
-  padding: 1rem 2.5rem;
-  background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-light) 100%);
+  padding: 0.875rem 2.5rem;
+  background: var(--color-logo);
   border: none;
   border-radius: var(--border-radius);
   color: white;
@@ -765,31 +764,48 @@
 }
 
 .btn-shop:hover {
+  background: #2a5a64;
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(59, 111, 122, 0.3);
+  box-shadow: 0 4px 12px rgba(59, 111, 122, 0.3);
 }
 
 /* ========================================
-   RESPONSIVE
+   RESPONSIVE - Mejor adaptación
    ======================================== */
+@media (max-width: 1400px) {
+  .perfil-container {
+    padding: 2.5rem 3rem;
+  }
+  
+  .perfil-header {
+    padding: 3rem 3rem;
+  }
+  
+  .perfil-content {
+    padding: 2.5rem 3rem;
+  }
+}
+
+@media (max-width: 1200px) {
+  .perfil-info-grid {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  }
+}
+
 @media (max-width: 992px) {
   .perfil-container {
-    padding: 1.5rem;
+    padding: 2rem;
   }
   
   .perfil-header {
     flex-direction: column;
     text-align: center;
-    padding: 2rem;
+    padding: 2.5rem;
     gap: 1.5rem;
   }
   
-  .perfil-avatar {
-    font-size: 4rem;
-  }
-  
-  .perfil-header-info h1 {
-    font-size: 1.8rem;
+  .perfil-content {
+    padding: 2rem;
   }
   
   .perfil-tabs {
@@ -801,36 +817,10 @@
     padding: 1rem 1.25rem;
   }
   
-  .perfil-content {
-    padding: 1.75rem;
-  }
-}
-
-@media (max-width: 768px) {
-  .perfil-back-nav {
-    padding: 1rem;
-  }
-  
-  .perfil-container {
-    padding: 1rem;
-  }
-  
-  .perfil-header {
-    padding: 1.5rem;
-  }
-  
-  .perfil-content {
-    padding: 1.25rem;
-  }
-  
   .section-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 1rem;
-  }
-  
-  .perfil-info-grid {
-    grid-template-columns: 1fr;
   }
   
   .form-actions {
@@ -838,8 +828,32 @@
     width: 100%;
   }
   
-  .btn-cancel, .btn-save {
+  .btn-cancel, .btn-save, .btn-edit {
     width: 100%;
+    text-align: center;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 768px) {
+  .perfil-back-nav {
+    padding: 1rem 1.5rem;
+  }
+  
+  .perfil-container {
+    padding: 1.5rem;
+  }
+  
+  .perfil-header {
+    padding: 2rem;
+  }
+  
+  .perfil-content {
+    padding: 1.5rem;
+  }
+  
+  .perfil-info-grid {
+    grid-template-columns: 1fr;
   }
   
   .orden-header {
@@ -854,30 +868,38 @@
     gap: 0.75rem;
   }
   
-  .orden-total {
-    font-size: 1.4rem;
+  .perfil-header-info h1 {
+    font-size: 2rem;
+  }
+  
+  .section-header h2 {
+    font-size: 1.5rem;
   }
 }
 
 @media (max-width: 480px) {
+  .perfil-container {
+    padding: 1rem;
+  }
+  
   .perfil-header {
-    padding: 1.25rem;
+    padding: 1.5rem;
   }
   
   .perfil-header-info h1 {
-    font-size: 1.5rem;
+    font-size: 1.7rem;
   }
   
   .perfil-avatar {
-    font-size: 3.5rem;
+    font-size: 4rem;
   }
   
-  .section-header h2 {
-    font-size: 1.4rem;
+  .perfil-content {
+    padding: 1.25rem;
   }
   
-  .btn-edit {
-    width: 100%;
-    justify-content: center;
+  .btn-edit, .btn-save, .btn-cancel {
+    padding: 0.75rem 1rem;
+    font-size: 0.95rem;
   }
 }
