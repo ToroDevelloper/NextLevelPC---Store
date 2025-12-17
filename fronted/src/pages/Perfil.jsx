@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../utils/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom'; // Agregar Link
 import '../styles/Perfil.css';
 
 const Perfil = () => {
@@ -231,6 +231,9 @@ const Perfil = () => {
           <i className="fas fa-user-slash"></i>
           <h2>No has iniciado sesión</h2>
           <p>Inicia sesión para ver tu perfil</p>
+          <button className="btn-back-to-shop" onClick={() => navigate('/')}>
+            <i className="fas fa-arrow-left"></i> Volver a la tienda
+          </button>
         </div>
       </div>
     );
@@ -250,6 +253,13 @@ const Perfil = () => {
 
   return (
     <div className="perfil-page">
+      {/* Botón para volver a la tienda */}
+      <div className="perfil-back-nav">
+        <Link to="/" className="btn-back-to-shop">
+          <i className="fas fa-arrow-left"></i> Volver a la tienda
+        </Link>
+      </div>
+
       <div className="perfil-container">
         {/* Header del perfil */}
         <div className="perfil-header">
@@ -278,7 +288,7 @@ const Perfil = () => {
             onClick={() => setActiveTab('info')}
           >
             <i className="fas fa-user"></i>
-            Información
+            Información Personal
           </button>
           <button 
             className={`perfil-tab ${activeTab === 'seguridad' ? 'active' : ''}`}
@@ -306,7 +316,7 @@ const Perfil = () => {
                 <h2>Información Personal</h2>
                 {!isEditing && (
                   <button className="btn-edit" onClick={() => setIsEditing(true)}>
-                    <i className="fas fa-edit"></i> Editar
+                    <i className="fas fa-edit"></i> Editar Información
                   </button>
                 )}
               </div>
@@ -374,6 +384,14 @@ const Perfil = () => {
                     <span className="info-label">ID de usuario</span>
                     <span className="info-value">#{user.id}</span>
                   </div>
+                  <div className="info-item">
+                    <span className="info-label">Rol</span>
+                    <span className="info-value">{user.rol}</span>
+                  </div>
+                  <div className="info-item">
+                    <span className="info-label">Miembro desde</span>
+                    <span className="info-value">{formatDate(userData?.created_at)}</span>
+                  </div>
                 </div>
               )}
             </div>
@@ -383,7 +401,7 @@ const Perfil = () => {
           {activeTab === 'seguridad' && (
             <div className="perfil-section">
               <div className="section-header">
-                <h2>Cambiar Contraseña</h2>
+                <h2>Seguridad y Cuenta</h2>
               </div>
 
               <form onSubmit={handlePasswordSubmit} className="perfil-form password-form">
