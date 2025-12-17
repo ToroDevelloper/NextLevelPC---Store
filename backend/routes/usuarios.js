@@ -10,11 +10,13 @@ router.post('/registro', UsuariosController.crear);
 router.post('/login', UsuariosController.login);
 router.post('/refresh', UsuariosController.refresh);
 router.post('/logout', UsuariosController.logout);
-router.patch('/:id',viewAuth([]),UsuariosController.actualizar);
 
-// Rutas protegidas
+// Rutas protegidas - Usuario puede ver/editar su propio perfil
+router.get('/:id', viewAuth(['admin', 'empleado', 'cliente']), UsuariosController.obtenerPorId);
+router.patch('/:id', viewAuth(['admin', 'empleado', 'cliente']), UsuariosController.actualizar);
+
+// Rutas solo admin
 router.get('/', viewAuth(['admin']), UsuariosController.obtenerTodos);
 router.delete('/:id', viewAuth(['admin']), UsuariosController.eliminar);
-router.get('/:id', viewAuth(['admin', 'empleado']), UsuariosController.obtenerPorId);
 
 module.exports = router;

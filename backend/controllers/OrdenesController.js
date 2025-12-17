@@ -173,6 +173,16 @@ class OrdenController {
     static async obtenerPorCliente(req, res) {
         try {
             const clienteId = req.params.clienteId;
+
+            // Verificar permisos: solo el propio cliente o admin/empleado
+            if (!['admin', 'empleado'].includes(req.usuario.rol) && 
+                req.usuario.id !== parseInt(clienteId)) {
+                return res.status(403).json({
+                    success: false,
+                    mensaje: 'Solo puedes ver tus propias órdenes'
+                });
+            }
+
             const ordenes = await ordenesService.obtenerPorCliente(clienteId);
 
             const ordenesResponse = ordenes.map(orden =>
