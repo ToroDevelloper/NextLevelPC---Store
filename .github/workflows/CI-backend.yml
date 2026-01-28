@@ -50,12 +50,4 @@ jobs:
       - name: Instalar dependencias
         run: npm ci
 
-      # Aquí irían los tests si existieran
-      # - name: Ejecutar pruebas
-      #   env:
-      #     DB_HOST: 127.0.0.1
-      #     DB_USER: testuser
-      #     DB_PASSWORD: testpassword
-      #     DB_NAME: nextlevel_test
-      #     DB_PORT: 3306
-      #   run: npm test
+    
