@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../utils/AuthContext';
-import { useNavigate, Link } from 'react-router-dom'; // Agregar Link
+import { useNavigate, Link } from 'react-router-dom';
 import '../styles/Perfil.css';
 
 const Perfil = () => {
@@ -231,7 +231,7 @@ const Perfil = () => {
           <i className="fas fa-user-slash"></i>
           <h2>No has iniciado sesión</h2>
           <p>Inicia sesión para ver tu perfil</p>
-          <button className="btn-back-to-shop" onClick={() => navigate('/')}>
+          <button className="btn-shop" onClick={() => navigate('/')}>
             <i className="fas fa-arrow-left"></i> Volver a la tienda
           </button>
         </div>
@@ -261,8 +261,20 @@ const Perfil = () => {
       </div>
 
       <div className="perfil-container">
-        {/* Header del perfil */}
+        {/* Header del perfil CON EFECTOS DINÁMICOS */}
         <div className="perfil-header">
+          {/* Líneas de lluvia animadas */}
+          <div className="rain-line"></div>
+          <div className="rain-line"></div>
+          <div className="rain-line"></div>
+          <div className="rain-line"></div>
+          <div className="rain-line"></div>
+          <div className="rain-line"></div>
+          
+          {/* Efecto de brillo en movimiento */}
+          <div className="shine-effect"></div>
+          
+          {/* Contenido del header */}
           <div className="perfil-avatar">
             <i className="fas fa-user-circle"></i>
           </div>
