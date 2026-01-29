@@ -1,0 +1,37 @@
+name: CI Frontend React
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'fronted/**'
+      - '.github/workflows/CI-frontend.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'fronted/**'
+      - '.github/workflows/CI-frontend.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./fronted
+
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: fronted/package-lock.json
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Construir proyecto
+        run: npm run build

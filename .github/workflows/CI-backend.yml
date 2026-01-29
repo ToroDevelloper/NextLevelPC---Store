@@ -6,11 +6,13 @@ on:
       - main
     paths:
       - 'backend/**'
+      - '.github/workflows/CI-backend.yml'
   pull_request:
     branches:
       - main
     paths:
       - 'backend/**'
+      - '.github/workflows/CI-backend.yml'
 
 jobs:
   build-and-test:
@@ -67,4 +69,4 @@ jobs:
 
       # Paso opcional para verificar que el servidor inicia o ejecutar lint
       # - name: Ejecutar pruebas
-      #   run: npm testtñp
+      #   run: npm test
