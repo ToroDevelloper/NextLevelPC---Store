@@ -22,15 +22,8 @@ jobs:
       run:
         working-directory: ./backend
     
-    # Variables de entorno para que el backend se conecte a la DB de prueba
-    env:
-      DB_HOST: 127.0.0.1
-      DB_USER: testuser
-      DB_PASSWORD: testpassword
-      DB_NAME: nextlevel_test
-      DB_PORT: 3306      
-      PORT: 8080
-      NODE_ENV: test
+  
+    
 
     services:
       mysql:
