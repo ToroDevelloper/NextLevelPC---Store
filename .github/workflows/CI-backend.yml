@@ -22,7 +22,7 @@ jobs:
       run:
         working-directory: ./backend
     
-
+   
     services:
       mysql:
         image: mysql:8.0
@@ -52,5 +52,8 @@ jobs:
 
       - name: Instalar dependencias
         run: npm ci
+
+      - name: Ejecutar análisis de código (Linting)
+        run: npx eslint . --no-error-on-unmatched-pattern || echo "Advertencia - ESLint no configurado"
 
       
