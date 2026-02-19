@@ -48,8 +48,7 @@ export const AuthProvider = ({ children }) => {
         if (decoded.rol === 'admin' || decoded.rol === 'empleado') {
             setIsAuthenticated(false);
             setUser(null);
-            // Opcional: Eliminar la cookie si queremos forzar logout completo en SPA
-            // Cookies.remove('accessToken', { path: '/' });
+      
         } else {
             setUser(decoded);
             setIsAuthenticated(true);

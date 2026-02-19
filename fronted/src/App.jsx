@@ -14,7 +14,6 @@ import Factura from './pages/Factura';
 // Components
 import Layout from './components/Layout';
 import TransicionBienvenida from './pages/TransicionBienvenida';
-// ELIMINAR: import AuthModals from './components/AuthModals'; ← QUITAR ESTA LÍNEA
 
 // Context Providers
 import { useAuth } from './utils/AuthContext';
