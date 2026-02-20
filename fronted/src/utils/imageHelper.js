@@ -1,7 +1,3 @@
-/**
- * Configuración de la URL base de la API
- * Idealmente esto debería venir de variables de entorno (import.meta.env.VITE_API_URL)
- */
 export const API_BASE_URL = 'http://localhost:8080';
 
 /**
@@ -24,7 +20,6 @@ export const getImageUrl = (path) => {
     }
 
     // 3. Si empieza con '/', asumimos que es una ruta relativa desde la raíz del servidor
-    // Ejemplo: /uploads/imagen.jpg -> http://localhost:8080/uploads/imagen.jpg
     if (path.startsWith('/')) {
         return `${API_BASE_URL}${path}`;
     }

@@ -3,8 +3,8 @@ import ReactDOM from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import App from './App.jsx'
 import { AuthProvider } from './utils/AuthContext.jsx';
-import { CartProvider } from './utils/CartContext.jsx'; // Importar CartProvider
-import "./styles/Global.css"; // Solo este import
+import { CartProvider } from './utils/CartContext.jsx';
+import "./styles/Global.css";
 
 ReactDOM.createRoot(document.getElementById('root')).render(
     <React.StrictMode>

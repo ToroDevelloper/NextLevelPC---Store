@@ -12,7 +12,7 @@ export const StripeProvider = ({ children }) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
-    /** Crear PaymentIntent */
+    /* Crear PaymentIntent */
     const createPaymentIntent = async (total, metadata = {}) => {
         try {
             setLoading(true);
