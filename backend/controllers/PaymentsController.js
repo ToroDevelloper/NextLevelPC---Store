@@ -347,6 +347,158 @@ class PaymentsController {
 
     res.json({ received: true });
   }
+
+  /**
+   * Procesa un reembolso para una orden pagada
+   * @route POST /payments/refund
+   * @param {Object} req - Express request
+   * @param {number} req.body.orden_id - ID de la orden a reembolsar
+   * @param {number} req.body.monto - Monto a reembolsar (opcional, reembolsa total si no se proporciona)
+   * @param {string} req.body.razon - Razón del reembolso
+   * @param {Object} res - Express response
+   */
+  static async processRefund(req, res) {
+    try {
+      const { orden_id, monto, razon = 'Reembolso solicitado por cliente' } = req.body;
+      const RefundsService = require('../services/RefundsService');
+
+      // Validaciones básicas
+      if (!orden_id) {
+        return res.status(400).json({
+          success: false,
+          mensaje: 'El ID de la orden es requerido'
+        });
+      }
+
+      if (isNaN(orden_id)) {
+        return res.status(400).json({
+          success: false,
+          mensaje: 'El ID de la orden debe ser un número'
+        });
+      }
+
+      // Validar monto si se proporciona
+      if (monto !== undefined && monto !== null) {
+        if (isNaN(monto) || monto <= 0) {
+          return res.status(400).json({
+            success: false,
+            mensaje: 'El monto debe ser un número positivo'
+          });
+        }
+      }
+
+      // Procesar reembolso
+      const resultado = await RefundsService.procesarReembolso(
+        orden_id,
+        monto,
+        razon
+      );
+
+      return res.status(200).json({
+        success: true,
+        data: resultado,
+        mensaje: resultado.mensaje
+      });
+
+    } catch (error) {
+      console.error('Error en processRefund:', error);
+      const statusCode = error.message.includes('no encontrada') ? 404 : 400;
+      return res.status(statusCode).json({
+        success: false,
+        mensaje: error.message
+      });
+    }
+  }
+
+  /**
+   * Obtiene el historial de reembolsos de una orden
+   * @route GET /payments/refunds/orden/:orden_id
+   */
+  static async getRefundsByOrden(req, res) {
+    try {
+      const { orden_id } = req.params;
+      const RefundsService = require('../services/RefundsService');
+
+      if (!orden_id || isNaN(orden_id)) {
+        return res.status(400).json({
+          success: false,
+          mensaje: 'ID de orden inválido'
+        });
+      }
+
+      const reembolsos = await RefundsService.obtenerReembolsosPorOrden(orden_id);
+
+      return res.status(200).json({
+        success: true,
+        data: reembolsos,
+        cantidad: reembolsos.length
+      });
+
+    } catch (error) {
+      console.error('Error en getRefundsByOrden:', error);
+      return res.status(500).json({
+        success: false,
+        mensaje: error.message
+      });
+    }
+  }
+
+  /**
+   * Obtiene todos los reembolsos (solo para admin)
+   * @route GET /payments/refunds
+   */
+  static async getAllRefunds(req, res) {
+    try {
+      const RefundsService = require('../services/RefundsService');
+      const reembolsos = await RefundsService.obtenerTodos();
+
+      return res.status(200).json({
+        success: true,
+        data: reembolsos,
+        cantidad: reembolsos.length
+      });
+
+    } catch (error) {
+      console.error('Error en getAllRefunds:', error);
+      return res.status(500).json({
+        success: false,
+        mensaje: error.message
+      });
+    }
+  }
+
+  /**
+   * Obtiene reembolsos de un cliente
+   * @route GET /payments/refunds/cliente/:cliente_id
+   */
+  static async getRefundsByCliente(req, res) {
+    try {
+      const { cliente_id } = req.params;
+      const RefundsService = require('../services/RefundsService');
+
+      if (!cliente_id || isNaN(cliente_id)) {
+        return res.status(400).json({
+          success: false,
+          mensaje: 'ID de cliente inválido'
+        });
+      }
+
+      const reembolsos = await RefundsService.obtenerReembolsosPorCliente(cliente_id);
+
+      return res.status(200).json({
+        success: true,
+        data: reembolsos,
+        cantidad: reembolsos.length
+      });
+
+    } catch (error) {
+      console.error('Error en getRefundsByCliente:', error);
+      return res.status(500).json({
+        success: false,
+        mensaje: error.message
+      });
+    }
+  }
 }
 
 module.exports = PaymentsController;

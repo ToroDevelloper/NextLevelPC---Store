@@ -538,3 +538,28 @@ INSERT INTO `usuarios` (`id`, `nombre`, `apellido`, `correo`, `hash_password`, `
 /*!40014 SET FOREIGN_KEY_CHECKS=IFNULL(@OLD_FOREIGN_KEY_CHECKS, 1) */;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40111 SET SQL_NOTES=IFNULL(@OLD_SQL_NOTES, 1) */;
+
+
+-- Crear tabla de reembolsos
+CREATE TABLE IF NOT EXISTS `reembolsos` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `orden_id` int NOT NULL,
+  `stripe_refund_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL UNIQUE,
+  `monto` decimal(12,2) NOT NULL,
+  `razon` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci,
+  `estado` enum('pendiente','completado','fallido') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT 'completado',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `orden_id` (`orden_id`),
+  KEY `idx_stripe_refund_id` (`stripe_refund_id`),
+  KEY `idx_reembolso_estado` (`estado`),
+  CONSTRAINT `reembolsos_ibfk_1` FOREIGN KEY (`orden_id`) REFERENCES `ordenes` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- Crear índices para mejorar performance de consultas de reembolsos
+CREATE INDEX idx_reembolsos_orden_fecha ON reembolsos(orden_id, created_at);
+CREATE INDEX idx_reembolsos_estado_fecha ON reembolsos(estado, created_at);
+
+-- El campo 'estado_pago' en la tabla 'ordenes' ya incluye 'reembolsado'
+ALTER TABLE ordenes MODIFY COLUMN estado_pago 
+  enum('pendiente','pagado','reembolsado', 'cancelada') DEFAULT 'pendiente';
