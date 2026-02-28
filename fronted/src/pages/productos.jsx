@@ -3,21 +3,15 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useCart } from '../utils/CartContext';
 import "../styles/Productos.css";
 
-// --- Constantes ---
 const API_BASE = '';
 const DEFAULT_IMAGE = 'https://placehold.co/600x400/EEE/31343C?text=Producto';
 const PRODUCT_DEFAULTS = {
   description: 'Producto disponible en NextLevelPC.',
   category: 'No especificada'
 };
-// Constantes de paginación
+
 const PRODUCTOS_POR_PAGINA = 15;
 
-// --- Funciones de Normalización (Helpers) ---
-
-/**
- * Parsea un campo de texto de imágenes separadas por comas.
- */
 const parseImagenesField = (field) => {
   if (!field) return [];
   return String(field)
@@ -27,14 +21,11 @@ const parseImagenesField = (field) => {
     .map((url, idx) => ({ url, es_principal: idx === 0 }));
 };
 
-/**
- * Obtiene la imagen principal de un producto.
- */
 const getProductImage = (raw) => {
   if (raw.imagen_principal) {
     return raw.imagen_principal;
   }
-  const imagenes = getProductImages(raw); // Reutiliza la lógica
+  const imagenes = getProductImages(raw);
   if (Array.isArray(imagenes) && imagenes.length > 0) {
     const primera = imagenes[0];
     return typeof primera === 'string' ? primera : (primera.url || DEFAULT_IMAGE);
@@ -42,9 +33,7 @@ const getProductImage = (raw) => {
   return DEFAULT_IMAGE;
 };
 
-/**
- * Obtiene y normaliza el array de imágenes.
- */
+
 const getProductImages = (raw) => {
   if (Array.isArray(raw.imagenes)) {
     return raw.imagenes;
@@ -56,20 +45,15 @@ const getProductImages = (raw) => {
     const url = raw.url_imagen || raw.url;
     return [{ url, es_principal: raw.es_principal === 1 }];
   }
-  return []; // Devuelve array vacío si no hay nada
+  return [];
 };
 
-/**
- * Obtiene la descripción del producto.
- */
+
 const getProductDescription = (raw) => {
   return raw.descripcion_detallada || raw.descripcion || raw.descripcion_corta || PRODUCT_DEFAULTS.description;
 };
 
-/**
- * Función de normalización robusta.
- * Transforma un objeto `raw` de la API a un objeto de producto consistente.
- */
+
 const normalizeProduct = (raw) => {
   const baseProduct = {
     id: raw.id ?? raw.producto_id ?? raw.productoId,
@@ -77,7 +61,7 @@ const normalizeProduct = (raw) => {
     price: Number(raw.precio_actual ?? raw.precio ?? raw.price ?? 0),
     stock: raw.stock ?? 0,
     activo: raw.activo ?? 1,
-    raw // Guarda el objeto original por si acaso
+    raw 
   };
 
   return {
@@ -85,14 +69,11 @@ const normalizeProduct = (raw) => {
     image: getProductImage(raw),
     imagenes: getProductImages(raw),
     description: getProductDescription(raw),
-    // Asegura que las especificaciones sean un array
     specs: parseSpecs(raw.especificaciones, raw, baseProduct.stock)
   };
 };
 
-/**
- * Parsea las especificaciones (JSON o campos sueltos).
- */
+
 const parseSpecs = (specsJSON, raw, stock) => {
   let specs = [];
   if (specsJSON) {
@@ -106,7 +87,7 @@ const parseSpecs = (specsJSON, raw, stock) => {
     }
   }
 
-  // Si no hay specs parseadas, usa las de por defecto
+
   if (specs.length === 0) {
     specs = [
       { label: 'Categoría', value: raw.categoria_nombre || raw.categoria || PRODUCT_DEFAULTS.category },
@@ -117,7 +98,6 @@ const parseSpecs = (specsJSON, raw, stock) => {
   return specs;
 };
 
-// --- Componentes de UI ---
 const ProductImage = React.memo(({ product, className = "producto-card-image" }) => (
   <img
     src={product.image || DEFAULT_IMAGE}
@@ -130,12 +110,9 @@ const ProductImage = React.memo(({ product, className = "producto-card-image" })
   />
 ));
 
-/**
- * Componente para la información de la tarjeta.
- */
+
 const ProductInfo = React.memo(({ product, onAddToCart }) => {
 
-  // Detiene la propagación del evento click para que no navegue
   const handleAddToCartClick = (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -164,9 +141,6 @@ const ProductInfo = React.memo(({ product, onAddToCart }) => {
   );
 });
 
-/**
- * Componente para tarjeta individual.
- */
 const ProductCard = React.memo(({ product, onProductClick, onAddToCart }) => (
   <div
     className="producto-card-link"
@@ -179,9 +153,7 @@ const ProductCard = React.memo(({ product, onProductClick, onAddToCart }) => (
   </div>
 ));
 
-/**
- * Componente para la lista de productos.
- */
+
 const ProductList = React.memo(({ products, onProductClick, onAddToCart }) => (
   <div className="products-grid productos-grid">
     {products.map(product => (
@@ -195,9 +167,7 @@ const ProductList = React.memo(({ products, onProductClick, onAddToCart }) => (
   </div>
 ));
 
-/**
- * Componente de Paginación
- */
+
 const Pagination = React.memo(({ currentPage, totalPages, onPageChange }) => {
   if (totalPages <= 1) return null;
 
@@ -211,7 +181,6 @@ const Pagination = React.memo(({ currentPage, totalPages, onPageChange }) => {
     startPage = Math.max(1, endPage - maxVisiblePages + 1);
   }
 
-  // Botón anterior
   if (currentPage > 1) {
     pages.push(
       <button
@@ -224,7 +193,7 @@ const Pagination = React.memo(({ currentPage, totalPages, onPageChange }) => {
     );
   }
 
-  // Primera página
+
   if (startPage > 1) {
     pages.push(
       <button
@@ -240,7 +209,7 @@ const Pagination = React.memo(({ currentPage, totalPages, onPageChange }) => {
     }
   }
 
-  // Páginas visibles
+
   for (let i = startPage; i <= endPage; i++) {
     pages.push(
       <button
@@ -253,7 +222,7 @@ const Pagination = React.memo(({ currentPage, totalPages, onPageChange }) => {
     );
   }
 
-  // Última página
+
   if (endPage < totalPages) {
     if (endPage < totalPages - 1) {
       pages.push(<span key="ellipsis2" className="pagination-ellipsis">...</span>);
@@ -269,7 +238,7 @@ const Pagination = React.memo(({ currentPage, totalPages, onPageChange }) => {
     );
   }
 
-  // Botón siguiente
+
   if (currentPage < totalPages) {
     pages.push(
       <button
@@ -299,10 +268,10 @@ const ProductDetail = React.memo(({ product, onAddToCart }) => {
     setActiveImage(product.image);
   }, [product]);
 
-  // Manejo de scroll del body cuando el modal está abierto
+
   useEffect(() => {
     if (isModalOpen) {
-      document.body.style.overflow = 'hidden'; // Evita scroll atrás
+      document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = 'unset';
     }
@@ -327,10 +296,8 @@ const ProductDetail = React.memo(({ product, onAddToCart }) => {
       <div className="product-detail">
         <div className="product-detail-main">
           
-          {/* GALERÍA */}
           <div className="product-gallery-container">
             
-            {/* Columna de Miniaturas (Ahora más altas/verticales por CSS) */}
             <div className="product-thumbnails-col">
               {galleryImages.map((img, index) => (
                 <div 
@@ -348,10 +315,9 @@ const ProductDetail = React.memo(({ product, onAddToCart }) => {
               ))}
             </div>
 
-            {/* Imagen Principal */}
             <div 
               className="product-main-image-wrapper"
-              onClick={() => setIsModalOpen(true)} // NUEVO: Abre el modal al hacer click
+              onClick={() => setIsModalOpen(true)}
             >
                <img 
                  src={activeImage} 
@@ -365,7 +331,6 @@ const ProductDetail = React.memo(({ product, onAddToCart }) => {
             </div>
           </div>
 
-          {/* INFO DEL PRODUCTO */}
           <div className="product-detail-info">
             <h1 className="product-detail-name">{nombre}</h1>
             <div className="product-detail-price-box">
@@ -399,10 +364,8 @@ const ProductDetail = React.memo(({ product, onAddToCart }) => {
           </div>
         </div>
         
-        {/* NUEVO CONTENEDOR DE CONTENIDO FLUIDO (Fuera del main grid) */}
         <div className="product-content-flow">
           
-          {/* SECCIÓN 1: DESCRIPCIÓN */}
           <div className="product-section">
             <h3 className="section-title">Descripción</h3>
             <p className="product-description-text">
@@ -412,7 +375,6 @@ const ProductDetail = React.memo(({ product, onAddToCart }) => {
 
           <hr className="section-divider" />
 
-          {/* SECCIÓN 2: ESPECIFICACIONES (Si existen) */}
           {specs && specs.length > 0 && (
             <div className="product-section">
               <h3 className="section-title">Características del producto</h3>
@@ -434,11 +396,11 @@ const ProductDetail = React.memo(({ product, onAddToCart }) => {
         </div>
       </div>
 
-      {/* NUEVO: LIGHTBOX / MODAL DE ZOOM */}
+
       {isModalOpen && (
         <div 
           className="lightbox-overlay" 
-          onClick={() => setIsModalOpen(false)} // Cierra al hacer click afuera
+          onClick={() => setIsModalOpen(false)}
         >
           <div className="lightbox-content" onClick={e => e.stopPropagation()}>
             <button 
@@ -459,14 +421,13 @@ const ProductDetail = React.memo(({ product, onAddToCart }) => {
   );
 });
 
-// --- Componente Principal ---
 
 const Productos = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { addToCart } = useCart();
 
-  // Estado unificado
+
   const [state, setState] = useState({
     products: [],
     loading: false,
@@ -474,10 +435,8 @@ const Productos = () => {
   });
   const { products, loading, error } = state;
 
-  // Estado de paginación
   const [currentPage, setCurrentPage] = useState(1);
 
-  // Helpers para actualizar el estado
   const setProducts = (newProducts) => {
     setState(prev => ({ ...prev, products: newProducts }));
   };
@@ -488,7 +447,6 @@ const Productos = () => {
     setState(prev => ({ ...prev, error: newError }));
   };
 
-  // Detección de ruta memoizada
   const routeInfo = useMemo(() => {
     const searchParams = new URLSearchParams(location.search);
     const searchQuery = searchParams.get('q') || '';
@@ -516,24 +474,22 @@ const Productos = () => {
 
   const { productId, searchQuery, categoriaId, isProductsRoute, isSearchRoute, isProductDetailRoute } = routeInfo;
 
-  // --- Lógica de Paginación ---
 
-  // Calcular productos para la página actual
   const paginatedProducts = useMemo(() => {
-    if (productId) return products; // No paginar en vista de detalle
+    if (productId) return products;
     
     const startIndex = (currentPage - 1) * PRODUCTOS_POR_PAGINA;
     const endIndex = startIndex + PRODUCTOS_POR_PAGINA;
     return products.slice(startIndex, endIndex);
   }, [products, currentPage, productId]);
 
-  // Calcular total de páginas
+
   const totalPages = useMemo(() => {
     if (productId) return 1;
     return Math.ceil(products.length / PRODUCTOS_POR_PAGINA);
   }, [products.length, productId]);
 
-  // Resetear a página 1 cuando cambian los filtros o búsqueda
+
   useEffect(() => {
     setCurrentPage(1);
   }, [searchQuery, categoriaId, location.pathname]);
