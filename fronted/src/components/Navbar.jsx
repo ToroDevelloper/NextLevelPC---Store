@@ -142,9 +142,7 @@ const Navbar = () => {
           </div>
 
           {/* Acciones Derecha */}
-          <div className="navbar-actions">
-            <button className="navbar-icon-btn" onClick={handleUserClick}><IconUser /></button>
-            
+         
             <div className="navbar-cart-container">
               <button className="navbar-icon-btn cart-btn" onClick={() => setCartOpen(!cartOpen)}>
                 <IconCart />
@@ -179,10 +177,15 @@ const Navbar = () => {
                         <button className="btn-clear-cart" onClick={clearCart}>Vaciar</button>
                       </div>
                     </>
+
                   )}
                 </div>
               )}
             </div>
+      
+             <div className="navbar-actions">
+            <button className="navbar-icon-btn" onClick={handleUserClick}><IconUser /></button>
+            
 
             <button className="navbar-mobile-menu-btn" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
               {isMobileMenuOpen ? <IconClose /> : <IconMenu />}
