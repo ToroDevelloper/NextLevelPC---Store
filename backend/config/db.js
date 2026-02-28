@@ -10,7 +10,9 @@ const dbConfig = {
     port: process.env.DB_PORT || 3306,
     charset: 'utf8mb4',
     waitForConnections: true,
-    connectionLimit: 10
+    connectionLimit: 10,
+    timezone: 'Z',           
+    dateStrings: true
 };
 
 const db = mysql.createPool(dbConfig);

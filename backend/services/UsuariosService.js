@@ -35,6 +35,10 @@ class UsuariosService {
         if (!usuario) {
             throw new Error('Usuario no encontrado');
         }
+        // ensure the timestamp is a string so the client always receives a value
+        if (usuario.created_at instanceof Date) {
+            usuario.created_at = usuario.created_at.toISOString();
+        }
         return usuario;
     }
 
