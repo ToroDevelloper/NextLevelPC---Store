@@ -18,6 +18,13 @@ class UsuariosService {
             throw new Error('Ya existe un usuario con ese correo');
         }
 
+        if (dto.username) {
+            const usernameEnUso = await Usuarios.usernameEnUso(dto.username, 0);
+            if (usernameEnUso) {
+                throw new Error('Ya existe un usuario con ese username');
+            }
+        }
+
         const id = await Usuarios.crear(dto.toModel());
         return id;
     }
@@ -71,6 +78,13 @@ class UsuariosService {
             const correoEnUso = await Usuarios.correoEnUso(patch.correo, id);
             if (correoEnUso) {
                 throw new Error('Ya existe un usuario con ese correo');
+            }
+        }
+
+        if (patch.username) {
+            const usernameEnUso = await Usuarios.usernameEnUso(patch.username, id);
+            if (usernameEnUso) {
+                throw new Error('Ya existe un usuario con ese username');
             }
         }
 
