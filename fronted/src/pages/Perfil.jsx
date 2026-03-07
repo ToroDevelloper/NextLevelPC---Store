@@ -67,12 +67,27 @@ const Perfil = () => {
       
       if (response.ok) {
         const data = await response.json();
-        setUserData(data.usuario);
+        console.log('fetched user data:', data.usuario);
+        // make sure we have a usable created_at value (some records might use a different key or null)
+        const usuario = data.usuario || {};
+        if (!usuario.created_at && usuario.fecha_creacion) {
+          usuario.created_at = usuario.fecha_creacion;
+        }
+        // if the db driver returned a Date object, convert it to string so formatDate can handle it
+        if (usuario.created_at instanceof Date) {
+          usuario.created_at = usuario.created_at.toISOString();
+        }
+
+        setUserData(usuario);
         setEditForm({
-          nombre: data.usuario.nombre || '',
-          apellido: data.usuario.apellido || '',
-          correo: data.usuario.correo || ''
+          nombre: usuario.nombre || '',
+          apellido: usuario.apellido || '',
+          correo: usuario.correo || ''
         });
+      } else {
+        // log non-ok response for debugging
+        const err = await response.text();
+        console.warn('fetchUserData not ok', response.status, err);
       }
     } catch (error) {
       console.error('Error cargando usuario:', error);
@@ -202,12 +217,22 @@ const Perfil = () => {
 
   const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
-    return new Date(dateString).toLocaleDateString('es-CO', {
+
+    let d = new Date(dateString);
+    if (isNaN(d.getTime())) {
+      d = new Date(dateString.replace(' ', 'T') + 'Z');
+    }
+    if (isNaN(d.getTime())) {
+      return 'N/A';
+    }
+
+    return d.toLocaleDateString('es-CO', {
       year: 'numeric',
       month: 'long',
       day: 'numeric',
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
+      timeZone: 'America/Bogota'
     });
   };
 
@@ -391,10 +416,6 @@ const Perfil = () => {
                   <div className="info-item">
                     <span className="info-label">Correo electrónico</span>
                     <span className="info-value">{userData?.correo}</span>
-                  </div>
-                  <div className="info-item">
-                    <span className="info-label">ID de usuario</span>
-                    <span className="info-value">#{user.id}</span>
                   </div>
                   <div className="info-item">
                     <span className="info-label">Rol</span>
