@@ -1,0 +1,212 @@
+name: Gestión Automática de Issues
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [main, master]
+
+permissions:
+  issues: write
+
+jobs:
+  manage-issues:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Actualizar y crear issues
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const owner = context.repo.owner;
+            const repo  = context.repo.repo;
+
+            // ─────────────────────────────────────────────────────────────
+            // 1. Cerrar issues completamente resueltos
+            // ─────────────────────────────────────────────────────────────
+            const issuesToClose = [5, 6, 12, 13];
+            for (const issueNumber of issuesToClose) {
+              try {
+                await github.rest.issues.update({
+                  owner, repo,
+                  issue_number: issueNumber,
+                  state: 'closed'
+                });
+                await github.rest.issues.createComment({
+                  owner, repo,
+                  issue_number: issueNumber,
+                  body: '✅ **Issue cerrado automáticamente** – todas las tareas de este issue han sido completadas en el PR que acaba de mergearse.'
+                });
+                console.log(`Closed issue #${issueNumber}`);
+              } catch (e) {
+                console.error(`Error closing #${issueNumber}:`, e.message);
+              }
+            }
+
+            // ─────────────────────────────────────────────────────────────
+            // 2. Comentar en issues con nuevas tareas completadas
+            // ─────────────────────────────────────────────────────────────
+            const issueUpdates = [
+              {
+                number: 1,
+                comment: `🔄 **Actualización de progreso**\n\nNuevas tareas completadas:\n- [x] Crear formulario de solicitud de mantenimiento → \`AgendarServicioModal.jsx\`\n- [x] Sistema registra la solicitud con fecha y tipo de servicio → \`CitaServicio.create()\`\n- [x] Formulario incluye validación de campos obligatorios → atributo \`required\` en todos los campos\n\n**Pendiente:** Confirmación automática por email al usuario.`
+              },
+              {
+                number: 3,
+                comment: `🔄 **Actualización de progreso**\n\nNuevas tareas completadas:\n- [x] Calcular totales automáticamente → \`reduce()\` en \`Checkout.jsx\`\n- [x] Persistir carrito entre sesiones → \`localStorage\` en \`CartContext.jsx\`\n- [x] Implementar actualización de cantidades → \`updateQuantity()\` en \`CartContext.jsx\`\n- [x] Mostrar resumen de compra → sección "Resumen del Pedido" en \`Checkout.jsx\`\n- [x] Productos persisten en el carrito al navegar\n- [x] Usuario puede modificar cantidades y eliminar items\n\n**Pendiente:** Cálculo de IVA/impuestos en el total.`
+              },
+              {
+                number: 4,
+                comment: `🔄 **Actualización de progreso**\n\nNuevas tareas completadas:\n- [x] Crear script de creación de tablas → \`Documentación/nextlevel.sql\`\n- [x] Implementar relaciones foreign key → definidas en el SQL\n- [x] Configurar índices para optimización → índices en el SQL\n- [x] Crear datos de prueba (seed data) → INSERT INTO en el SQL\n- [x] Documentar estructura de BD → \`Documentación/nextlevel.sql\` + \`Documentación/nextlevelpc.md\`\n\n**Pendiente:** Backups automáticos y sistema de migraciones.`
+              }
+            ];
+
+            for (const update of issueUpdates) {
+              try {
+                await github.rest.issues.createComment({
+                  owner, repo,
+                  issue_number: update.number,
+                  body: update.comment
+                });
+                console.log(`Commented on issue #${update.number}`);
+              } catch (e) {
+                console.error(`Error commenting on #${update.number}:`, e.message);
+              }
+            }
+
+            // ─────────────────────────────────────────────────────────────
+            // 3. Crear nuevos issues
+            // ─────────────────────────────────────────────────────────────
+            const newIssues = [
+              {
+                title: 'Panel de Administración',
+                body: `## Descripción
+Como administrador quiero un panel para gestionar productos, usuarios y órdenes sin necesidad de usar la API directamente.
+
+## Tareas
+- [ ] Diseñar e implementar ruta protegida \`/admin\`
+- [ ] Listar y gestionar productos (crear, editar, eliminar)
+- [ ] Listar y gestionar usuarios (ver, desactivar)
+- [ ] Ver y actualizar estado de órdenes
+- [ ] Ver y gestionar citas de servicio
+- [ ] Proteger con middleware de rol administrador
+
+## Criterios de Aceptación
+- [ ] Solo usuarios con rol administrador pueden acceder
+- [ ] CRUD completo de productos desde el panel
+- [ ] Visualización de órdenes y su estado
+
+**Etiquetas:** \`feature\`, \`frontend\`, \`backend\`, \`admin\``
+              },
+              {
+                title: 'Notificaciones por Email – Confirmación de Órdenes y Citas',
+                body: `## Descripción
+Como cliente quiero recibir un correo de confirmación automático después de realizar un pago o agendar un servicio, para tener un registro de mi transacción.
+
+## Tareas
+- [ ] Configurar servicio de email (Nodemailer + SMTP o SendGrid)
+- [ ] Enviar email de confirmación al completar un pago (webhook de Stripe o en el controlador de pagos)
+- [ ] Enviar email de confirmación al crear una cita de servicio
+- [ ] Diseñar plantilla HTML del email
+- [ ] Incluir número de orden, productos/servicio y fecha en el email
+
+## Criterios de Aceptación
+- [ ] El cliente recibe email al pagar exitosamente
+- [ ] El cliente recibe email al agendar un servicio
+- [ ] El email incluye el resumen de la compra/cita
+
+**Etiquetas:** \`feature\`, \`backend\`, \`high priority\``
+              },
+              {
+                title: 'Filtros Avanzados de Productos – Precio y Marca',
+                body: `## Descripción
+Como cliente quiero filtrar productos por rango de precio y marca para encontrar más fácilmente lo que necesito.
+Relacionado con el issue #2.
+
+## Tareas
+- [ ] Agregar campo \`marca\` a la tabla \`productos\` y al modelo
+- [ ] Actualizar endpoint \`GET /api/productos\` para aceptar \`precio_min\`, \`precio_max\` y \`marca\`
+- [ ] Implementar UI de filtro de precio (slider o inputs min/max) en \`productos.jsx\`
+- [ ] Implementar UI de filtro de marca (dropdown) en \`productos.jsx\`
+- [ ] Aplicar filtros de forma combinada con el filtro de categoría existente
+
+## Criterios de Aceptación
+- [ ] El cliente puede filtrar por rango de precio
+- [ ] El cliente puede filtrar por marca
+- [ ] Los filtros funcionan en combinación con el filtro de categoría
+
+**Etiquetas:** \`feature\`, \`frontend\`, \`backend\``
+              },
+              {
+                title: 'Cálculo de IVA en el Carrito de Compras',
+                body: `## Descripción
+Como cliente quiero ver el desglose de IVA antes de confirmar mi compra para conocer el costo total exacto.
+Relacionado con el issue #3.
+
+## Tareas
+- [ ] Definir porcentaje de IVA configurable (ej. 19% en Colombia)
+- [ ] Calcular subtotal + IVA en \`Checkout.jsx\`
+- [ ] Mostrar desglose: subtotal, IVA y total en el resumen del pedido
+- [ ] Guardar el valor del IVA en la orden en el backend
+
+## Criterios de Aceptación
+- [ ] El resumen muestra subtotal, IVA y total por separado
+- [ ] El IVA se calcula correctamente según la tarifa configurada
+
+**Etiquetas:** \`feature\`, \`frontend\`, \`backend\``
+              },
+              {
+                title: 'Pruebas de Frontend – Componentes Principales',
+                body: `## Descripción
+Como equipo de desarrollo queremos tener cobertura de tests para los componentes principales del frontend para prevenir regresiones.
+
+## Tareas
+- [ ] Configurar Vitest y React Testing Library en el proyecto frontend
+- [ ] Tests para \`CartContext\` (agregar, eliminar, actualizar cantidades, persistencia)
+- [ ] Tests para \`AuthContext\` (login, logout, estado de autenticación)
+- [ ] Tests para \`LoginModal\` / \`RegisterModal\` (validaciones de formulario)
+- [ ] Tests para \`Checkout\` (cálculo de totales, renderizado del resumen)
+- [ ] Tests para \`Navbar\` (estado del carrito, navegación)
+
+## Criterios de Aceptación
+- [ ] Cobertura mínima del 70% en los componentes críticos
+- [ ] Los tests pasan en CI automáticamente
+
+**Etiquetas:** \`testing\`, \`frontend\`, \`quality\``
+              },
+              {
+                title: 'Sistema de Migraciones de Base de Datos',
+                body: `## Descripción
+Como equipo de desarrollo queremos un sistema de migraciones versionadas para la base de datos que permita actualizar el esquema de forma controlada.
+Relacionado con el issue #4.
+
+## Tareas
+- [ ] Elegir e instalar herramienta de migraciones (ej. Knex.js o db-migrate)
+- [ ] Crear migración inicial basada en \`Documentación/nextlevel.sql\`
+- [ ] Documentar proceso de creación de nuevas migraciones
+- [ ] Integrar ejecución de migraciones en el script de inicio o despliegue
+- [ ] Agregar script \`npm run migrate\` al \`package.json\`
+
+## Criterios de Aceptación
+- [ ] Las migraciones se ejecutan en orden correcto
+- [ ] Se puede hacer rollback de una migración
+- [ ] El proceso está documentado en el README
+
+**Etiquetas:** \`backend\`, \`database\`, \`infrastructure\``
+              }
+            ];
+
+            for (const issue of newIssues) {
+              try {
+                const created = await github.rest.issues.create({
+                  owner, repo,
+                  title: issue.title,
+                  body: issue.body
+                });
+                console.log(`Created issue #${created.data.number}: ${issue.title}`);
+              } catch (e) {
+                console.error(`Error creating issue "${issue.title}":`, e.message);
+              }
+            }
+
+            console.log('Issue management completed.');

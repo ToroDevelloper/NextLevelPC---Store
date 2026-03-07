@@ -18,6 +18,17 @@ describe('CreateProductoDto', () => {
             expect(errors).toContain('stock no puede ser negativo');
         });
 
+        test('stock extremadamente negativo genera error de validación', () => {
+            const dto = new CreateProductoDto({
+                nombre: 'Teclado Mecánico',
+                categoria_id: 1,
+                precio_actual: 150000,
+                stock: -999999
+            });
+            const errors = dto.validate();
+            expect(errors).toContain('stock no puede ser negativo');
+        });
+
         test('stock igual a 0 es válido', () => {
             const dto = new CreateProductoDto({
                 nombre: 'Mouse Gamer',
@@ -59,6 +70,16 @@ describe('CreateProductoDto', () => {
                 nombre: 'Tarjeta Gráfica',
                 categoria_id: 1,
                 precio_actual: -100
+            });
+            const errors = dto.validate();
+            expect(errors).toContain('precio no puede ser negativo');
+        });
+
+        test('precio extremadamente negativo genera error de validación', () => {
+            const dto = new CreateProductoDto({
+                nombre: 'Tarjeta Gráfica',
+                categoria_id: 1,
+                precio_actual: -999999
             });
             const errors = dto.validate();
             expect(errors).toContain('precio no puede ser negativo');
@@ -168,6 +189,12 @@ describe('UpdateProductoDto', () => {
             expect(errors).toContain('stock no puede ser negativo');
         });
 
+        test('stock extremadamente negativo en actualización genera error de validación', () => {
+            const dto = new UpdateProductoDto({ stock: -999999 });
+            const errors = dto.validate();
+            expect(errors).toContain('stock no puede ser negativo');
+        });
+
         test('stock igual a 0 en actualización es válido', () => {
             const dto = new UpdateProductoDto({ stock: 0 });
             const errors = dto.validate();
@@ -185,6 +212,12 @@ describe('UpdateProductoDto', () => {
     describe('Validación de precio (Issue #13 – precio negativo)', () => {
         test('precio negativo en actualización genera error de validación', () => {
             const dto = new UpdateProductoDto({ precio_actual: -500 });
+            const errors = dto.validate();
+            expect(errors).toContain('precio no puede ser negativo');
+        });
+
+        test('precio extremadamente negativo en actualización genera error de validación', () => {
+            const dto = new UpdateProductoDto({ precio_actual: -999999 });
             const errors = dto.validate();
             expect(errors).toContain('precio no puede ser negativo');
         });
