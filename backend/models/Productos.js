@@ -2,11 +2,11 @@ const { executeQuery } = require('../config/db.js');
 
 class Productos {
     static async crear(data) {
-        const { nombre, categoria_id, precio_actual, stock, activo } = data;
+        const { nombre, categoria_id, precio_actual, stock, estado } = data;
 
         const result = await executeQuery(
-            'INSERT INTO productos (nombre, categoria_id, precio_actual, stock, activo) VALUES (?, ?, ?, ?, ?)',
-            [nombre, categoria_id, precio_actual, stock, activo || 1]
+            'INSERT INTO productos (nombre, categoria_id, precio_actual, stock, estado) VALUES (?, ?, ?, ?, ?)',
+            [nombre, categoria_id, precio_actual, stock, estado || 1]
         );
 
         return result.insertId;
@@ -16,16 +16,50 @@ class Productos {
        const productos = await executeQuery('SELECT * FROM productos');
        return productos;
     }
+static async buscarPorNombre(query) {
+        const searchQuery = `%${query}%`;
+        return await executeQuery(` 
+            SELECT p.*, 
+                   ip.url as imagen_principal,
+                   c.nombre as categoria_nombre
+            FROM productos p
+            LEFT JOIN categorias c ON p.categoria_id = c.id
+            LEFT JOIN imagenes_productos ip ON p.id = ip.producto_id AND ip.es_principal = 1
+            WHERE p.nombre LIKE ? AND p.estado = 1
+            ORDER BY p.nombre
+        `, [searchQuery]);
+    }
 
     static async obtenerActivos() {
-        const productos = await executeQuery('SELECT * FROM productos WHERE activo = 1');
+        const productos = await executeQuery('SELECT * FROM productos WHERE estado = 1');
         return productos;
     }
 
     static async obtenerPorId(id) {
-        const result = await executeQuery('SELECT * FROM productos WHERE id = ?', [id]);
-        return result.length > 0 ? result[0] : null;
-    }
+        const productRows = await executeQuery(`
+            SELECT p.*, 
+                     c.nombre as categoria_nombre
+            FROM productos p
+            LEFT JOIN categorias c ON p.categoria_id = c.id
+            WHERE p.id = ?
+            LIMIT 1
+        `, [id]);
+
+         if (productRows.length === 0) return null;
+        const producto = productRows[0];
+
+        const imagenesRows = await executeQuery(`
+            SELECT url, es_principal 
+            FROM imagenes_productos 
+            WHERE producto_id = ? 
+            ORDER BY es_principal DESC, id ASC
+        `, [id]);
+
+        producto.imagenes = imagenesRows; 
+        producto.imagen_principal = imagenesRows.length > 0 ? imagenesRows[0].url : null;
+
+    return producto;
+}
 
     static async obtenerPorCategoria(categoria_id) {
        const productos =  await executeQuery('SELECT * FROM productos WHERE categoria_id = ?', [categoria_id]);
@@ -71,6 +105,63 @@ class Productos {
         ORDER BY p.nombre
     `);
 }
+
+
+
+static async obtenerDestacados(limite) {
+    const lim = limite;
+
+    return await executeQuery(`
+        SELECT p.*, 
+               ip.url as imagen_principal,
+               ip.es_principal
+        FROM productos p
+        LEFT JOIN imagenes_productos ip ON p.id = ip.producto_id AND ip.es_principal = 1
+        WHERE p.estado = 1 AND p.stock > 0
+        ORDER BY p.stock DESC
+        LIMIT ${lim}
+    `);
+}
+
+static async obtenerProductosFiltrados(busqueda, categoriaId) {
+    let query = `
+        SELECT 
+            p.id, 
+            p.nombre, 
+            p.precio_actual, 
+            p.stock,
+            p.estado, 
+            c.nombre AS categoria_nombre,
+            ip.url AS imagen_principal
+        FROM 
+            productos p
+        JOIN 
+            categorias c ON p.categoria_id = c.id
+        LEFT JOIN 
+            imagenes_productos ip ON p.id = ip.producto_id AND ip.es_principal = 1
+        WHERE 
+            1=1 
+    `;
+    
+    const params = [];
+
+    // 1. PRIMER PLACEHOLDER (?) -> BÚSQUEDA
+    if (busqueda && busqueda.trim() !== '') {
+        query += ` AND p.nombre LIKE ?`;
+        params.push(`%${busqueda}%`); 
+    }
+
+    // 2. SEGUNDO PLACEHOLDER (?) -> CATEGORÍA
+    if (categoriaId && categoriaId > 0) {
+        query += ` AND p.categoria_id = ?`;
+        params.push(categoriaId); 
+    }
+    
+    query += ` ORDER BY p.nombre`;
+
+    return await executeQuery(query, params);
+}
+
 }
 
 module.exports = Productos;

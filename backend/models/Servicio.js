@@ -1,8 +1,7 @@
-// models/Servicio.js
 const { executeQuery } = require('../config/db');
 
 class Servicio {
-    // Obtener todos los servicios
+
     static async findAll() {
         const query = `
             SELECT * 
@@ -13,7 +12,7 @@ class Servicio {
         return await executeQuery(query);
     }
 
-    // Obtener servicios por tipo
+
     static async findByTipo(tipo) {
         const query = `
             SELECT * 
@@ -24,52 +23,72 @@ class Servicio {
         return await executeQuery(query, [tipo]);
     }
 
-    // Obtener servicio por ID
+
     static async findById(id) {
+        // Get service basic data
         const query = `
             SELECT * 
             FROM servicios 
             WHERE id = ? AND activo = 1
         `;
         const resultados = await executeQuery(query, [id]);
-        return resultados.length > 0 ? resultados[0] : null;
+
+        if (resultados.length === 0) {
+            return null;
+        }
+
+        const servicio = resultados[0];
+
+        // Get gallery images
+        const imagenesQuery = `
+            SELECT id, url, alt_text, orden, es_principal
+            FROM servicio_imagenes
+            WHERE servicio_id = ? AND activo = 1
+            ORDER BY orden ASC
+        `;
+        const imagenes = await executeQuery(imagenesQuery, [id]);
+
+        // Attach images to service object
+        servicio.galeria_imagenes = imagenes;
+
+        return servicio;
     }
 
-    // Crear nuevo servicio
+
     static async create(servicioData) {
-        const { nombre, tipo = 'basico', precio, descripcion = null } = servicioData;
+        const { nombre, tipo = 'basico', precio, descripcion = null, imagen_url = null } = servicioData;
 
         const query = `
-            INSERT INTO servicios (nombre, tipo, precio, descripcion, activo) 
-            VALUES (?, ?, ?, ?, 1)
+            INSERT INTO servicios (nombre, tipo, precio, descripcion, imagen_url, activo) 
+            VALUES (?, ?, ?, ?, ?, 1)
         `;
 
-        const result = await executeQuery(query, [nombre, tipo, precio, descripcion]);
+        const result = await executeQuery(query, [nombre, tipo, precio, descripcion, imagen_url]);
         return this.findById(result.insertId);
     }
 
-    // Actualizar servicio
+
     static async update(id, servicioData) {
-        const { nombre, tipo, precio, descripcion } = servicioData;
+        const { nombre, tipo, precio, descripcion, imagen_url } = servicioData;
 
         const query = `
             UPDATE servicios 
-            SET nombre = ?, tipo = ?, precio = ?, descripcion = ? 
+            SET nombre = ?, tipo = ?, precio = ?, descripcion = ?, imagen_url = ? 
             WHERE id = ? AND activo = 1
         `;
 
-        await executeQuery(query, [nombre, tipo, precio, descripcion, id]);
+        await executeQuery(query, [nombre, tipo, precio, descripcion, imagen_url, id]);
         return this.findById(id);
     }
 
-    // Eliminar servicio (soft delete)
+
     static async delete(id) {
         const query = `UPDATE servicios SET activo = 0 WHERE id = ?`;
         const result = await executeQuery(query, [id]);
         return result.affectedRows > 0;
     }
 
-    // Verificar si existe servicio con mismo nombre
+
     static async findByNombre(nombre, excludeId = null) {
         let query = `SELECT * FROM servicios WHERE nombre = ? AND activo = 1`;
         const params = [nombre];

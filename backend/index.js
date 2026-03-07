@@ -2,24 +2,37 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const path = require('path');
+const cookieParser = require('cookie-parser');
+const expressLayouts = require('express-ejs-layouts');
 
-// Cargar variables de entorno
-require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
+require('dotenv').config();
+
+const app = express();
 
 // Importar rutas
-const categoriasRoutes = require('./routes/categorias');
+const categoriasRoutes = require('./routes/Categorias');
 const serviciosRoutes = require('./routes/servicios');
 const productosRoutes = require('./routes/Productos');
 const rolesRoutes = require('./routes/roles');
 const usuariosRoutes = require('./routes/usuarios');
-const ordenesRoutes = require('./routes/Ordenes');        
+const ordenesRoutes = require('./routes/Ordenes');
 const ordenItemsRoutes = require('./routes/OrdenItems');
 const imagenProductoRoutes = require('./routes/imagenProductoRoutes');
+const citasServiciosRoutes = require('./routes/citasServicios');
+const paymentsRoutes = require('./routes/payments');
 
-// Importar conexión a DB
+// Vistas
+const productosViews = require('./routesViews/productosViews');
+const ordenesViews = require('./routesViews/ordenesViews');
+const citasServiciosViews = require('./routesViews/citaServicioViews');
+const usersViews = require('./routesViews/usersViews');
+
 const { testConnection } = require('./config/db');
 
-const app = express();
+//WEBHOOK PRIMERO - ANTES DE express.json()
+app.use('/api/payments/webhook',
+    express.raw({ type: 'application/json' })
+);
 
 // Middlewares
 app.use(helmet({
@@ -46,6 +59,12 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
+app.use(cookieParser());
+app.use(expressLayouts);
+app.set('layout', 'layouts/main');
+app.set('layout extractScripts', true);
+app.set('layout extractStyles', true);
+app.use(express.static('public'));
 
 // Logging middleware
 app.use((req, res, next) => {
@@ -56,23 +75,26 @@ app.use((req, res, next) => {
     next();
 });
 
-//rutas para vistas
+// Servir archivos estáticos
 app.use('/uploads', express.static('uploads'));
 
-const productosViews = require('./routesViews/productosViews');
+// Rutas de VISTAS
 app.use('/productos', productosViews);
+app.use('/ordenes', ordenesViews);
+app.use('/dashboard', citasServiciosViews);
+app.use('/usuarios', usersViews);
 
-
-
-// Rutas
+// Rutas API
 app.use('/api/categorias', categoriasRoutes);
 app.use('/api/servicios', serviciosRoutes);
 app.use('/api/productos', productosRoutes);
 app.use('/api/roles', rolesRoutes);
 app.use('/api/usuarios', usuariosRoutes);
-app.use('/api/ordenes', ordenesRoutes);         
+app.use('/api/ordenes', ordenesRoutes);
 app.use('/api/ordenitems', ordenItemsRoutes);
 app.use('/api/imagenes-producto', imagenProductoRoutes);
+app.use('/api/citas-servicios', citasServiciosRoutes);
+app.use('/api/payments', paymentsRoutes);
 
 // Ruta de salud
 app.get('/api/health', async (req, res) => {
@@ -105,11 +127,15 @@ app.get('/', (req, res) => {
             servicios: '/api/servicios',
             productos: '/api/productos',
             usuarios: '/api/usuarios',
-            ordenes: '/api/ordenes',       
+            ordenes: '/api/ordenes',
             ordenitems: '/api/ordenitems',
             roles: '/api/roles',
             imagenes_producto: '/api/imagenes-producto',
             health: '/api/health'
+        },
+        vistas: {
+            productos: '/productos',
+            ordenes: '/ordenes'
         }
     });
 });
@@ -145,12 +171,14 @@ const startServer = async () => {
         }
 
         app.listen(PORT, () => {
+            console.log('-------------------------------');
             console.log('BACKEND NEXTLEVELPC INICIADO');
-            console.log('=====================================');
+            console.log('-------------------------------');
             console.log(`Puerto: ${PORT}`);
             console.log(`URL: http://localhost:${PORT}`);
             console.log(`Health: http://localhost:${PORT}/api/health`);
-   
+            console.log(`Vista Productos: http://localhost:${PORT}/productos`);
+            console.log(`Vista Órdenes: http://localhost:${PORT}/ordenes`);
         });
 
     } catch (error) {

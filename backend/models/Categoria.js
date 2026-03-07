@@ -1,4 +1,4 @@
-const { db } = require('../config/db');
+const { db, executeQuery } = require('../config/db');
 
 class Categoria {
     static async findAll() {
@@ -45,8 +45,9 @@ class Categoria {
         }
     }
 
-    static async create(nombre, tipo) {
+    static async create(dto) {
         try {
+            const {nombre,tipo} = dto;
             const [result] = await db.execute(
                 'INSERT INTO categorias (nombre, tipo) VALUES (?, ?)',
                 [nombre, tipo || 'Producto']
@@ -65,11 +66,13 @@ class Categoria {
 
     static async update(id, categoriaData) {
         try {
-            const { nombre, tipo } = categoriaData;
+            const campos = Object.keys(categoriaData);
+            const columnas = campos.map(campo => `${campo} = ?`).join(', ');
+            const valores = Object.values(categoriaData)
 
             await db.execute(
-                'UPDATE categorias SET nombre = ?, tipo = ? WHERE id = ?',
-                [nombre, tipo, id]
+                `UPDATE categorias SET ${columnas} WHERE id = ?`,
+                [...valores, id]
             );
             return this.findById(id);
         } catch (error) {
@@ -111,6 +114,16 @@ class Categoria {
         } catch (error) {
             console.error('Error en Categoria.exists:', error.message);
             return false;
+        }
+    }
+
+    static async getForName(){
+        try {
+            let query = 'SELECT id, nombre FROM categorias ORDER BY nombre'
+            const result = executeQuery(query);
+            return result;
+        } catch (error) {
+            console.error('Error al obtener categorias: ',{message: error.message})
         }
     }
 }

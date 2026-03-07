@@ -1,27 +1,23 @@
 const express = require('express');
 const router = express.Router();
-const ProductosController = require('../controllers/ProductosController');
+const ProductosController = require('../controllers/ProductosController.js');
+const viewAuth = require('../middlewares/viewAuth.js');
+const { productosConImagenes } = require('../models/Productos.js');
 
-// GET - Obtener todos los productos
+
+// Rutas públicas
 router.get('/', ProductosController.obtenerTodosLosProductos);
-
+router.get('/destacados', ProductosController.obtenerProductosDestacados);
 router.get('/con-imagenes', ProductosController.obtenerProductosConImagenes);
-// GET - Obtener productos activos
 router.get('/activos', ProductosController.obtenerProductosActivos);
-
-// GET - Obtener producto por ID
+router.get('/buscar', ProductosController.buscarProductos);
+router.get('/categoria/:categoria_id', ProductosController.obtenerProductosPorCategoria);
+router.get('/search',ProductosController.obtenerProductosConImagenes);
 router.get('/:id', ProductosController.obtenerProductoPorId);
 
-// GET - Obtener productos por categoría
-router.get('/categoria/:categoria_id', ProductosController.obtenerProductosPorCategoria);
-
-// POST - Crear nuevo producto
-router.post('/', ProductosController.crearProducto);
-
-// PATCH - Actualizar producto completo
-router.patch('/:id', ProductosController.actualizarProducto);
-
-// DELETE - Eliminar producto permanentemente
-router.delete('/:id', ProductosController.eliminarProducto);
+// Rutas protegidas
+router.post('/', viewAuth(['admin', 'empleado']), ProductosController.crearProducto);
+router.patch('/:id', viewAuth(['admin', 'empleado']), ProductosController.actualizarProducto);
+router.delete('/:id', viewAuth(['admin']), ProductosController.eliminarProducto);
 
 module.exports = router;

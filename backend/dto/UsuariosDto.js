@@ -4,7 +4,7 @@ class UsuarioCreateDTO {
         this.apellido = typeof payload.apellido === 'string' ? payload.apellido.trim() : payload.apellido;
         this.correo = typeof payload.correo === 'string' ? payload.correo.trim() : payload.correo;
         this.hash_password = typeof payload.hash_password === 'string' ? payload.hash_password.trim() : payload.hash_password;
-        this.rol_id = payload.rol_id;
+        this.rol_id = typeof payload.rol_id === 'number' ? payload.rol_id : 2;
     }
 
     validate() {
@@ -35,11 +35,21 @@ class UsuarioUpdateDTO {
         this.apellido = payload.apellido === undefined ? undefined : (typeof payload.apellido === 'string' ? payload.apellido.trim() : payload.apellido);
         this.correo = payload.correo === undefined ? undefined : (typeof payload.correo === 'string' ? payload.correo.trim() : payload.correo);
         this.hash_password = payload.hash_password === undefined ? undefined : (typeof payload.hash_password === 'string' ? payload.hash_password.trim() : payload.hash_password);
-        this.rol_id = payload.rol_id;
+        this.rol_id = payload.rol_id === undefined ? undefined : (typeof payload.rol_id === 'number' ? payload.rol_id : undefined);
     }
 
     validate() {
         const errors = [];
+        if (this.nombre !== undefined){
+            if(!this.nombre){
+                errors.push("nombre no puede ser solo espacios en blanco")
+            }
+        }
+        if (this.apellido !== undefined){
+            if(!this.apellido){
+                errors.push("apellido no puede ser solo espacios en blanco")
+            }
+        }
         if (this.hash_password !== undefined) {
             if (!this.hash_password) errors.push('password no puede ser solo espacios');
             else if (this.hash_password.length < 6) errors.push('password debe tener al menos 6 caracteres');
@@ -69,6 +79,13 @@ class LoginDTO{
         if (!this.correo) errors.push('correo es obligatorio y no puede ser solo espacios');
         if (!this.hash_password) errors.push('password es obligatorio y no puede ser solo espacios');
         return errors;
+    }
+
+    toLogin(){
+        return{
+            correo: this.correo,
+            hash_password:this.hash_password
+        }
     }
 }
 

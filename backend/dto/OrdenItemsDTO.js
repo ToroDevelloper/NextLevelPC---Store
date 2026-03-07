@@ -3,6 +3,7 @@ class OrdenItemCreateDTO {
         this.orden_id = payload.orden_id;
         this.tipo = payload.tipo;
         this.producto_id = payload.producto_id;
+        this.servicio_id = payload.servicio_id;
         this.descripcion = typeof payload.descripcion === 'string' ? payload.descripcion.trim() : payload.descripcion;
         this.cantidad = payload.cantidad !== undefined ? payload.cantidad : 1;
         this.precio_unitario = payload.precio_unitario;
@@ -19,8 +20,12 @@ class OrdenItemCreateDTO {
             errors.push('precio_unitario es obligatorio');
         if (this.precio_unitario < 0) errors.push('precio_unitario debe ser un número positivo');
         if (this.cantidad < 1) errors.push('cantidad debe ser al menos 1');
+
         if (this.tipo === 'producto' && !this.producto_id) {
             errors.push('producto_id es obligatorio para items de tipo producto');
+        }
+        if (this.tipo === 'servicio' && !this.servicio_id) {
+            errors.push('servicio_id es obligatorio para items de tipo servicio');
         }
      
         return errors;
@@ -31,6 +36,7 @@ class OrdenItemCreateDTO {
             orden_id: this.orden_id,
             tipo: this.tipo,
             producto_id: this.producto_id,
+            servicio_id: this.servicio_id,
             descripcion: this.descripcion,
             cantidad: this.cantidad,
             precio_unitario: this.precio_unitario
@@ -74,11 +80,16 @@ class OrdenItemResponseDTO {
         this.cantidad = item.cantidad;
         this.precio_unitario = parseFloat(item.precio_unitario || 0).toFixed(2);
         this.subtotal = parseFloat(item.subtotal || 0).toFixed(2);
-        this.created_at = item.created_at; // ← NUEVO: incluir created_at
+        this.created_at = item.created_at;
         
         this.producto = item.producto_id ? {
             id: item.producto_id,
             nombre: item.producto_nombre
+        } : null;
+
+        this.servicio = item.servicio_id ? {
+            id: item.servicio_id,
+            nombre: item.servicio_nombre 
         } : null;
     }
 
@@ -89,7 +100,7 @@ class OrdenItemResponseDTO {
             cantidad: this.cantidad,
             precio_unitario: this.precio_unitario,
             subtotal: this.subtotal,
-            created_at: this.created_at // ← NUEVO
+            created_at: this.created_at
         };
     }
 
@@ -98,7 +109,8 @@ class OrdenItemResponseDTO {
             ...this.toSummary(),
             orden_id: this.orden_id,
             tipo: this.tipo,
-            producto: this.producto
+            producto: this.producto,
+            servicio: this.servicio
         };
     }
 }

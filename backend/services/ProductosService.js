@@ -1,5 +1,5 @@
 const Productos = require('../models/Productos');
-const {CreateProductoDto, UpdateProductoDto} = require('../dto/ProductosDto')
+const { CreateProductoDto, UpdateProductoDto } = require('../dto/ProductosDto');
 
 class ProductosService {
     static async crearProducto(productoData) {
@@ -23,6 +23,18 @@ class ProductosService {
         } catch (error) {
             throw new Error(`Error al obtener productos: ${error.message}`);
         }
+    }
+    static async buscarProductos(query) {
+        if (!query || query.trim() === '') {
+            throw new Error("El termino de busqueda es requerido");
+        }
+        const productos = await Productos.buscarPorNombre(query);
+        return productos;
+    }
+
+
+    static async obtenerTodos() {
+        return await this.obtenerTodosLosProductos();
     }
 
     static async obtenerProductosActivos() {
@@ -91,7 +103,6 @@ class ProductosService {
         }
     }
 
-
     static async eliminarProducto(id) {
         try {
             const productoExistente = await Productos.obtenerPorId(id);
@@ -111,13 +122,27 @@ class ProductosService {
         }
     }
 
-    static async obtenerProductosConImagenes() {
+    static async obtenerProductosDestacados(limite) {
         try {
-            return await Productos.productosConImagenes();
+        const lim = parseInt(limite, 10);
+        if (isNaN(lim) || lim <= 0) throw new Error("Límite inválido");
+
+            return await Productos.obtenerDestacados(limite);
         } catch (error) {
-            throw new Error(`Error al obtener productos con imágenes: ${error.message}`);
+            throw new Error(`Error al obtener productos destacados: ${error.message}`);
         }
     }
+
+static async obtenerProductosConImagenes(busqueda, categoria_id){
+    try {
+        const catId = parseInt(categoria_id) || 0; 
+
+        return await Productos.obtenerProductosFiltrados(busqueda, catId);
+    } catch (error) {
+        throw new Error(`Error al obtener productos con filtros: ${error.message}`);
+    }
+}
+
 }
 
 module.exports = ProductosService;

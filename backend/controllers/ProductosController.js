@@ -18,7 +18,28 @@ class ProductosController {
             });
         }
     }
-
+    static async buscarProductos(req, res) {
+        try {
+            const { q } = req.query;
+            const producto = await ProductosService.buscarProductos(q);
+            res.status(200).json({
+                success: true,
+                data: producto
+            });
+        } catch (error) {
+            if (error.message.includes('requerido')) {
+                res.status(400).json({
+                    success: false,
+                    message: error.message
+                });
+            } else {
+                res.status(500).json({
+                    success: false,
+                    message: error.message || 'Error al buscar productos'
+                });
+            }
+        }
+    }
     static async obtenerTodosLosProductos(req, res) {
         try {
             const productos = await ProductosService.obtenerTodosLosProductos();
@@ -123,12 +144,37 @@ class ProductosController {
         }
     }
 
-    static async obtenerProductosConImagenes(req, res) {
+static async obtenerProductosConImagenes(req, res) {
+    try {
+        const busqueda = (req.query.busqueda || '').toString().trim();
+        const categoria_id = parseInt(req.query.categoria_id) || 0; 
+        
+        const productos = await ProductosService.obtenerProductosConImagenes(busqueda, categoria_id);
+        
+        res.status(200).json({
+            success: true,
+            data: productos
+        });
+    } catch (error) {
+        console.error("Error al obtener productos:", error.message);
+        res.status(500).json({
+            success: false,
+            message: `Error al obtener productos: ${error.message}`
+        });
+    }
+}
+
+    // Agregar este método al final de la clase ProductosController en backend/controllers/ProductosController.js
+
+    static async obtenerProductosDestacados(req, res) {
         try {
-            const productos = await ProductosService.obtenerProductosConImagenes();
+            const limite = parseInt(req.query.limite) || 6;
+            const productos = await ProductosService.obtenerProductosDestacados(limite);
+
             res.status(200).json({
                 success: true,
-                data: productos
+                data: productos,
+                count: productos.length
             });
         } catch (error) {
             res.status(500).json({

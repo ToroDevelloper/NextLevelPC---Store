@@ -1,9 +1,9 @@
-// services/servicioService.js
 const Servicio = require('../models/Servicio');
+const { CreateServicioDto, UpdateServicioDto } = require('../dto/ServicioDto');
 
 class ServicioService {
-    // Obtener todos los servicios
-    async getAllServicios() {
+
+    static async getAllServicios() {
         try {
             return await Servicio.findAll();
         } catch (error) {
@@ -11,10 +11,10 @@ class ServicioService {
         }
     }
 
-    // Obtener servicios por tipo
-    async getServiciosByTipo(tipo) {
+
+    static async getServiciosByTipo(tipo) {
         try {
-            // Validar que el tipo sea válido
+
             if (!['basico', 'avanzado'].includes(tipo)) {
                 throw new Error('Tipo de servicio inválido. Use "basico" o "avanzado"');
             }
@@ -24,8 +24,8 @@ class ServicioService {
         }
     }
 
-    // Obtener servicio por ID
-    async getServicioById(id) {
+
+    static async getServicioById(id) {
         try {
             const servicio = await Servicio.findById(id);
             if (!servicio) {
@@ -37,64 +37,71 @@ class ServicioService {
         }
     }
 
-    // Crear nuevo servicio
+
     async createServicio(servicioData) {
         try {
-            // Validar tipo si se proporciona
-            if (servicioData.tipo && !['basico', 'avanzado'].includes(servicioData.tipo)) {
-                throw new Error('Tipo de servicio inválido. Use "basico" o "avanzado"');
+            const nuevoServicioDto = new CreateServicioDto(servicioData);
+            const errors = nuevoServicioDto.validate();
+
+            if (errors.length > 0) {
+                throw new Error(`Errores de validación: ${errors.join(', ')}`);
             }
 
-            // Validar que no exista un servicio con el mismo nombre
-            const servicioExistente = await Servicio.findByNombre(servicioData.nombre);
+            const servicioModel = nuevoServicioDto.toModel();
+
+            const servicioExistente = await Servicio.findByNombre(servicioModel.nombre);
             if (servicioExistente) {
                 throw new Error('Ya existe un servicio con ese nombre');
             }
 
-            // Validar precio
-            if (servicioData.precio <= 0) {
-                throw new Error('El precio debe ser mayor a 0');
-            }
-
-            return await Servicio.create(servicioData);
+            return await Servicio.create(servicioModel);
         } catch (error) {
             throw new Error(`Error al crear servicio: ${error.message}`);
         }
     }
 
-    // Actualizar servicio
-    async updateServicio(id, servicioData) {
+
+    static async updateServicio(id, servicioData) {
         try {
-            // Verificar que el servicio existe
             const servicioExistente = await Servicio.findById(id);
             if (!servicioExistente) {
                 throw new Error('Servicio no encontrado');
             }
 
-            // Validar tipo si se proporciona
-            if (servicioData.tipo && !['basico', 'avanzado'].includes(servicioData.tipo)) {
-                throw new Error('Tipo de servicio inválido. Use "basico" o "avanzado"');
+            const updateDto = new UpdateServicioDto(servicioData);
+            const errors = updateDto.validate();
+
+            if (errors.length > 0) {
+                throw new Error(`Errores de validación: ${errors.join(', ')}`);
             }
 
-            // Validar que no exista otro servicio con el mismo nombre
-            const servicioConMismoNombre = await Servicio.findByNombre(servicioData.nombre, id);
-            if (servicioConMismoNombre) {
-                throw new Error('Ya existe otro servicio con ese nombre');
+            const camposActualizar = updateDto.toPatchObject();
+
+            if (Object.keys(camposActualizar).length === 0) {
+                throw new Error('No se enviaron campos para actualizar');
             }
 
-            // Validar precio
-            if (servicioData.precio && servicioData.precio <= 0) {
-                throw new Error('El precio debe ser mayor a 0');
+            // Validar nombre único si se está actualizando el nombre
+            if (camposActualizar.nombre) {
+                const servicioConMismoNombre = await Servicio.findByNombre(camposActualizar.nombre, id);
+                if (servicioConMismoNombre) {
+                    throw new Error('Ya existe otro servicio con ese nombre');
+                }
             }
 
-            return await Servicio.update(id, servicioData);
+            const servicioCompleto = {
+                ...servicioExistente,
+                ...camposActualizar
+            };
+
+            return await Servicio.update(id, servicioCompleto);
         } catch (error) {
             throw new Error(`Error al actualizar servicio: ${error.message}`);
         }
     }
 
-    // Eliminar servicio
-    async deleteServicio(id) {
+
+    static async deleteServicio(id) {
         try {
             const servicio = await Servicio.findById(id);
             if (!servicio) {
@@ -113,4 +120,4 @@ class ServicioService {
     }
 }
 
-module.exports = new ServicioService();
+module.exports = ServicioService;

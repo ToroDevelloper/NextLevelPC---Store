@@ -111,35 +111,38 @@ class RolesService {
         }
     }
 
-    static async eliminarRol(id) {
-        try {
-            if (!id) {
-                throw new Error('ID de rol es requerido');
-            }
-
-            // Verificar que el rol existe
-            const rolExistente = await Roles.obtenerPorId(id);
-            if (!rolExistente) {
-                throw new Error('Rol no encontrado');
-            }
-
-            // No permitir eliminar roles predefinidos (Administrador, Empleado, Cliente)
-            const rolesProtegidos = ['Administrador', 'Empleado', 'Cliente'];
-            if (rolesProtegidos.includes(rolExistente.nombre)) {
-                throw new Error('No se puede eliminar un rol predefinido del sistema');
-            }
-
-            const eliminado = await Roles.eliminar(id);
-
-            if (!eliminado) {
-                throw new Error('No se pudo eliminar el rol');
-            }
-
-            return { mensaje: 'Rol eliminado correctamente' };
-        } catch (error) {
-            throw new Error(`Error al eliminar rol: ${error.message}`);
+static async eliminarRol(id) {
+    try {
+        if (!id) {
+            throw new Error('ID de rol es requerido');
         }
+
+        // Verificar que el rol existe
+        const rolExistente = await Roles.obtenerPorId(id);
+        if (!rolExistente) {
+            throw new Error('Rol no encontrado');
+        }
+
+        // Roles que NO se pueden eliminar
+        const rolesProtegidos = ['admin', 'empleado', 'cliente'];
+
+        if (rolesProtegidos.includes(rolExistente.nombre.toLowerCase())) {
+            throw new Error('No se puede eliminar un rol predefinido del sistema');
+        }
+
+        const eliminado = await Roles.eliminar(id);
+
+        if (!eliminado) {
+            throw new Error('No se pudo eliminar el rol');
+        }
+
+        return { mensaje: 'Rol eliminado correctamente' };
+
+    } catch (error) {
+        throw new Error(`Error al eliminar rol: ${error.message}`);
     }
+}
+
 
     static async verificarUsoRol(id) {
         try {
