@@ -383,6 +383,14 @@
 
 /* Contenido del header (sobre los efectos) */
 .perfil-avatar {
+  width: 120px;
+  height: 120px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.15);
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-size: 5.5rem;
   opacity: 0.95;
   z-index: 3;
@@ -390,7 +398,20 @@
   color: rgba(255, 255, 255, 0.95);
   flex-shrink: 0;
   position: relative;
+  overflow: hidden;
   animation: floatAvatar 8s ease-in-out infinite;
+}
+
+.perfil-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 999px;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+}
+
+.perfil-avatar i {
+  font-size: 3.5rem;
 }
 
 @keyframes floatAvatar {
@@ -416,14 +437,21 @@
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
-.perfil-header-info h1 {
-  margin: 0 0 0.5rem 0;
-  font-size: 2.5rem;
-  font-weight: 700;
+.perfil-username {
+  margin: 0 0 0.2rem 0;
+  font-size: 2.7rem;
+  font-weight: 800;
   letter-spacing: -0.5px;
-  line-height: 1.2;
+  line-height: 1.1;
   position: relative;
   animation: textGlow 5s ease-in-out infinite;
+}
+
+.perfil-name {
+  margin: 0 0 0.9rem 0;
+  font-size: 1.1rem;
+  opacity: 0.9;
+  letter-spacing: 0.2px;
 }
 
 @keyframes textGlow {
@@ -439,42 +467,61 @@
 }
 
 .perfil-email {
-  margin: 0 0 1.5rem 0;
+  margin: 0 0 1.2rem 0;
   opacity: 0.9;
-  font-size: 1.2rem;
+  font-size: 1.15rem;
   font-weight: 400;
   line-height: 1.4;
   position: relative;
-  animation: fadeInEmail 3s ease-in-out infinite;
 }
 
-@keyframes fadeInEmail {
-  0%, 100% {
-    opacity: 0.9;
-    transform: translateY(0);
-  }
-  50% {
-    opacity: 1;
-    transform: translateY(-2px);
-  }
+.perfil-badges {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  align-items: center;
 }
 
 .perfil-rol {
-  display: inline-block;
-  background: rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(15px);
-  padding: 0.6rem 1.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.25);
+  padding: 0.55rem 1.25rem;
   border-radius: 50px;
   font-size: 0.95rem;
   text-transform: capitalize;
   font-weight: 600;
   letter-spacing: 0.5px;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.35);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2),
               0 0 10px rgba(255, 255, 255, 0.1);
   position: relative;
   z-index: 3;
-  animation: pulseBadge 3s ease-in-out infinite;
+}
+
+.perfil-estado {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1.15rem;
+  border-radius: 50px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  text-transform: capitalize;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.perfil-estado.activo {
+  color: #2ecc71;
+  border-color: rgba(46, 204, 113, 0.45);
+}
+
+.perfil-estado.inactivo {
+  color: #e74c3c;
+  border-color: rgba(231, 76, 60, 0.45);
 }
 
 @keyframes pulseBadge {
@@ -673,48 +720,145 @@
    ======================================== */
 .perfil-info-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   gap: 2rem;
   width: 100%;
 }
 
-.info-item {
-  background: var(--color-background-soft);
-  padding: 2rem;
+.info-card {
+  background: var(--color-background);
   border-radius: var(--border-radius-lg);
-  border: 1px solid var(--color-border);
-  transition: all var(--transition-speed);
+  border: 1px solid rgba(135, 173, 178, 0.3);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  transition: transform var(--transition-speed), box-shadow var(--transition-speed);
+}
+
+.info-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-xl);
+}
+
+.info-card-header {
+  padding: 1.8rem 2.2rem;
+  border-bottom: 1px solid rgba(135, 173, 178, 0.25);
+  background: linear-gradient(120deg, rgba(38, 104, 104, 0.08), rgba(255, 255, 255, 0));
+}
+
+.info-card-header h3 {
+  margin: 0;
+  font-size: 1.4rem;
+  letter-spacing: -0.2px;
+  color: var(--color-text);
+}
+
+.info-card-subtitle {
+  margin: 0.3rem 0 0;
+  font-size: 0.9rem;
+  color: var(--color-text-light);
+}
+
+.info-card-body {
+  padding: 2rem;
+}
+
+.info-profile-row {
+  display: flex;
+  align-items: center;
+  gap: 1.75rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.75rem;
+}
+
+.info-profile-avatar {
+  width: 96px;
+  height: 96px;
+  border-radius: 999px;
+  background: rgba(38, 104, 104, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(38, 104, 104, 0.25);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.3);
+  overflow: hidden;
+}
+
+.info-profile-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.info-profile-avatar i {
+  font-size: 3.2rem;
+  color: rgba(38, 104, 104, 0.75);
+}
+
+.info-profile-meta {
+  min-width: 220px;
+}
+
+.info-profile-fullname {
+  display: block;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--color-text);
+  letter-spacing: -0.3px;
+}
+
+.info-profile-username {
+  display: block;
+  font-size: 1rem;
+  color: var(--color-text-light);
+  margin-top: 0.25rem;
+}
+
+.info-profile-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  margin-top: 1rem;
+}
+
+.rol-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.35rem 0.8rem;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  color: rgba(0, 0, 0, 0.7);
+  background: rgba(255, 255, 255, 0.35);
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  text-transform: capitalize;
+  letter-spacing: 0.3px;
+}
+
+.info-item {
+  background: rgba(255, 255, 255, 0.7);
+  padding: 1.6rem;
+  border-radius: var(--border-radius);
+  border: 1px solid rgba(38, 104, 104, 0.12);
+  transition: transform var(--transition-speed), box-shadow var(--transition-speed);
   position: relative;
   overflow: hidden;
 }
 
-.info-item::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 4px;
-  height: 100%;
-  background: linear-gradient(180deg, var(--color-logo), var(--color-accent-light));
-  transform: translateX(-100%);
-  transition: transform 0.4s ease;
-}
-
-.info-item:hover::before {
-  transform: translateX(0);
-}
-
 .info-item:hover {
-  transform: translateY(-6px);
-  box-shadow: var(--shadow-xl);
-  border-color: var(--color-logo);
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+}
+
+.info-item.info-bio .info-value {
+  min-height: 6rem;
+  white-space: pre-wrap;
+  opacity: 0.95;
 }
 
 .info-label {
   display: block;
   font-size: 0.85rem;
   color: var(--color-text-light);
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.5rem;
   text-transform: uppercase;
   letter-spacing: 0.8px;
   font-weight: 600;
@@ -722,11 +866,61 @@
 
 .info-value {
   display: block;
-  font-size: 1.2rem;
+  font-size: 1.15rem;
   color: var(--color-text);
   font-weight: 600;
   line-height: 1.4;
   word-break: break-word;
+}
+
+.estado-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.35rem 0.8rem;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-transform: capitalize;
+  letter-spacing: 0.4px;
+  border: 1px solid transparent;
+}
+
+.estado-activo {
+  background: rgba(46, 204, 113, 0.14);
+  color: #27ae60;
+  border-color: rgba(46, 204, 113, 0.35);
+}
+
+.estado-inactivo {
+  background: rgba(231, 76, 60, 0.14);
+  color: #c0392b;
+  border-color: rgba(231, 76, 60, 0.35);
+}
+
+.estado-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.35rem 0.8rem;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-transform: capitalize;
+  letter-spacing: 0.4px;
+  border: 1px solid transparent;
+}
+
+.estado-activo {
+  background: rgba(46, 204, 113, 0.14);
+  color: #27ae60;
+  border-color: rgba(46, 204, 113, 0.35);
+}
+
+.estado-inactivo {
+  background: rgba(231, 76, 60, 0.14);
+  color: #c0392b;
+  border-color: rgba(231, 76, 60, 0.35);
 }
 
 /* ========================================
@@ -1374,7 +1568,7 @@
     gap: 1.5rem;
   }
   
-  .perfil-header-info h1 {
+  .perfil-username {
     font-size: 2rem;
   }
   
@@ -1468,7 +1662,7 @@
     padding: 1.5rem;
   }
   
-  .perfil-header-info h1 {
+  .perfil-username {
     font-size: 1.6rem;
   }
   

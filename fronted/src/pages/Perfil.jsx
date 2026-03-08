@@ -19,7 +19,11 @@ const Perfil = () => {
   const [editForm, setEditForm] = useState({
     nombre: '',
     apellido: '',
-    correo: ''
+    correo: '',
+    username: '',
+    foto_perfil: '',
+    bibliografia: '',
+    estado: ''
   });
   
   // Estado para cambio de contraseña
@@ -67,12 +71,31 @@ const Perfil = () => {
       
       if (response.ok) {
         const data = await response.json();
-        setUserData(data.usuario);
+        console.log('fetched user data:', data.usuario);
+        // make sure we have a usable created_at value (some records might use a different key or null)
+        const usuario = data.usuario || {};
+        if (!usuario.created_at && usuario.fecha_creacion) {
+          usuario.created_at = usuario.fecha_creacion;
+        }
+        // if the db driver returned a Date object, convert it to string so formatDate can handle it
+        if (usuario.created_at instanceof Date) {
+          usuario.created_at = usuario.created_at.toISOString();
+        }
+
+        setUserData(usuario);
         setEditForm({
-          nombre: data.usuario.nombre || '',
-          apellido: data.usuario.apellido || '',
-          correo: data.usuario.correo || ''
+          nombre: usuario.nombre || '',
+          apellido: usuario.apellido || '',
+          correo: usuario.correo || '',
+          username: usuario.username || '',
+          foto_perfil: usuario.foto_perfil || '',
+          bibliografia: usuario.bibliografia || '',
+          estado: usuario.estado || ''
         });
+      } else {
+        // log non-ok response for debugging
+        const err = await response.text();
+        console.warn('fetchUserData not ok', response.status, err);
       }
     } catch (error) {
       console.error('Error cargando usuario:', error);
@@ -122,7 +145,11 @@ const Perfil = () => {
         body: JSON.stringify({
           nombre: editForm.nombre.trim(),
           apellido: editForm.apellido.trim(),
-          correo: editForm.correo.trim()
+          correo: editForm.correo.trim(),
+          username: editForm.username.trim(),
+          foto_perfil: editForm.foto_perfil.trim(),
+          bibliografia: editForm.bibliografia.trim(),
+          estado: editForm.estado
         })
       });
 
@@ -202,12 +229,22 @@ const Perfil = () => {
 
   const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
-    return new Date(dateString).toLocaleDateString('es-CO', {
+
+    let d = new Date(dateString);
+    if (isNaN(d.getTime())) {
+      d = new Date(dateString.replace(' ', 'T') + 'Z');
+    }
+    if (isNaN(d.getTime())) {
+      return 'N/A';
+    }
+
+    return d.toLocaleDateString('es-CO', {
       year: 'numeric',
       month: 'long',
       day: 'numeric',
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
+      timeZone: 'America/Bogota'
     });
   };
 
@@ -276,12 +313,26 @@ const Perfil = () => {
           
           {/* Contenido del header */}
           <div className="perfil-avatar">
-            <i className="fas fa-user-circle"></i>
+            {userData?.foto_perfil ? (
+              <img src={userData.foto_perfil} alt={`${userData.nombre || 'Usuario'} avatar`} />
+            ) : (
+              <i className="fas fa-user-circle"></i>
+            )}
           </div>
           <div className="perfil-header-info">
-            <h1>{userData?.nombre} {userData?.apellido}</h1>
+            <h1 className="perfil-username">{userData?.username || 'Usuario'}</h1>
+            {userData?.nombre && userData?.apellido && (
+              <p className="perfil-name">{userData.nombre} {userData.apellido}</p>
+            )}
             <p className="perfil-email">{userData?.correo}</p>
-            <span className="perfil-rol">{user.rol}</span>
+            <div className="perfil-badges">
+              <span className="perfil-rol">{user.rol}</span>
+              {userData?.estado && (
+                <span className={`perfil-estado ${userData.estado === 'activo' ? 'activo' : 'inactivo'}`}>
+                  {userData.estado}
+                </span>
+              )}
+            </div>
           </div>
         </div>
 
@@ -362,13 +413,61 @@ const Perfil = () => {
                       placeholder="tu@email.com"
                     />
                   </div>
+
+                  <div className="form-row">
+                    <div className="form-group">
+                      <label>Usuario</label>
+                      <input
+                        type="text"
+                        value={editForm.username}
+                        onChange={(e) => setEditForm({...editForm, username: e.target.value})}
+                        placeholder="Tu usuario"
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label>Estado</label>
+                      <select
+                        value={editForm.estado}
+                        onChange={(e) => setEditForm({...editForm, estado: e.target.value})}
+                      >
+                        <option value="">Selecciona estado</option>
+                        <option value="activo">Activo</option>
+                        <option value="inactivo">Inactivo</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="form-group">
+                    <label>Foto de perfil (URL)</label>
+                    <input
+                      type="text"
+                      value={editForm.foto_perfil}
+                      onChange={(e) => setEditForm({...editForm, foto_perfil: e.target.value})}
+                      placeholder="https://"
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Biografía</label>
+                    <textarea
+                      value={editForm.bibliografia}
+                      onChange={(e) => setEditForm({...editForm, bibliografia: e.target.value})}
+                      placeholder="Cuéntanos sobre ti..."
+                      rows={3}
+                    />
+                  </div>
+
                   <div className="form-actions">
                     <button type="button" className="btn-cancel" onClick={() => {
                       setIsEditing(false);
                       setEditForm({
                         nombre: userData?.nombre || '',
                         apellido: userData?.apellido || '',
-                        correo: userData?.correo || ''
+                        correo: userData?.correo || '',
+                        username: userData?.username || '',
+                        foto_perfil: userData?.foto_perfil || '',
+                        bibliografia: userData?.bibliografia || '',
+                        estado: userData?.estado || ''
                       });
                     }}>
                       Cancelar
@@ -380,29 +479,43 @@ const Perfil = () => {
                 </form>
               ) : (
                 <div className="perfil-info-grid">
-                  <div className="info-item">
-                    <span className="info-label">Nombre</span>
-                    <span className="info-value">{userData?.nombre || 'No especificado'}</span>
+                  <div className="info-card info-card-main">
+                    <div className="info-card-header">
+                      <h3>Información de cuenta</h3>
+                      <p className="info-card-subtitle">Datos esenciales para tu usuario</p>
+                    </div>
+                    <div className="info-card-body">
+                      <div className="info-item">
+                        <span className="info-label">Correo electrónico</span>
+                        <span className="info-value">{userData?.correo}</span>
+                      </div>
+                      <div className="info-item">
+                        <span className="info-label">Estado</span>
+                        <span className={`info-value estado-badge ${userData?.estado === 'activo' ? 'estado-activo' : 'estado-inactivo'}`}>
+                          {userData?.estado || 'No especificado'}
+                        </span>
+                      </div>
+                      <div className="info-item">
+                        <span className="info-label">Rol</span>
+                        <span className="info-value">{user.rol}</span>
+                      </div>
+                      <div className="info-item">
+                        <span className="info-label">Miembro desde</span>
+                        <span className="info-value">{formatDate(userData?.created_at)}</span>
+                      </div>
+                    </div>
                   </div>
-                  <div className="info-item">
-                    <span className="info-label">Apellido</span>
-                    <span className="info-value">{userData?.apellido || 'No especificado'}</span>
-                  </div>
-                  <div className="info-item">
-                    <span className="info-label">Correo electrónico</span>
-                    <span className="info-value">{userData?.correo}</span>
-                  </div>
-                  <div className="info-item">
-                    <span className="info-label">ID de usuario</span>
-                    <span className="info-value">#{user.id}</span>
-                  </div>
-                  <div className="info-item">
-                    <span className="info-label">Rol</span>
-                    <span className="info-value">{user.rol}</span>
-                  </div>
-                  <div className="info-item">
-                    <span className="info-label">Miembro desde</span>
-                    <span className="info-value">{formatDate(userData?.created_at)}</span>
+
+                  <div className="info-card info-card-secondary">
+                    <div className="info-card-header">
+                      <h3>Biografía</h3>
+                      <p className="info-card-subtitle">Un poco sobre ti para que otros te conozcan</p>
+                    </div>
+                    <div className="info-card-body">
+                      <div className="info-item info-bio">
+                        <span className="info-value">{userData?.bibliografia || 'Agrega una biografía para que otros te conozcan'}</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
               )}

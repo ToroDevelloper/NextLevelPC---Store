@@ -7,12 +7,37 @@ class Usuarios {
         const { nombre, apellido, correo, hash_password, rol_id} = dto;
         const hashPassword = await bcrypt.hash(hash_password, 10);
 
+        const columns = ['nombre', 'apellido', 'correo', 'hash_password', 'rol_id'];
+        const values = [nombre, apellido, correo, hashPassword, rol_id];
+
+        if (dto.username !== undefined) {
+            columns.push('username');
+            values.push(dto.username);
+        }
+        if (dto.foto_perfil !== undefined) {
+            columns.push('foto_perfil');
+            values.push(dto.foto_perfil);
+        }
+        if (dto.bibliografia !== undefined) {
+            columns.push('bibliografia');
+            values.push(dto.bibliografia);
+        }
+        if (dto.estado !== undefined) {
+            columns.push('estado');
+            values.push(dto.estado);
+        }
+
         const result = await executeQuery(
-            'INSERT INTO usuarios (nombre, apellido, correo, hash_password, rol_id) VALUES (?, ?, ?, ?, ?)',
-            [nombre, apellido, correo, hashPassword,rol_id]
+            `INSERT INTO usuarios (${columns.join(', ')}) VALUES (${columns.map(() => '?').join(', ')})`,
+            values
         );
 
         return result.insertId;
+    }
+
+    static async usernameEnUso(username, id) {
+        const result = await executeQuery('SELECT * FROM usuarios WHERE username = ? AND id <> ?', [username, id]);
+        return result.length > 0 ? result[0] : null;
     }
 
     static async obtenerTodos() {
