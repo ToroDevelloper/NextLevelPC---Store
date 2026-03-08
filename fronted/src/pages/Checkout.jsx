@@ -218,18 +218,21 @@ const Checkout = ({ cart, onSuccess, onError }) => {
     }).format(amount);
   };
 
-  // Opciones de estilo para CardElement
+
   const cardElementOptions = {
     style: {
       base: {
         fontSize: '16px',
-        color: '#424770',
+        color: '#1e293b',
+        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
         '::placeholder': {
-          color: '#aab7c4',
+          color: '#94a3b8',
         },
+        iconColor: '#0d9488',
       },
       invalid: {
-        color: '#9e2146',
+        color: '#ef4444',
+        iconColor: '#ef4444',
       },
     },
     hidePostalCode: true,
